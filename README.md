@@ -1,5 +1,3 @@
-![alt tag](https://raw.github.com/conekta/conekta-magento/master/readme_files/cover.png)
-
 Prestashop Plugin v0.1.0
 =======================
 This plugin is an official and stable version of the Conekta Prestashop extension. It bundles functionality to process credit cards, bank and OXXO payments securely as well as send email notifications to your customers when they complete a successful purchase.
