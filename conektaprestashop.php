@@ -71,7 +71,7 @@ class ConektaPrestashop extends PaymentModule
           Configuration::updateValue($u, $v);
       }
 
-    $ret = parent::install() && $this->_createPendingState() && $this->_createPendingSpeiState() && $this->registerHook('adminOrder') && $this->registerHook('payment') && $this->registerHook('header') && $this->registerHook('backOfficeHeader') && $this->registerHook('paymentReturn') && Configuration::updateValue('CONEKTA_CARDS', 1) && Configuration::updateValue('CONEKTA_MSI', 1) && Configuration::updateValue('CONEKTA_CASH', 1) && Configuration::updateValue('CONEKTA_SPEI', 1) && Configuration::updateValue('CONEKTA_MODE', 0) && Configuration::updateValue('CONEKTA_PAYMENT_ORDER_STATUS', (int)Configuration::get('PS_OS_PAYMENT')) && Configuration::updateValue('CONEKTA_WEBHOOK', _PS_BASE_URL_.__PS_BASE_URI__."modules/conektaefectivo/notification.php") && $this->installDb();
+    $ret = parent::install() && $this->_createPendingState() && $this->_createPendingSpeiState() && $this->registerHook('adminOrder') && $this->registerHook('payment') && $this->registerHook('header') && $this->registerHook('backOfficeHeader') && $this->registerHook('paymentReturn') && Configuration::updateValue('CONEKTA_CARDS', 1) && Configuration::updateValue('CONEKTA_MSI', 1) && Configuration::updateValue('CONEKTA_CASH', 1) && Configuration::updateValue('CONEKTA_SPEI', 1) && Configuration::updateValue('CONEKTA_MODE', 0) && Configuration::updateValue('CONEKTA_PAYMENT_ORDER_STATUS', (int)Configuration::get('PS_OS_PAYMENT')) && Configuration::updateValue('CONEKTA_WEBHOOK', _PS_BASE_URL_.__PS_BASE_URI__."modules/conektaprestashop/notification.php") && $this->installDb();
 
     Configuration::updateValue('CONEKTA_PRESTASHOP_VERSION', $this->version);
 
