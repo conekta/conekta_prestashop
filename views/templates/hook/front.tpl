@@ -5,7 +5,7 @@
 {if $card == 1 && $msi == 1 }
 
 <p class="payment_module conekta-payment-module card-option" >
-	<a class="conekta_title">{l s='Pago con tarjeta de créditos y débito (con opción de meses sin intereses)' mod='conektatarjeta'}</a>
+	<a class="conekta_title">{l s='Pago con tarjeta de crédito y débito (con opción de meses sin intereses)' mod='conektatarjeta'}</a>
 	<div id="conekta-ajax-loader"><img src="{$module_dir|escape:'bellini':'UTF-8'}img/ajax-loader.gif" alt="" /> {l s='Transaction in progress, please wait.' mod='conektatarjeta'}</div>
 	<form data-ajax="false" action="{$module_dir}charge.php" method="POST" id="conekta-payment-form">
 
@@ -46,7 +46,7 @@
 {if $card == 1 && $msi == 0 }
 
 <p class="payment_module conekta-payment-module card-option" >
-<a class="conekta_title">{l s='Pago con tarjeta de créditos y débito (sin meses sin intereses)' mod='conektatarjeta'}</a>
+<a class="conekta_title">{l s='Pago con tarjeta de crédito y débito (sin meses sin intereses)' mod='conektatarjeta'}</a>
 <div id="conekta-ajax-loader"><img src="{$module_dir|escape:'bellini':'UTF-8'}img/ajax-loader.gif" alt="" /> {l s='Transaction in progress, please wait.' mod='conektatarjeta'}</div>
 <form data-ajax="false" action="{$module_dir}charge.php" method="POST" id="conekta-payment-form">
  <input type="hidden" value="card" name="type"/>
@@ -95,7 +95,21 @@
 <div id="conekta-ajax-loader"><img src="{$module_dir|escape:'bellini':'UTF-8'}img/ajax-loader.gif" alt="" /> {l s='Transaction in progress, please wait.' mod='conektatarjeta'}</div>
 <form data-ajax="false" action="{$module_dir}charge.php" method="POST" id="conekta-cash-form">
  <input type="hidden" value="spei" name="type"/>
-<input type="submit" value="{l s='Generar Clabe para Realizar Pago' mod='conektatarjeta'}" id="conekta-submit-button" class="{if $conekta_ps_version >= '1.5'}conekta-submit-button {/if}exclusive" data-icon="check" data-iconpos="right" data-theme="b" />
+<input type="submit" value="{l s='Generar CLABE para Realizar Pago' mod='conektatarjeta'}" id="conekta-submit-button" class="{if $conekta_ps_version >= '1.5'}conekta-submit-button {/if}exclusive" data-icon="check" data-iconpos="right" data-theme="b" />
+</form>
+</div>
+
+{/if}
+
+
+{if $banorte == 1 }
+
+<div class="payment_module conekta-payment-module banorte-option" >
+<h3 class="conekta_title">{l s='Pago por medio de BANORTE' mod='conektatarjeta'}</h3>
+<div id="conekta-ajax-loader"><img src="{$module_dir|escape:'bellini':'UTF-8'}img/ajax-loader.gif" alt="" /> {l s='Transaction in progress, please wait.' mod='conektatarjeta'}</div>
+<form data-ajax="false" action="{$module_dir}charge.php" method="POST" id="conekta-cash-form">
+ <input type="hidden" value="banorte" name="type"/>
+<input type="submit" value="{l s='Generar Referncia para Realizar Pago' mod='conektatarjeta'}" id="conekta-submit-button" class="{if $conekta_ps_version >= '1.5'}conekta-submit-button {/if}exclusive" data-icon="check" data-iconpos="right" data-theme="b" />
 </form>
 </div>
 

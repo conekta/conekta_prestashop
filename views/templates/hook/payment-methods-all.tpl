@@ -6,7 +6,7 @@
 {if $card == 1 && $msi == 1 }
 
 <p class="payment_module conekta-payment-module card-option" >
-	<a class="conekta_title">{l s='Pago con tarjeta de créditos y débito' mod='conektatarjeta'}</a>
+	<a class="conekta_title">{l s='Pago con tarjeta de crédito y débito' mod='conektatarjeta'}</a>
 </p>
 <form data-ajax="false" action="{$module_dir}charge.php" method="POST" id="conekta-payment-form" class="conekta-payment-form">
 
@@ -51,7 +51,7 @@ Realizar Pago
 {if $card == 1 && $msi == 0 }
 
 <p class="payment_module conekta-payment-module card-option" >
-<a class="conekta_title">{l s='Pago con tarjeta de créditos y débito (sin meses sin intereses)' mod='conektatarjeta'}</a>
+<a class="conekta_title">{l s='Pago con tarjeta de crédito y débito (sin meses sin intereses)' mod='conektatarjeta'}</a>
 </p>
 <form data-ajax="false" action="{$module_dir}charge.php" method="POST" id="conekta-payment-form" class="conekta-payment-form">
  <input type="hidden" value="card" name="type"/>
@@ -118,9 +118,32 @@ Generar Ficha de Pago
 <br />
 <br />
  <input type="hidden" value="spei" name="type"/>
-<button type="submit" value="{l s='Generar Clabe para Realizar Pago' mod='conektatarjeta'}" id="conekta-submit-button" class="conekta-submit-button btn btn-default button button-medium" data-icon="check" data-iconpos="right" data-theme="b" >
+<button type="submit" value="{l s='Generar CLABE para Realizar Pago' mod='conektatarjeta'}" id="conekta-submit-button" class="conekta-submit-button btn btn-default button button-medium" data-icon="check" data-iconpos="right" data-theme="b" >
 <span>
-Generar Clabe para Realizar Pago
+Generar CLABE para Realizar Pago
+</span>
+
+</button>
+
+</form>
+
+
+{/if}
+
+
+{if $banorte == 1 }
+
+<p class="payment_module conekta-payment-module banorte-option" >
+<a class="conekta_title">{l s='Pago por medio de BANORTE' mod='conektatarjeta'}</a>
+</p>
+<form data-ajax="false" action="{$module_dir}charge.php" method="POST" class="conekta-payment-form" id="conekta-cash-form">
+<label> Haz clic en el siguiente boton para generar la ficha de pago </label>
+<br />
+<br />
+ <input type="hidden" value="banorte" name="type"/>
+<button type="submit" value="{l s='Generar Referencia para Realizar Pago' mod='conektatarjeta'}" id="conekta-submit-button" class="conekta-submit-button btn btn-default button button-medium" data-icon="check" data-iconpos="right" data-theme="b" >
+<span>
+Generar Referencia para Realizar Pago
 </span>
 
 </button>

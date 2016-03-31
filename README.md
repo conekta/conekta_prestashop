@@ -1,6 +1,6 @@
-Prestashop Plugin v0.1.0
+Prestashop Plugin v0.2.0
 =======================
-This plugin is an official and stable version of the Conekta Prestashop extension. It bundles functionality to process credit cards, bank and OXXO payments securely as well as send email notifications to your customers when they complete a successful purchase.
+This plugin is an official and stable version of the Conekta Prestashop extension. It bundles functionality to process credit cards, SPEI, Banorte and OXXO payments securely as well as send email notifications to your customers when they complete a successful purchase.
 
 Don't worry about managing the status of your orders, the plugin will automatically changes orders to paid as long as your webhooks are properly configured.
 
