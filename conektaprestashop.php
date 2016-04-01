@@ -904,7 +904,7 @@ class ConektaPrestashop extends PaymentModule
 
     $url = Tools::safeOutput(Configuration::get('CONEKTA_WEBHOOK'));
 
-    if (!empty($url)) {
+    if (!empty($url) && !filter_var($url, FILTER_VALIDATE_URL) === false) {
       try {
         $different = true;
         $webhooks = Conekta_Webhook::where();
@@ -921,6 +921,8 @@ class ConektaPrestashop extends PaymentModule
         $error_message = $e->getMessage();
         Configuration::updateValue('CONEKTA_WEBHOOK', $error_message);
       }
+    } else {
+      Configuration::updateValue('CONEKTA_WEBHOOK', "NOT A VALID URL");
     }
   }
 }
