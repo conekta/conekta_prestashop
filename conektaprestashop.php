@@ -904,21 +904,23 @@ class ConektaPrestashop extends PaymentModule
 
     $url = Tools::safeOutput(Configuration::get('CONEKTA_WEBHOOK'));
 
-    try {
-      $different = true;
-      $webhooks = Conekta_Webhook::where();
-      foreach ($webhooks as $webhook) {
-        if (strpos($webhook->webhook_url, $url) !== false) {
-          $different = false;
+    if (!empty($url)) {
+      try {
+        $different = true;
+        $webhooks = Conekta_Webhook::where();
+        foreach ($webhooks as $webhook) {
+          if (strpos($webhook->webhook_url, $url) !== false) {
+            $different = false;
+          }
         }
+        if ($different) {
+          $webhook = Conekta_Webhook::create(array_merge(array("url"=>$url), $events));
+        }
+      } catch(Exception $e) {
+        $error = true;
+        $error_message = $e->getMessage();
+        Configuration::updateValue('CONEKTA_WEBHOOK', $error_message);
       }
-      if ($different) {
-        $webhook = Conekta_Webhook::create(array_merge(array("url"=>$url), $events));
-      }
-    } catch(Exception $e) {
-      $error = true;
-      $error_message = $e->getMessage();
-      Configuration::updateValue('CONEKTA_WEBHOOK', $error_message);
     }
   }
 }
