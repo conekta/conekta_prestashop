@@ -35,6 +35,7 @@
 		<option selected="selected" value="1"> Pago único</option>
 		<option value="3"> 3 meses </option>
 		<option value="6"> 6 meses </option>
+		<option value="9"> 9 meses </option>
 		<option value="12"> 12 meses </option>
 		</select>
 
