@@ -936,24 +936,26 @@ class ConektaPrestashop extends PaymentModule
           $webhook = Conekta_Webhook::create(array_merge(array("url"=>$url), $mode, $events));
           Configuration::updateValue('CONEKTA_WEBHOOK', $url);
           // delete error variables
-          Configuration::deleteByName('CONEKTA_WEBHOOK_FAILED_ATTEMPTS', "");
-          Configuration::deleteByName('CONEKTA_WEBHOOK_FAILED_URL', "");
-          Configuration::deleteByName('CONEKTA_WEBHOOK_ERROR_MESSAGE', "");
+          Configuration::deleteByName('CONEKTA_WEBHOOK_FAILED_ATTEMPTS');
+          Configuration::deleteByName('CONEKTA_WEBHOOK_FAILED_URL');
+          Configuration::deleteByName('CONEKTA_WEBHOOK_ERROR_MESSAGE');
         } else {
-          Configuration::updateValue('CONEKTA_WEBHOOK_ERROR_MESSAGE', "Webhook was already registered!");
+          Configuration::updateValue('CONEKTA_WEBHOOK_ERROR_MESSAGE', "Webhook was already registered in Conekta!");
         }
       } catch(Exception $e) {
         Configuration::updateValue('CONEKTA_WEBHOOK_ERROR_MESSAGE', $e->message_to_purchaser);
       }
     } else {
-      if ($failed_attempts >= 5) {
+      if ($url == Configuration::get('CONEKTA_WEBHOOK_FAILED_URL')) {
+        Configuration::updateValue('CONEKTA_WEBHOOK_ERROR_MESSAGE', "Webhook was already rejected, try changing webhook!");
+        Configuration::deleteByName('CONEKTA_WEBHOOK_FAILED_ATTEMPTS');
+        $failed_attempts = 0;
+      } else if ($failed_attempts >= 5) {
         Configuration::updateValue('CONEKTA_WEBHOOK_ERROR_MESSAGE', "Maximum failed attempts reached!");
       } else if(!$is_valid_url) {
         Configuration::updateValue('CONEKTA_WEBHOOK_ERROR_MESSAGE', "Not a valid url!");
-      } else if ($url == Configuration::get('CONEKTA_WEBHOOK_FAILED_URL')) {
-        Configuration::updateValue('CONEKTA_WEBHOOK_ERROR_MESSAGE', "Webhook was already rejected, try changing webhook!");
       } else {
-        Configuration::updateValue('CONEKTA_WEBHOOK_ERROR_MESSAGE', "Webhook was already registered!");
+        Configuration::updateValue('CONEKTA_WEBHOOK_ERROR_MESSAGE', "Webhook was already registered in your shop!");
       }
     }
 
