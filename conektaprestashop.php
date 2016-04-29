@@ -71,7 +71,7 @@ class ConektaPrestashop extends PaymentModule
           Configuration::updateValue($u, $v);
       }
 
-      $ret = parent::install() && $this->_createPendingCashState() && $this->_createPendingBanorteState() && $this->_createPendingSpeiState() && $this->registerHook('adminOrder') && $this->registerHook('payment') && $this->registerHook('header') && $this->registerHook('backOfficeHeader') && $this->registerHook('paymentReturn') && Configuration::updateValue('CONEKTA_CARDS', 1) && Configuration::updateValue('CONEKTA_MSI', 1) && Configuration::updateValue('CONEKTA_CASH', 1) && Configuration::updateValue('CONEKTA_BANORTE', 1) && Configuration::updateValue('CONEKTA_SPEI', 1) && Configuration::updateValue('CONEKTA_MODE', 0) && Configuration::updateValue('CONEKTA_PAYMENT_ORDER_STATUS', (int)Configuration::get('PS_OS_PAYMENT')) && Configuration::updateValue('CONEKTA_WEBHOOK', _PS_BASE_URL_.__PS_BASE_URI__."modules/conektaprestashop/notification.php") && $this->installDb();
+      $ret = parent::install() && $this->_createPendingCashState() && $this->_createPendingBanorteState() && $this->_createPendingSpeiState() && $this->registerHook('adminOrder') && $this->registerHook('payment') && $this->registerHook('header') && $this->registerHook('backOfficeHeader') && $this->registerHook('paymentReturn') && Configuration::updateValue('CONEKTA_CARDS', 1) && Configuration::updateValue('CONEKTA_MSI', 1) && Configuration::updateValue('CONEKTA_CASH', 1) && Configuration::updateValue('CONEKTA_BANORTE', 1) && Configuration::updateValue('CONEKTA_SPEI', 1) && Configuration::updateValue('CONEKTA_MODE', 0) && Configuration::updateValue('CONEKTA_PAYMENT_ORDER_STATUS', (int)Configuration::get('PS_OS_PAYMENT')) && $this->installDb();
 
       Configuration::updateValue('CONEKTA_PRESTASHOP_VERSION', $this->version);
 
@@ -231,7 +231,7 @@ class ConektaPrestashop extends PaymentModule
    */
   public function uninstall()
   {
-    return parent::uninstall() && Configuration::deleteByName('CONEKTA_PRESTASHOP_VERSION') && Configuration::deleteByName('CONEKTA_MSI') && Configuration::deleteByName('CONEKTA_CARDS') && Configuration::deleteByName('CONEKTA_CASH') && Configuration::deleteByName('CONEKTA_BANORTE') && Configuration::deleteByName('CONEKTA_SPEI') && Configuration::deleteByName('CONEKTA_PUBLIC_KEY_TEST') && Configuration::deleteByName('CONEKTA_PUBLIC_KEY_LIVE') && Configuration::deleteByName('CONEKTA_MODE') && Configuration::deleteByName('CONEKTA_PRIVATE_KEY_TEST') && Configuration::deleteByName('CONEKTA_PRIVATE_KEY_LIVE') && Configuration::deleteByName('CONEKTA_PAYMENT_ORDER_STATUS') && Configuration::deleteByName('CONEKTA_WEBHOOK') && Db::getInstance()->Execute('DROP TABLE `'._DB_PREFIX_.'conekta_customer`') && Db::getInstance()->Execute('DROP TABLE `'._DB_PREFIX_.'conekta_transaction`');
+    return parent::uninstall() && Configuration::deleteByName('CONEKTA_PRESTASHOP_VERSION') && Configuration::deleteByName('CONEKTA_MSI') && Configuration::deleteByName('CONEKTA_CARDS') && Configuration::deleteByName('CONEKTA_CASH') && Configuration::deleteByName('CONEKTA_BANORTE') && Configuration::deleteByName('CONEKTA_SPEI') && Configuration::deleteByName('CONEKTA_PUBLIC_KEY_TEST') && Configuration::deleteByName('CONEKTA_PUBLIC_KEY_LIVE') && Configuration::deleteByName('CONEKTA_MODE') && Configuration::deleteByName('CONEKTA_PRIVATE_KEY_TEST') && Configuration::deleteByName('CONEKTA_PRIVATE_KEY_LIVE') && Configuration::deleteByName('CONEKTA_PAYMENT_ORDER_STATUS') && Configuration::deleteByName('CONEKTA_WEBHOOK') && Configuration::deleteByName('CONEKTA_WEBHOOK_FAILED_ATTEMPTS') && Configuration::deleteByName('CONEKTA_WEBHOOK_ERROR_MESSAGE') && Configuration::deleteByName('CONEKTA_WEBHOOK_FAILED_URL') && Db::getInstance()->Execute('DROP TABLE `'._DB_PREFIX_.'conekta_customer`') && Db::getInstance()->Execute('DROP TABLE `'._DB_PREFIX_.'conekta_transaction`');
   }
 
   /**
@@ -670,8 +670,6 @@ class ConektaPrestashop extends PaymentModule
       $valid = Configuration::get('CONEKTA_PUBLIC_KEY_LIVE') != '' && Configuration::get('CONEKTA_PRIVATE_KEY_LIVE') != '';
     else
       $valid = Configuration::get('CONEKTA_PUBLIC_KEY_TEST') != '' && Configuration::get('CONEKTA_PRIVATE_KEY_TEST') != '';
-    if ($valid)
-      $this->_createWebhook();
     return $valid;
   }
 
@@ -719,10 +717,14 @@ class ConektaPrestashop extends PaymentModule
     <script type="text/javascript" src="'.__PS_BASE_URI__.'js/jquery/jquery.fancybox-1.3.4.js"></script>
     <link type="text/css" rel="stylesheet" href="'.__PS_BASE_URI__.'css/jquery.fancybox-1.3.4.css" />';
 
+    $url = Tools::getValue('conekta_webhook');
+    if (empty($url)) {
+      $url = _PS_BASE_URL_.__PS_BASE_URI__."modules/conektaprestashop/notification.php";
+    }
+
     if (Tools::isSubmit('SubmitConekta'))
     {
       $configuration_values = array(
-        'CONEKTA_WEBHOOK' => Tools::getValue('conekta_webhook'),
         'CONEKTA_MODE' => Tools::getValue('conekta_mode'),
         'CONEKTA_PUBLIC_KEY_TEST' => rtrim(Tools::getValue('conekta_public_key_test')),
         'CONEKTA_PUBLIC_KEY_LIVE' => rtrim(Tools::getValue('conekta_public_key_live')),
@@ -748,8 +750,10 @@ class ConektaPrestashop extends PaymentModule
       </div>
       </fieldset>
       <br />';
-
+      $this->_createWebhook();
     }
+
+    $output .= '<script>if("'.Configuration::get('CONEKTA_WEBHOOK_ERROR_MESSAGE').'"){alert("'.Configuration::get('CONEKTA_WEBHOOK_ERROR_MESSAGE').'")}</script>';
 
     $requirements = $this->checkRequirements();
 
@@ -794,7 +798,7 @@ class ConektaPrestashop extends PaymentModule
       <input type="checkbox" name="conekta_spei" value="1"'.(Configuration::get('CONEKTA_SPEI') ? ' checked="checked"' : '').' /> Spei
       <br /><br />
       <label>Webhook</label>
-      <input type="text" name="conekta_webhook" value="'.Tools::safeOutput(Configuration::get('CONEKTA_WEBHOOK')).'" />
+      <input type="text" name="conekta_webhook" value="'.Tools::safeOutput($url).'" />
       <br /><br />
 
       <table cellspacing="0" cellpadding="0" class="conekta-settings">
@@ -902,9 +906,19 @@ class ConektaPrestashop extends PaymentModule
         "payee.deleted", "payee.payout_method.created",
         "payee.payout_method.updated", "payee.payout_method.deleted"));
 
-    $url = Tools::safeOutput(Configuration::get('CONEKTA_WEBHOOK'));
+    // Reset error message
+    Configuration::deleteByName('CONEKTA_WEBHOOK_ERROR_MESSAGE');
+    // Obtain user input
+    $url = Tools::safeOutput(Tools::getValue('conekta_webhook'));
+    // Obtain stored value
+    $config_url = Tools::safeOutput(Configuration::get('CONEKTA_WEBHOOK'));
 
-    if (!empty($url) && !filter_var($url, FILTER_VALIDATE_URL) === false) {
+    $is_valid_url = !empty($url) && !filter_var($url, FILTER_VALIDATE_URL) === false;
+
+    $failed_attempts = intval(Configuration::get('CONEKTA_WEBHOOK_FAILED_ATTEMPTS'));
+
+    // If input is valid, has not been stored and has not failed more than 5 times
+    if ($is_valid_url && ($config_url != $url) && ($failed_attempts < 5 && $url != Configuration::get('CONEKTA_WEBHOOK_FAILED_URL'))) {
       try {
         $different = true;
         $webhooks = Conekta_Webhook::where();
@@ -914,15 +928,39 @@ class ConektaPrestashop extends PaymentModule
           }
         }
         if ($different) {
-          $webhook = Conekta_Webhook::create(array_merge(array("url"=>$url), $events));
+          if (Configuration::get('CONEKTA_MODE')) {
+            $mode = array("production_enabled" => 1);
+          } else {
+            $mode = array("development_enabled" => 1);
+          }
+          $webhook = Conekta_Webhook::create(array_merge(array("url"=>$url), $mode, $events));
+          Configuration::updateValue('CONEKTA_WEBHOOK', $url);
+          // delete error variables
+          Configuration::deleteByName('CONEKTA_WEBHOOK_FAILED_ATTEMPTS', "");
+          Configuration::deleteByName('CONEKTA_WEBHOOK_FAILED_URL', "");
+          Configuration::deleteByName('CONEKTA_WEBHOOK_ERROR_MESSAGE', "");
+        } else {
+          Configuration::updateValue('CONEKTA_WEBHOOK_ERROR_MESSAGE', "Webhook was already registered!");
         }
       } catch(Exception $e) {
-        $error = true;
-        $error_message = $e->getMessage();
-        Configuration::updateValue('CONEKTA_WEBHOOK', $error_message);
+        Configuration::updateValue('CONEKTA_WEBHOOK_ERROR_MESSAGE', $e->message_to_purchaser);
       }
     } else {
-      Configuration::updateValue('CONEKTA_WEBHOOK', "NOT A VALID URL");
+      if ($failed_attempts >= 5) {
+        Configuration::updateValue('CONEKTA_WEBHOOK_ERROR_MESSAGE', "Maximum failed attempts reached!");
+      } else if(!$is_valid_url) {
+        Configuration::updateValue('CONEKTA_WEBHOOK_ERROR_MESSAGE', "Not a valid url!");
+      } else if ($url == Configuration::get('CONEKTA_WEBHOOK_FAILED_URL')) {
+        Configuration::updateValue('CONEKTA_WEBHOOK_ERROR_MESSAGE', "Webhook was already rejected, try changing webhook!");
+      } else {
+        Configuration::updateValue('CONEKTA_WEBHOOK_ERROR_MESSAGE', "Webhook was already registered!");
+      }
+    }
+
+    if (!empty(Configuration::get('CONEKTA_WEBHOOK_ERROR_MESSAGE'))) {
+      $failed_attempts = $failed_attempts + 1;
+      Configuration::updateValue('CONEKTA_WEBHOOK_FAILED_ATTEMPTS', $failed_attempts);
+      Configuration::updateValue('CONEKTA_WEBHOOK_FAILED_URL', $url);
     }
   }
 }
