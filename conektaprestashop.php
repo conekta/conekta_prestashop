@@ -17,7 +17,7 @@ class ConektaPrestashop extends PaymentModule
   {
     $this->name = 'conektaprestashop';
     $this->tab = 'payments_gateways';
-    $this->version = '0.2';
+    $this->version = '1.0';
     $this->author = 'Conekta.io';
     parent::__construct();
     $this->displayName = $this->l('Conekta Prestashop');
@@ -375,23 +375,31 @@ class ConektaPrestashop extends PaymentModule
 
     if ($params['objOrder'] && Validate::isLoadedObject($params['objOrder'])) {
 
+
       $state = $params['objOrder']->getCurrentState();
       $id_order=(int)$params['objOrder']->id;
 
       $conekta_transaction_details = Db::getInstance()->getRow('SELECT * FROM '._DB_PREFIX_.'conekta_transaction WHERE id_order = '.(int)$id_order.'');
 
+      // Check for Barcode Payments,
+      // Referenced Payments
+      // And Cards
       if ($conekta_transaction_details['barcode']) {
         $this->smarty->assign('cash', true);
         $this->smarty->assign('conekta_order', array('barcode' => $conekta_transaction_details['reference'], 'type' =>'cash', 'barcode_url' => $conekta_transaction_details['barcode'], 'amount'=>$conekta_transaction_details['amount'], 'currency'=>$conekta_transaction_details['currency']));
-      } else if (strpos($conekta_transaction_details['reference'], '6461801118') !== false ) {
-        $this->smarty->assign('spei', true);
-        $this->smarty->assign('conekta_order', array('receiving_account_number' => $conekta_transaction_details['reference'], 'amount'=>$conekta_transaction_details['amount'], 'currency'=>$conekta_transaction_details['currency']));
-      } else if (strpos($conekta_transaction_details['reference'], '6461801118') !== true ) {
-        $this->smarty->assign('banorte', true);
-        $this->smarty->assign('conekta_order', array('service_name' => "Conekta", 'service_number' => "127589", 'reference' => $conekta_transaction_details['reference'], 'amount'=>$conekta_transaction_details['amount'], 'currency'=>$conekta_transaction_details['currency']));
+      } else if (isset($conekta_transaction_details['reference']) && !empty($conekta_transaction_details['reference'])) {
+        if (strpos($conekta_transaction_details['reference'], '6461801118') !== false ) {
+          $this->smarty->assign('spei', true);
+          $this->smarty->assign('conekta_order', array('receiving_account_number' => $conekta_transaction_details['reference'], 'amount'=>$conekta_transaction_details['amount'], 'currency'=>$conekta_transaction_details['currency']));
+        } else {
+          $this->smarty->assign('banorte', true);
+          $this->smarty->assign('conekta_order', array('service_name' => "Conekta", 'service_number' => "127589", 'reference' => $conekta_transaction_details['reference'], 'amount'=>$conekta_transaction_details['amount'], 'currency'=>$conekta_transaction_details['currency']));
+        }
       } else {
         $this->smarty->assign('card', true);
-        $this->smarty->assign('conekta_order', array('type' =>'card', 'reference' => isset($params['objOrder']->reference) ? $params['objOrder']->reference : '#'.sprintf('%06d', $params['objOrder']->id),'valid' => $params['objOrder']->valid));
+        $this->smarty->assign('conekta_order', array('type' =>'card',
+          'reference' => isset($params['objOrder']->reference) ? $params['objOrder']->reference : '#'.sprintf('%06d', $params['objOrder']->id),
+          'valid' => $params['objOrder']->valid));
       }
 
     }
@@ -600,7 +608,7 @@ class ConektaPrestashop extends PaymentModule
 
 
 
-      $this->validateOrder((int)$this->context->cart->id, (int)$order_status, ($charge_response->amount * 0.01), $this->displayName, $message, array(), null, false, $this->context->customer->secure_key);
+      $this->validateOrder((int)$this->context->cart->id, (int)$order_status, $this->context->cart->getOrderTotal(), $this->displayName, $message, array(), null, false, $this->context->customer->secure_key);
 
 
       if (version_compare(_PS_VERSION_, '1.5', '>='))

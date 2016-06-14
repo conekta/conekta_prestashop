@@ -3,3 +3,5 @@
 * Add webhook configuration.
 === 0.2.0 2016-03-31
 * Add Banorte CEP.
+=== 1.0.0 2016-06-14
+* Fix validation and templating errors.
