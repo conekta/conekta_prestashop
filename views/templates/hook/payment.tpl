@@ -95,23 +95,3 @@
 </div>
 
 {/if}
-
-{literal}
-<script>
-if ( $.mobile ) {
-   //jq mobile loaded
-	$(document).on('pageinit', function() {
-		conektaSetup();
-	});
-	$(document).ready(function() {
-		conektaSetup();
-	});
-
-} else {
-  // not jqm
-	$(document).ready(function() {
-		conektaSetup();
-	});
-} 
-</script>
-{/literal}

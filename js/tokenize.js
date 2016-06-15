@@ -36,13 +36,14 @@ function conektaSetup()
 	$('#conekta-card-expiry-year').removeAttr('name');
 
 	$('#conekta-payment-form').submit(function(event) {
-
         var $form = $('#conekta-payment-form');
     	$form.find("button").prop("disabled", true);
-      	if( $form.find('[name=conektaToken]').length)
+      	if( $form.find('[name=conektaToken]').length) {
         	return true;
-     	Conekta.token.create($form, conektaSuccessResponseHandler, conektaErrorResponseHandler);
-		return false; 
+        } else {
+     	  Conekta.token.create($form, conektaSuccessResponseHandler, conektaErrorResponseHandler);
+		  return false; 
+        }
 	});
 }
 

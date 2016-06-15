@@ -156,37 +156,20 @@ Generar Referencia para Realizar Pago
 
 {literal}
 <script>
-if ( $.mobile ) {
-   //jq mobile loaded
-	$(document).on('pageinit', function() {
-		conektaSetup();
-	});
+if ( !$.mobile ) {
 	$(document).ready(function() {
-		conektaSetup();
-	});
-
-} else {
-  // not jqm
-	$(document).ready(function() {
-		conektaSetup();
-
-$('.payment_module').click(function(){
-
-var $selector = $(this);
-$(".conekta-payment-form").each(function() {
-  $( this ).removeClass("active");
-});
-
-$selector.next("form").addClass("active");
-
-$(".payment_module").each(function() {
-  $( this ).removeClass("active");
-});
-$selector.addClass("active");
-
-});
-
-});
+    $('.payment_module').click(function(){
+      var $selector = $(this);
+      $(".conekta-payment-form").each(function() {
+        $( this ).removeClass("active");
+      });
+      $selector.next("form").addClass("active");
+      $(".payment_module").each(function() {
+        $( this ).removeClass("active");
+      });
+      $selector.addClass("active");
+    });
+  });
 } 
 </script>
 {/literal}
