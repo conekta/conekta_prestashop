@@ -17,9 +17,10 @@ class ConektaPrestashop extends PaymentModule
   {
     $this->name = 'conektaprestashop';
     $this->tab = 'payments_gateways';
-    $this->version = '1.0';
-    $this->author = 'Conekta.io';
+    $this->version = '0.2';
+    $this->author = 'Conekta';
     parent::__construct();
+    $this->module_key = 'f9fff7b3952e3ecb51bb737ab7a05003';
     $this->displayName = $this->l('Conekta Prestashop');
     $this->description = $this->l('Accept payments by Credit and Debit Card with Conekta (Visa, Mastercard, Amex)');
     $this->confirmUninstall = $this->l('Warning: all the Conekta transaction details in your database will be deleted. Are you sure you want uninstall this module?');
