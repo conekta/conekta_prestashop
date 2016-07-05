@@ -2,8 +2,8 @@
 <module>
     <name>conektaprestashop</name>
     <displayName><![CDATA[Conekta Prestashop]]></displayName>
-    <version><![CDATA[1.0]]></version>
-    <description><![CDATA[Accept payments by Credit and Debit Cards with Conekta (Visa, Mastercard, Amex)]]></description>
+    <version><![CDATA[1.2.0]]></version>
+    <description><![CDATA[Accept payments by Credit and Debit Card with Conekta (Visa, Mastercard, Amex)]]></description>
     <author><![CDATA[Conekta]]></author>
     <tab><![CDATA[payments_gateways]]></tab>
     <confirmUninstall>Warning: all the Conekta transaction details saved in your database will be deleted. Are you sure you want uninstall this module?</confirmUninstall>

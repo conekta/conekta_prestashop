@@ -1,6 +1,5 @@
 <?php
-
-/*
+/**
  * Title   : Conekta Card Payment Gateway for Prestashop
  * Author  : Conekta.io
  * Url     : https://www.conekta.io/es/docs/plugins/prestashop

@@ -1,6 +1,5 @@
 <?php
-
-/*
+/**
  * Title   : Conekta Card Payment Gateway for Prestashop
  * Author  : Conekta.io
  * Url     : https://www.conekta.io/es/docs/plugins/prestashop
@@ -17,7 +16,7 @@ class ConektaPrestashop extends PaymentModule
   {
     $this->name = 'conektaprestashop';
     $this->tab = 'payments_gateways';
-    $this->version = '1.0.0';
+    $this->version = '1.2.0';
     $this->author = 'Conekta';
     parent::__construct();
     $this->module_key = 'f9fff7b3952e3ecb51bb737ab7a05003';

@@ -10,7 +10,7 @@ if (!defined('_PS_VERSION_'))
 	exit;
 
 // object module ($this) available
-function upgrade_module_1_2_0($object)
+function upgrade_module_1_2_0()
 {
 	if (class_exists('DB'))
 	{
