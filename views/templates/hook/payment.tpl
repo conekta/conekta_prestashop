@@ -29,7 +29,6 @@
 		<br />
 
 		<input type="submit" value="{l s='Realizar Pago' mod='conektaprestashop'}" style="margin-top:20px;" id="conekta-submit-button" class="conekta-submit-button exclusive" data-icon="check" data-iconpos="right" data-theme="b" />
-
 	</form>
 
 </div>

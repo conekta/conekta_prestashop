@@ -1,6 +1,5 @@
 <div id="conekta-ajax-loader"><img src="{$module_dir|escape:'bellini':'UTF-8'}views/img/ajax-loader.gif" alt="" /> {l s='Transaction in progress, please wait.' mod='conektaprestashop'}</div>
 
-
 {if $card == 1 && $msi == 1 }
 
 <p class="payment_module conekta-payment-module card-option" >
@@ -8,7 +7,7 @@
 </p>
 <form data-ajax="false" action="{$module_dir}charge.php" method="POST" id="conekta-payment-form" class="conekta-payment-form">
 
- <input type="hidden" value="card" name="type"/> 
+ <input type="hidden" value="card" name="type"/>
 		{if isset($smarty.get.conekta_error)}<a id="conekta_error" name="conekta_error"></a><div class="conekta-payment-errors">{l s='There was a problem processing your credit card, please double check your data and try again.' mod='conektaprestashop'}</div>{/if}
                 <label>{l s='Nombre del tarjetahabiente' mod='conektaprestashop'}</label><br />
                 <input type="text" size="20" autocomplete="off" class="conekta-card-name" data-conekta="card[name]" />
@@ -27,7 +26,6 @@
 {* use this if the merchant would like the months to be names	*}
 		{html_select_date month_extra='id="conekta-card-expiry-month" class="conekta-card-expiry-month" data-conekta="card[exp_month]" data-encrypted-name="month"' data-conekta="card[exp_year]" year_extra='id="conekta-card-expiry-year" class="conekta-card-expiry-year" data-encrypted-name="year"' display_days=false end_year="+10"}
 		<br />
-
         <label>{l s='Tipo de Pago' mod='conektaprestashop'}</label><br />
 		<select id="monthly_installments" name="monthly_installments" autocomplete="off">
 		<option selected="selected" value="1"> Pago único</option>
@@ -125,7 +123,6 @@ Generar CLABE para Realizar Pago
 </button>
 
 </form>
-
 
 {/if}
 

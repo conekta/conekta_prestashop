@@ -1,5 +1,4 @@
 {if $card == 1 && $msi == 1 }
-
 <p class="payment_module conekta-payment-module card-option" >
 	<a class="conekta_title">{l s='Pago con tarjeta de crédito y débito (con opción de meses sin intereses)' mod='conektaprestashop'}</a>
 	<div id="conekta-ajax-loader"><img src="{$module_dir|escape:'bellini':'UTF-8'}views/img/ajax-loader.gif" alt="" /> {l s='Transaction in progress, please wait.' mod='conektaprestashop'}</div>
@@ -25,7 +24,6 @@
 {* use this if the merchant would like the months to be names	*}
 		{html_select_date month_extra='id="conekta-card-expiry-month" class="conekta-card-expiry-month" data-conekta="card[exp_month]" data-encrypted-name="month"' data-conekta="card[exp_year]" year_extra='id="conekta-card-expiry-year" class="conekta-card-expiry-year" data-encrypted-name="year"' display_days=false end_year="+10"}
 		<br />
-
         <label>{l s='Tipo de Pago' mod='conektaprestashop'}</label><br />
 		<select id="monthly_installments" name="monthly_installments" autocomplete="off">
 		<option selected="selected" value="1"> Pago único</option>
@@ -86,7 +84,6 @@
 {/if}
 
 {if $spei == 1 }
-
 <div class="payment_module conekta-payment-module spei-option" >
 <h3 class="conekta_title">{l s='Pago por medio de SPEI' mod='conektaprestashop'}</h3>
 <div id="conekta-ajax-loader"><img src="{$module_dir|escape:'bellini':'UTF-8'}views/img/ajax-loader.gif" alt="" /> {l s='Transaction in progress, please wait.' mod='conektaprestashop'}</div>
