@@ -2,9 +2,9 @@
 <div class="payment_module conekta-payment-module card-option" >
 	<h3 class="conekta_title">{l s='Pago con tarjeta de crédito y débito' mod='conektaprestashop'}</h3>
 
-	<div id="conekta-ajax-loader"><img src="{$module_dir|escape:'bellini':'UTF-8'}views/img/ajax-loader.gif" alt="" /> {l s='Transaction in progress, please wait.' mod='conektaprestashop'}</div>
+	<div id="conekta-ajax-loader"><img src="{$module_dir|escape:'htmlall':'UTF-8'}views/img/ajax-loader.gif" alt="" /> {l s='Transaction in progress, please wait.' mod='conektaprestashop'}</div>
 
-	<form data-ajax="false" action="{$module_dir}charge.php" method="POST" id="conekta-payment-form">
+	<form data-ajax="false" action="{$module_dir|escape:'htmlall':'UTF-8'}charge.php" method="POST" id="conekta-payment-form">
 		{if isset($smarty.get.conekta_error)}<a id="conekta_error" name="conekta_error"></a><div class="conekta-payment-errors">{l s='There was a problem processing your credit card, please double check your data and try again.' mod='conektaprestashop'}</div>{/if}
 		<div class="conekta-card-deleted"></div>
 
@@ -41,9 +41,9 @@
 <h3 class="conekta_title">{l s='Pago en efectivo (Oxxo)' mod='conektaprestashop'}</h3>
 
 {* Classic Credit card form *}
-<div id="conekta-ajax-loader"><img src="{$module_dir|escape:'bellini':'UTF-8'}views/img/ajax-loader.gif" alt="" /> {l s='Transaction in progress, please wait.' mod='conektaprestashop'}</div>
+<div id="conekta-ajax-loader"><img src="{$module_dir|escape:'htmlall':'UTF-8'}views/img/ajax-loader.gif" alt="" /> {l s='Transaction in progress, please wait.' mod='conektaprestashop'}</div>
 
-<form data-ajax="false" action="{$module_dir}charge.php" method="POST" id="conekta-cash-form">
+<form data-ajax="false" action="{$module_dir|escape:'htmlall':'UTF-8'}charge.php" method="POST" id="conekta-cash-form">
 
 <input type="submit" value="{l s='Generar Ficha de Pago' mod='conektaprestashop'}" id="conekta-submit-button" class="{if $conekta_ps_version >= '1.5'}conekta-submit-button {/if}exclusive" data-icon="check" data-iconpos="right" data-theme="b" />
 
@@ -61,9 +61,9 @@
 <h3 class="conekta_title">{l s='Pago por medio de SPEI' mod='conektaprestashop'}</h3>
 
 {* Classic Credit card form *}
-<div id="conekta-ajax-loader"><img src="{$module_dir|escape:'bellini':'UTF-8'}views/img/ajax-loader.gif" alt="" /> {l s='Transaction in progress, please wait.' mod='conektaprestashop'}</div>
+<div id="conekta-ajax-loader"><img src="{$module_dir|escape:'htmlall':'UTF-8'}views/img/ajax-loader.gif" alt="" /> {l s='Transaction in progress, please wait.' mod='conektaprestashop'}</div>
 
-<form data-ajax="false" action="{$module_dir}charge.php" method="POST" id="conekta-cash-form">
+<form data-ajax="false" action="{$module_dir|escape:'htmlall':'UTF-8'}charge.php" method="POST" id="conekta-cash-form">
 
 <input type="submit" value="{l s='Generar CLABE para Realizar Pago' mod='conektaprestashop'}" id="conekta-submit-button" class="{if $conekta_ps_version >= '1.5'}conekta-submit-button {/if}exclusive" data-icon="check" data-iconpos="right" data-theme="b" />
 
@@ -81,9 +81,9 @@
 <h3 class="conekta_title">{l s='Pago por medio de BANORTE' mod='conektaprestashop'}</h3>
 
 {* Classic Credit card form *}
-<div id="conekta-ajax-loader"><img src="{$module_dir|escape:'bellini':'UTF-8'}views/img/ajax-loader.gif" alt="" /> {l s='Transaction in progress, please wait.' mod='conektaprestashop'}</div>
+<div id="conekta-ajax-loader"><img src="{$module_dir|escape:'htmlall':'UTF-8'}views/img/ajax-loader.gif" alt="" /> {l s='Transaction in progress, please wait.' mod='conektaprestashop'}</div>
 
-<form data-ajax="false" action="{$module_dir}charge.php" method="POST" id="conekta-cash-form">
+<form data-ajax="false" action="{$module_dir|escape:'htmlall':'UTF-8'}charge.php" method="POST" id="conekta-cash-form">
 
 <input type="submit" value="{l s='Generar Referencia para Realizar Pago' mod='conektaprestashop'}" id="conekta-submit-button" class="{if $conekta_ps_version >= '1.5'}conekta-submit-button {/if}exclusive" data-icon="check" data-iconpos="right" data-theme="b" />
 
