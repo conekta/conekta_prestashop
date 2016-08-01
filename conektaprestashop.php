@@ -2,14 +2,19 @@
 /**
  * Title   : Conekta Card Payment Gateway for Prestashop
  * Author  : Conekta.io
- * Url     : https://www.conekta.io/es/docs/plugins/prestashop
+ * Url     : https://www.conekta.io/es/docs/plugins/prestashop.
+ *
+ *  @author Conekta <support@conekta.io>
+ *  @copyright  2012-2016 Conekta
+ *  @version  v1.2.0
+ *  @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-class ConektaPrestashop extends PaymentModule
+class conektaprestashop extends PaymentModule
 {
     protected $backward = false;
     public function __construct()
@@ -594,7 +599,7 @@ class ConektaPrestashop extends PaymentModule
             }
 
             if (isset($charge_response->id) && $type == "cash") {
-                Db::getInstance()->Execute('INSERT INTO ' . _DB_PREFIX_ . 'conekta_transaction (type, id_cart, id_order, id_transaction, amount, status, currency, mode, date_add, reference, barcode, captured) VALUES (\'payment\', ' . (int)$this->context->cart->id . ', ' . (int)$this->currentOrder . ', \'' . pSQL($charge_response->id) . '\',\'' . ($charge_response->amount * 0.01) . '\', \'' . ($charge_response->status == 'paid' ? 'paid' : 'unpaid') . '\', \'' . pSQL($charge_response->currency) . '\', \'' . ($charge_response->livemode == 'true' ? 'live' : 'test') . '\', NOW(),\'' . $reference . '\',\'' . $barcode_url . '\',\'' . ($charge_response->livemode == 'true' ? '1' : '0') . '\' )');
+                Db::getInstance()->Execute('INSERT INTO ' . _DB_PREFIX_ . 'conekta_transaction (type, id_cart, id_order, id_transaction, amount, status, currency, mode, date_add, reference, barcode, captured) VALUES (\'payment\', ' . pSQL((int) $this->context->cart->id) . ', ' . pSQL((int) $this->currentOrder) . ', \'' . pSQL($charge_response->id) . '\',\'' . ($charge_response->amount * 0.01) . '\', \'' . ($charge_response->status == 'paid' ? 'paid' : 'unpaid') . '\', \'' . pSQL($charge_response->currency) . '\', \'' . ($charge_response->livemode == 'true' ? 'live' : 'test') . '\', NOW(),\'' . $reference . '\',\'' . $barcode_url . '\',\'' . ($charge_response->livemode == 'true' ? '1' : '0') . '\' )');
             } elseif (isset($charge_response->id) && $type == "spei") {
                 Db::getInstance()->Execute('INSERT INTO ' . _DB_PREFIX_ . 'conekta_transaction (type, id_cart, id_order, id_transaction, amount, status, currency, mode, date_add, reference, captured) VALUES (\'payment\', ' . (int)$this->context->cart->id . ', ' . (int)$this->currentOrder . ', \'' . pSQL($charge_response->id) . '\', \'' . ($charge_response->amount * 0.01) . '\', \'' . ($charge_response->status == 'paid' ? 'paid' : 'unpaid') . '\', \'' . pSQL($charge_response->currency) . '\', \'' . ($charge_response->livemode == 'true' ? 'live' : 'test') . '\', NOW(),\'' . $reference . '\', \'' . ($charge_response->livemode == 'true' ? '1' : '0') . '\' )');
             } elseif (isset($charge_response->id) && $type == "banorte") {

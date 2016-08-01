@@ -2,7 +2,12 @@
 /**
  * Title   : Conekta Card Payment Gateway for Prestashop
  * Author  : Conekta.io
- * Url     : https://www.conekta.io/es/docs/plugins/prestashop
+ * Url     : https://www.conekta.io/es/docs/plugins/prestashop.
+ *
+ *  @author Conekta <support@conekta.io>
+ *  @copyright  2012-2016 Conekta
+ *  @version  v1.2.0
+ *  @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 if (!defined('_PS_VERSION_')) {

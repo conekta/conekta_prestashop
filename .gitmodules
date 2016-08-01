@@ -1,3 +1,0 @@
-[submodule "lib/conekta-php"]
-	path = lib/conekta-php
-	url = git@github.com:conekta/conekta-php.git
