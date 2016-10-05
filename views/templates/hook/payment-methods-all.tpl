@@ -23,9 +23,13 @@
 *  @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 *}
 
+{if !empty($message)}
+<div class="conekta-payment-errors" style="display:block;">{$message|escape:'htmlall':'UTF-8'}</div>
+{/if}
+
 <div id="conekta-ajax-loader"><img src="{$module_dir|escape:'htmlall':'UTF-8'}views/img/ajax-loader.gif" alt="" /> {l s='Transaction in progress, please wait.' mod='conektaprestashop'}</div>
 
-{if $card == 1 && $msi == 1 }
+{if $card == 1 and $msi == 1 }
 
 <p class="payment_module conekta-payment-module card-option" >
 	<a class="conekta_title">{l s='Pago con tarjeta de crédito y débito' mod='conektaprestashop'}</a>

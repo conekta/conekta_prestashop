@@ -30,7 +30,7 @@ if ($event_json->type == 'charge.paid') {
         $orderHistory->id_order = $order;
         $orderHistory->changeIdOrderState(Configuration::get('PS_OS_PAYMENT'), $order);
         $orderHistory->addWithemail();
-        Db::getInstance()->Execute('UPDATE ' . _DB_PREFIX_ . 'conekta_transaction SET status = "paid" WHERE id_order = ' . $charge->reference_id . '');
+        Db::getInstance()->Execute('UPDATE ' . _DB_PREFIX_ . 'conekta_transaction SET status = "paid" WHERE id_order = ' . pSQL($charge->reference_id) . '');
     }
 }
 
