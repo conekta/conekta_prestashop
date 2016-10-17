@@ -24,7 +24,7 @@
 *}
 
 {if $cash }
-<p> Informacion para realizar el pago: <p>
+<p> {l s='Informacion para realizar el pago:' mod='conektaprestashop'} <p>
                 <br><br><b>{l s='Monto:' mod='conektaprestashop'}</b> $ {$conekta_order.amount|escape:'htmlall':'UTF-8' } {$conekta_order.currency|escape:'htmlall':'UTF-8' }
                 <br><br><b>{l s='Código de barra:' mod='conektaprestashop'}</b>
                 <br><br><img src="{$conekta_order.barcode_url|escape:'htmlall':'UTF-8'}">
@@ -44,7 +44,7 @@
 {/if}
 
 {if $spei }
-<p> Informacion para realizar el pago por medio de SPEI: <p>
+<p> {l s='Informacion para realizar el pago por medio de SPEI:' mod='conektaprestashop'} <p>
                 <br><br><b>{l s='Monto:' mod='conektaprestashop'}</b> $ {$conekta_order.amount|escape:'htmlall':'UTF-8' } {$conekta_order.currency|escape:'htmlall':'UTF-8' }
                 <br><br><b>{l s='CLABE:' mod='conektaprestashop'}</b>
                 <br>{$conekta_order.receiving_account_number|escape:'htmlall':'UTF-8'}
@@ -53,7 +53,7 @@
 {/if}
 
 {if $banorte }
-<p> Informacion para realizar el pago por medio de BANORTE: <p>
+<p> {l s='Informacion para realizar el pago por medio de BANORTE:' mod='conektaprestashop'} <p>
                 <br><br><b>{l s='Monto:' mod='conektaprestashop'}</b> $ {$conekta_order.amount|escape:'htmlall':'UTF-8' } {$conekta_order.currency|escape:'htmlall':'UTF-8' }
                 <br><br><b>{l s='Referencia:' mod='conektaprestashop'}</b>
                 <br>{$conekta_order.reference|escape:'htmlall':'UTF-8'}

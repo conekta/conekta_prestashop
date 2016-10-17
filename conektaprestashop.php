@@ -622,7 +622,7 @@ class ConektaPrestashop extends PaymentModule
                 $message = $this->l('Conekta Transaction Details:') . "\n\n" . $this->l('Amount:') . ' ' . ($charge_response->amount * 0.01) . "\n" . $this->l('Status:') . ' ' . ($charge_response->status == 'paid' ? $this->l('Paid') : $this->l('Unpaid')) . "\n" . $this->l('Processed on:') . ' ' . strftime('%Y-%m-%d %H:%M:%S', $charge_response->created_at) . "\n" . $this->l('Currency:') . ' ' . Tools::strtoupper($charge_response->currency) . "\n" . $this->l('Mode:') . ' ' . ($charge_response->livemode == 'true' ? $this->l('Live') : $this->l('Test')) . "\n";
             }
 
-            $this->validateOrder((int)$this->context->cart->id, (int)$order_status, $this->context->cart->getOrderTotal(), $this->displayName, $message, array(), null, false, $this->context->customer->secure_key);
+            $this->validateOrder((int)$this->context->cart->id, (int) $order_status, $this->context->cart->getOrderTotal(), $this->displayName, $message, array(), null, false, $this->context->customer->secure_key);
 
             if (version_compare(_PS_VERSION_, '1.5', '>=')) {
                 $new_order = new Order((int)$this->currentOrder);
@@ -646,13 +646,13 @@ class ConektaPrestashop extends PaymentModule
             }
 
             if (version_compare(_PS_VERSION_, '1.5', '<')) {
-                $redirect = 'order-confirmation.php?id_cart=' . (int)$this->context->cart->id . '&id_module=' . (int)$this->id . '&id_order=' . (int)$this->currentOrder . '&key=' . $this->context->customer->secure_key;
+                $redirect = 'order-confirmation.php?id_cart=' . (int) $this->context->cart->id . '&id_module=' . (int) $this->id . '&id_order=' . (int)$this->currentOrder . '&key=' . $this->context->customer->secure_key;
             } else {
                 $redirect = $this->context->link->getPageLink('order-confirmation', true, null, array(
                     'id_order' => (int) $this->currentOrder,
                     'id_cart' => (int) $this->context->cart->id,
                     'key' => $this->context->customer->secure_key,
-                    'id_module' => $this->id
+                    'id_module' => (int) $this->id
                     ));
             }
 
@@ -809,13 +809,12 @@ class ConektaPrestashop extends PaymentModule
 
         $this->smarty->assign("_path", $this->_path);
         $this->smarty->assign("requirements", $requirements);
+        $this->smarty->assign("config_check", $requirements['result']);
 
         if ($requirements['result']) {
-            $this->smarty->assign("class_show", "conf");
             $this->smarty->assign("msg_show", $this->l('All the checks were successfully performed. You can now start using your module.'));
         } else {
-            $this->smarty->assign("class_show", "warn");
-            $this->smarty->assign("msg_show", $this->l('Unfortunately, at least one issue is preventing you from using this module. Please fix the issue and reload this page.'));
+            $this->smarty->assign("msg_show", $this->l('Please resolve the following errors:'));
         }
 
         if (!$this->backward) {
@@ -870,6 +869,10 @@ class ConektaPrestashop extends PaymentModule
         require_once(dirname(__FILE__) . '/lib/conekta-php/lib/Conekta.php');
 
         Conekta::setApiKey(Configuration::get('CONEKTA_MODE') ? Configuration::get('CONEKTA_PRIVATE_KEY_LIVE') : Configuration::get('CONEKTA_PRIVATE_KEY_TEST'));
+        
+        Conekta::setApiVersion("1.0.0");
+        Conekta::setLocale('en');
+
         $events = array(
             "events" => array(
                 "charge.paid"
@@ -888,7 +891,7 @@ class ConektaPrestashop extends PaymentModule
 
         $config_url = Tools::safeOutput(Configuration::get('CONEKTA_WEBHOOK'));
         $is_valid_url = !empty($url) && !filter_var($url, FILTER_VALIDATE_URL) === false;
-        $failed_attempts = (integer)Configuration::get('CONEKTA_WEBHOOK_FAILED_ATTEMPTS');
+        $failed_attempts = (integer) Configuration::get('CONEKTA_WEBHOOK_FAILED_ATTEMPTS');
 
         // If input is valid, has not been stored and has not failed more than 5 times
 
