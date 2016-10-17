@@ -26,7 +26,7 @@
 <div class="panel">
 	<div class="panel-heading">
 		<i class="icon-cogs"></i>
-		conekta configuration
+		{l s='conekta settings' mod='conektaprestashop'}
 	</div>
 
 	{if $error_webhook_message}
@@ -36,27 +36,34 @@
 	{if $is_submit_config}
 		<div class="alert alert-success">{l s='Settings successfully saved' mod='conektaprestashop'}</div>
 	{/if}
-
-	{foreach key=key item=item from=$requirements}
-		{if $key != 'result'}
-			{if $item.result == 1}
-				<div class="alert alert-success">{$item.name|escape:'htmlall':'UTF-8'}</div>
-			{else}
-				<div class="alert alert-danger">{$item.name|escape:'htmlall':'UTF-8'}</div>
-			{/if}
-		{/if}
-	{/foreach}
+	
+	{if $config_check}
+		<div class="alert alert-success"><strong>{$msg_show|escape:'htmlall':'UTF-8'}</strong></div>
+	{else}
+		<div class="alert alert-danger">
+			<strong>{$msg_show|escape:'htmlall':'UTF-8'}</strong>
+			<ul style="margin-top: 10px;">
+				{foreach key=key item=item from=$requirements}
+					{if $key != 'result'}
+						{if $item.result == 0}
+							<li>{$item.name|escape:'htmlall':'UTF-8'}</li>
+						{/if}
+					{/if}
+				{/foreach}
+			</ul>
+		</div>
+	{/if}
 
 	<form action="{$request_uri|escape:'url':'UTF-8'|urldecode}" class="defaultForm form-horizontal" method="post">
 		<div class="form-wrapper">
 			<div class="form-group">
-				<label class="control-label col-lg-3">Mode</label>
+				<label class="control-label col-lg-3">{l s='Mode' mod='conektaprestashop'}</label>
 				<div class="col-lg-9">
 					<div class="radio">
-						<label><input name="conekta_mode" value="1" {if $conekta_mode == 1}checked="checked"{/if} type="radio">Production</label>
+						<label><input name="conekta_mode" value="1" {if $conekta_mode == 1}checked="checked"{/if} type="radio">{l s='Production' mod='conektaprestashop'}</label>
 					</div>
 					<div class="radio ">
-						<label><input name="conekta_mode" value="0" {if $conekta_mode == 0}checked="checked"{/if} type="radio">Sandbox</label>
+						<label><input name="conekta_mode" value="0" {if $conekta_mode == 0}checked="checked"{/if} type="radio">{l s='Sandbox' mod='conektaprestashop'}</label>
 					</div>
 				</div>				
 			</div>
@@ -134,10 +141,8 @@
 
 		<div class="panel-footer">
 			<button type="submit" value="1" id="configuration_form_submit_btn" name="SubmitConekta" class="btn btn-default pull-right">
-				<i class="process-icon-save"></i> Save config
+				<i class="process-icon-save"></i> {l s='Save Configuration' mod='conektaprestashop'}
 			</button>
 		</div>
 	</form>
 </div>
-
-

@@ -66,7 +66,7 @@
 
 <button type="submit" value="{l s='Realizar Pago' mod='conektaprestashop'}" style="margin-top:20px;" id="conekta-submit-button" class="btn btn-default button button-medium" data-icon="check" data-iconpos="right" data-theme="b" >
 <span>
-Realizar Pago
+{l s='Realizar Pago' mod='conektaprestashop'}
 </span>
 </button>
 
@@ -102,7 +102,7 @@ Realizar Pago
 <br />
 <button type="submit" value="{l s='Realizar Pago' mod='conektaprestashop'}" style="margin-top:20px;" id="conekta-submit-button" class="conekta-submit-button btn btn-default button button-medium" data-icon="check" data-iconpos="right" data-theme="b" >
 <span>
-Realizar Pago
+{l s='Realizar Pago' mod='conektaprestashop'}
 </span>
 </button>
 
@@ -119,13 +119,13 @@ Realizar Pago
 
 <form data-ajax="false" action="{$module_dir|escape:'htmlall':'UTF-8'}charge.php" method="POST" id="conekta-cash-form" class="conekta-payment-form">
 
-<label> Haz clic en el siguiente boton para generar la ficha de pago </label>
+<label> {l s='Haz clic en el siguiente boton para generar la ficha de pago' mod='conektaprestashop'} </label>
 <br />
 <br />
  <input type="hidden" value="cash" name="type"/>
 <button type="submit" value="{l s='Generar Ficha de Pago' mod='conektaprestashop'}" id="conekta-submit-button" class="conekta-submit-button btn btn-default button button-medium" data-icon="check" data-iconpos="right" data-theme="b" >
 <span>
-Generar Ficha de Pago
+{l s='Generar Ficha de Pago' mod='conektaprestashop'}
 </span>
 </button>
 
@@ -140,13 +140,13 @@ Generar Ficha de Pago
 <a class="conekta_title">{l s='Pago por medio de SPEI' mod='conektaprestashop'}</a>
 </p>
 <form data-ajax="false" action="{$module_dir|escape:'htmlall':'UTF-8'}charge.php" method="POST" class="conekta-payment-form" id="conekta-cash-form">
-<label> Haz clic en el siguiente boton para generar la ficha de pago </label>
+<label> {l s='Haz clic en el siguiente boton para generar la ficha de pago' mod='conektaprestashop'} </label>
 <br />
 <br />
  <input type="hidden" value="spei" name="type"/>
 <button type="submit" value="{l s='Generar CLABE para Realizar Pago' mod='conektaprestashop'}" id="conekta-submit-button" class="conekta-submit-button btn btn-default button button-medium" data-icon="check" data-iconpos="right" data-theme="b" >
 <span>
-Generar CLABE para Realizar Pago
+{l s='Generar CLABE para Realizar Pago' mod='conektaprestashop' }
 </span>
 
 </button>
@@ -162,13 +162,13 @@ Generar CLABE para Realizar Pago
 <a class="conekta_title">{l s='Pago por medio de BANORTE' mod='conektaprestashop'}</a>
 </p>
 <form data-ajax="false" action="{$module_dir|escape:'htmlall':'UTF-8'}charge.php" method="POST" class="conekta-payment-form" id="conekta-cash-form">
-<label> Haz clic en el siguiente boton para generar la ficha de pago </label>
+<label> {l s='Haz clic en el siguiente boton para generar la ficha de pago' mod='conektaprestashop'} </label>
 <br />
 <br />
  <input type="hidden" value="banorte" name="type"/>
 <button type="submit" value="{l s='Generar Referencia para Realizar Pago' mod='conektaprestashop'}" id="conekta-submit-button" class="conekta-submit-button btn btn-default button button-medium" data-icon="check" data-iconpos="right" data-theme="b" >
 <span>
-Generar Referencia para Realizar Pago
+{l s='Generar Referencia para Realizar Pago' mod='conektaprestashop' }
 </span>
 
 </button>
