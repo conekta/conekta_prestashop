@@ -900,14 +900,15 @@ class ConektaPrestashop extends PaymentModule
                 $different = true;
                 $webhooks = Conekta_Webhook::where();
 
+                $urls = array();
+
                 foreach ($webhooks as $webhook) {
-                    if (strpos($webhook->webhook_url, $url) !== false) {
-                        $different = false;
-                    }
+                    array_push($urls, $webhook->webhook_url);
                 }
 
-                if ($different) {
-                    if (Configuration::get('CONEKTA_MODE')) {
+
+                if (!in_array($url_string, $urls)){
+                      if (Configuration::get('CONEKTA_MODE')) {
                         $mode = array(
                             "production_enabled" => 1
                             );
@@ -927,13 +928,11 @@ class ConektaPrestashop extends PaymentModule
                     Configuration::deleteByName('CONEKTA_WEBHOOK_FAILED_ATTEMPTS');
                     Configuration::deleteByName('CONEKTA_WEBHOOK_FAILED_URL');
                     Configuration::deleteByName('CONEKTA_WEBHOOK_ERROR_MESSAGE');
-                } else {
-                    Configuration::updateValue('CONEKTA_WEBHOOK_ERROR_MESSAGE', "Webhook was already register in Conekta!");
                 }
             } catch (Exception $e) {
                 Configuration::updateValue('CONEKTA_WEBHOOK_ERROR_MESSAGE', $e->message_to_purchaser);
-            }
-        } else {
+                }
+            } else {
             if ($url == Configuration::get('CONEKTA_WEBHOOK_FAILED_URL')) {
                 Configuration::updateValue('CONEKTA_WEBHOOK_ERROR_MESSAGE', "Webhook was already register, try changing webhook!");
                 Configuration::deleteByName('CONEKTA_WEBHOOK_FAILED_ATTEMPTS');
@@ -954,3 +953,5 @@ class ConektaPrestashop extends PaymentModule
         }
     }
 }
+
+?>
