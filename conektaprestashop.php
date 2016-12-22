@@ -501,40 +501,60 @@ class ConektaPrestashop extends PaymentModule
                     'description' => $item['description_short'],
                     'quantity' => $item['cart_quantity'],
                     'sku' => $item['reference'],
-                    'type' => "producto"
+                    'type' => "physical",
+                    'tags' =>["prestashop"]
                     )
                 ));
         }
-
-        $details = array(
-            "email" => $customer->email,
-            "phone" => $address_delivery->phone,
-            "name" => $customer->firstname . " " . $customer->lastname,
-            "line_items" => $line_items,
-            "shipment" => array(
-                "price" => $shipping_price,
-                "carrier" => $shipping_carrier,
-                "service" => $shipping_service,
-                "address" => array(
-                    "street1" => $address_delivery->address1,
-                    "city" => $address_delivery->city,
-                    "state" => State::getNameById($address_delivery->id_state) ,
-                    "country" => $address_delivery->country,
-                    "zip" => $address_delivery->postcode
-                    )
-                ) ,
-            "billing_address" => array(
+        $shipping_lines = array(
+            "description" => $shipping_service,
+            "amount" => $shipping_price,
+            "tracking_number" => $shipping_service,
+            "carrier" => $shipping_carrier,
+            "method" => $shipping_service
+        );
+        $fiscal_entity = array(
+            "tax_id" => "",
+            "company_name" => $address_fiscal->company,
+            "email" => "",
+            "phone" => $address_fiscal->phone,
+            "address" => array(
                 "street1" => $address_fiscal->address1,
-                "zip" => $address_fiscal->postcode,
-                "company_name" => $address_fiscal->company,
-                "phone" => $address_fiscal->phone,
-                "state" => State::getNameById($address_fiscal->id_state) ,
+//                "external_number" => 0,
                 "city" => $address_fiscal->city,
                 "country" => $address_fiscal->country,
-                )
-            );
+                "zip" => $address_fiscal->postcode,
+                "state" => State::getNameById($address_fiscal->id_state)
+            )
+        );
+        $shipping_contact = array(
+            "email" => $customer->email,
+            "phone" => $address_delivery->phone,
+            "reciever" => $customer->firstname . " " . $customer->lastname,
+            "address" => array(
+                "street1" => $address_delivery->address1,
+                "city" => $address_delivery->city,
+                "state" => $address_delivery->state,
+                "country" => $address_delivery->country,
+                "zip" => $address_delivery->postcode
+            )
+        );
+        $customer_info = array(
+            "name" => $customer->firstname . " " . $customer->lastname,
+            "phone" => $address_delivery->phone,
+            "email" => $customer->email
+        );
+        $order_details = array(
+            "line_items" => $line_items,
+            "fiscal_entity" => $fiscal_entity,
+            "shipping_lines" => $shipping_lines,
+            "shipping_contact" => $shipping_contact,
+            "customer_info" => $customer_info
+        );
         try {
-            if ($type == "cash") {
+            $order = Conekta_Order::create($order_details)
+
+            if ($type == "cash") { //Agregar cargo con source oxxo_cash
                 $charge_details = array(
                     'amount' => $this->context->cart->getOrderTotal() * 100,
                     'reference_id' => (int)$this->context->cart->id,
