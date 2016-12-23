@@ -1,12 +1,13 @@
 <?php
 
-class Conekta_EventTest extends UnitTestCase
+class EventTest extends UnitTestCase
 {
     public function testSuccesfulWhere()
     {
         setApiKey();
-        $events = Conekta_Event::where();
-        $this->assertTrue(strpos(get_class($events), 'Conekta_Object') !== false);
-        $this->assertTrue(strpos(get_class($events[0]), 'Conekta_Event') !== false);
+        setApiVersion('1.0.0');
+        $events = \Conekta\Event::where();
+        $this->assertTrue(strpos(get_class($events), 'Object') !== false);
+        $this->assertTrue(strpos(get_class($events[0]), 'Event') !== false);
     }
 }

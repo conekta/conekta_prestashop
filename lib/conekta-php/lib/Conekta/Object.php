@@ -1,6 +1,11 @@
-<?php
+<?php 
 
-class Conekta_Object extends ArrayObject
+namespace Conekta;
+
+use \ArrayObject;
+use \Conekta\Util;
+
+class Object extends ArrayObject
 {
     protected $_values;
 
@@ -13,26 +18,37 @@ class Conekta_Object extends ArrayObject
     public function _setVal($k, $v)
     {
         $this->_values[$k] = $v;
+        $this[$k] = $v;
     }
 
     public function _unsetKey($k)
     {
         unset($this->_values[$k]);
+        unset($k);
     }
 
     public function loadFromArray($values)
     {
         foreach ($values as $k => $v) {
             if (is_array($v)) {
-                $v = Conekta_Util::convertToConektaObject($v);
+                $v = Util::convertToConektaObject($v);
             }
-            if (strpos(get_class($this), 'Conekta_Object') !== false) {
+            if (strpos(get_class($this), 'Object') !== false) {
                 $this[$k] = $v;
             } else {
-                if (strpos($k, 'url') !== false && strpos(get_class($this), 'Conekta_Webhook') !== false) {
+                if (strpos($k, 'url') !== false && strpos(get_class($this), 'Webhook') !== false) {
                     $k = "webhook_url";
                 }
                 $this->$k = $v;
+                if ($k == "metadata") {
+                    $this->metadata = new Object();
+                    if (is_array($v) || is_object($v)) {
+                        foreach ($v as $k2 => $v2) {
+                            $this->metadata->$k2 = $v2;
+                            $this->metadata->_setVal($k2, $v2);
+                        }
+                    }
+                }
             }
             $this->_setVal($k, $v);
         }
@@ -51,7 +67,7 @@ class Conekta_Object extends ArrayObject
     {
         $array = array();
         foreach ($this->_values as $k => $v) {
-            if (is_object($v) == true && strpos(get_class($v), 'Conekta_') !== false) {
+            if (is_object($v) == true && get_class($v) != '') {
                 if (empty($v->_values) != true) {
                     $array[$k] = $v->_toArray();
                 }

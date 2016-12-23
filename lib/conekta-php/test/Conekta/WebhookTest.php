@@ -1,8 +1,8 @@
 <?php
 
-class Conekta_WebhookTest extends UnitTestCase
+class WebhookTest extends UnitTestCase
 {
-    public static $events = array("events" =>
+    public static $events = array("events" => 
         array("charge.created", "charge.paid", "charge.under_fraud_review",
         "charge.fraudulent", "charge.refunded", "charge.created", "customer.created",
         "customer.updated", "customer.deleted", "webhook.created", "webhook.updated",
@@ -16,16 +16,16 @@ class Conekta_WebhookTest extends UnitTestCase
         "payee.deleted", "payee.payout_method.created",
         "payee.payout_method.updated", "payee.payout_method.deleted"));
 
-    public static $url = array("url" => "http://localhost.com/my_listener");
+    public static $url = array("url" => "http://www.example.com/my_listener");
 
     public function testSuccesfulWebhookCreate()
     {
         setApiKey();
-        $webhook = Conekta_Webhook::create(array_merge(self::$url, self::$events));
-        $this->assertTrue(strpos(get_class($webhook), 'Conekta_Webhook') !== false);
+        $webhook = \Conekta\Webhook::create(array_merge(self::$url, self::$events));
+        $this->assertTrue(strpos(get_class($webhook), 'Webhook') !== false);
         $this->assertTrue(strpos($webhook->webhook_url, self::$url["url"]) !== false);
-        $webhook->update(array("url" => "http://localhost.com.mx/my_listener"));
-        $this->assertTrue(strpos($webhook->webhook_url, "http://localhost.com.mx/my_listener") !== false);
+        $webhook->update(array("url" => "http://www.example.com/my_listener"));
+        $this->assertTrue(strpos($webhook->webhook_url, "http://www.example.com/my_listener") !== false);
         $webhook->delete();
     }
 }
