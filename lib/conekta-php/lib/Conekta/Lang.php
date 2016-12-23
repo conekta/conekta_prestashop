@@ -1,21 +1,27 @@
 <?php
 
-class Conekta_Lang
+namespace Conekta;
+
+class Lang
 {
     const EN = 'en';
     const ES = 'es';
 
     protected static $cache = array();
 
-    public static function translate($key, $parameters = null, $locale)
+    public static function translate($key, $locale, $parameters = null)
     {
-        $langs = self::readDirectory(dirname(__FILE__).'/../locales/messages');
+        $parameters = str_replace("Conekta\\", "", $parameters);
+
+        $langs = self::readDirectory(dirname(__FILE__) . '/../locales/messages');
 
         $keys = explode('.', $locale.'.'.$key);
         $result = $langs[array_shift($keys)];
+
         foreach ($keys as $v) {
             $result = $result[$v];
         }
+
         if (is_array($parameters) && !empty($parameters)) {
             foreach ($parameters as $k => $v) {
                 $result = str_replace($k, $v, $result);
@@ -39,6 +45,7 @@ class Conekta_Lang
                     $langs[$langKey] = include $directory.'/'.$lang;
                 }
             }
+            
             closedir($handle);
         }
 

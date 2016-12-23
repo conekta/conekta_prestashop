@@ -552,9 +552,9 @@ class ConektaPrestashop extends PaymentModule
             "customer_info" => $customer_info
         );
         try {
-            $order = Conekta_Order::create($order_details)
+            $order = \Conekta\Order::create($order_details)
 
-            if ($type == "cash") { //Agregar cargo con source oxxo_cash
+            if ($type == "cash") { // TODO Agregar cargo con source oxxo_cash
                 $charge_details = array(
                     'amount' => $this->context->cart->getOrderTotal() * 100,
                     'reference_id' => (int)$this->context->cart->id,
@@ -566,7 +566,7 @@ class ConektaPrestashop extends PaymentModule
                     'description' => $this->l('PrestaShop Customer ID:') . ' ' . (int)$this->context->cookie->id_customer . ' - ' . $this->l('PrestaShop Cart ID:') . ' ' . (int)$this->context->cart->id
                     );
 
-                $charge_response = Conekta_Charge::create($charge_details);
+                $charge_response = Conekta_Charge::create($charge_details); // TODO el cargo se debe crear sobre la orden
                 $barcode_url = $charge_response->payment_method->barcode_url;
                 $reference = $charge_response->payment_method->barcode;
                 $order_status = (int) Configuration::get('waiting_cash_payment');
@@ -589,7 +589,7 @@ class ConektaPrestashop extends PaymentModule
                     'currency' => $this->context->currency->iso_code,
                     'description' => $this->l('PrestaShop Customer ID:') . ' ' . (int)$this->context->cookie->id_customer . ' - ' . $this->l('PrestaShop Cart ID:') . ' ' . (int)$this->context->cart->id
                     );
-                $charge_response = Conekta_Charge::create($charge_details);
+                $charge_response = Conekta_Charge::create($charge_details); // TODO crear cargo sobre orden
                 $reference = $charge_response->payment_method->receiving_account_number;
                 $order_status = (int)Configuration::get('waiting_spei_payment');
                 $message = $this->l('Conekta Transaction Details:') . "\n\n" . $this->l('Amount:') . ' ' . ($charge_response->amount * 0.01) . "\n" . $this->l('Processed on:') . ' ' . strftime('%Y-%m-%d %H:%M:%S', $charge_response->created_at) . "\n" . $this->l('Currency:') . ' ' . Tools::strtoupper($charge_response->currency) . "\n" . $this->l('Mode:') . ' ' . ($charge_response->livemode == 'true' ? $this->l('Live') : $this->l('Test')) . "\n";
@@ -609,7 +609,7 @@ class ConektaPrestashop extends PaymentModule
                     'description' => $this->l('PrestaShop Customer ID:') . ' ' . (int)$this->context->cookie->id_customer . ' - ' . $this->l('PrestaShop Cart ID:') . ' ' . (int)$this->context->cart->id
                     );
 
-                $charge_response = Conekta_Charge::create($charge_details);
+                $charge_response = Conekta_Charge::create($charge_details); // TODO crear cargo sobre orden
                 $reference = $charge_response->payment_method->reference;
                 $service_name = $charge_response->payment_method->service_name;
                 $service_number = $charge_response->payment_method->service_number;
@@ -637,7 +637,7 @@ class ConektaPrestashop extends PaymentModule
                     );
                 $charge_mode = true;
                 $charge_details['capture'] = $charge_mode;
-                $charge_response = Conekta_Charge::create($charge_details);
+                $charge_response = Conekta_Charge::create($charge_details); // TODO Crear cargo sobre orden
                 $order_status = (int)Configuration::get('PS_OS_PAYMENT');
                 $message = $this->l('Conekta Transaction Details:') . "\n\n" . $this->l('Amount:') . ' ' . ($charge_response->amount * 0.01) . "\n" . $this->l('Status:') . ' ' . ($charge_response->status == 'paid' ? $this->l('Paid') : $this->l('Unpaid')) . "\n" . $this->l('Processed on:') . ' ' . strftime('%Y-%m-%d %H:%M:%S', $charge_response->created_at) . "\n" . $this->l('Currency:') . ' ' . Tools::strtoupper($charge_response->currency) . "\n" . $this->l('Mode:') . ' ' . ($charge_response->livemode == 'true' ? $this->l('Live') : $this->l('Test')) . "\n";
             }
@@ -677,7 +677,7 @@ class ConektaPrestashop extends PaymentModule
             }
 
             Tools::redirect($redirect);
-        } catch (Conekta_Error $e) {
+        } catch (Conekta_Error $e) { // TODO Catch conekta error list
             $message = $e->message_to_purchaser;
             if (version_compare(_PS_VERSION_, '1.4.0.3', '>') && class_exists('Logger')) {
                 Logger::addLog($this->l('Payment transaction failed') . ' ' . $message, 2, null, 'Cart', (int)$this->context->cart->id, true);
@@ -918,7 +918,7 @@ class ConektaPrestashop extends PaymentModule
         if ($is_valid_url && ($config_url != $url) && ($failed_attempts < 5 && $url != Configuration::get('CONEKTA_WEBHOOK_FAILED_URL'))) {
             try {
                 $different = true;
-                $webhooks = Conekta_Webhook::where();
+                $webhooks = \Conekta\Webhook::where();
 
                 foreach ($webhooks as $webhook) {
                     if (strpos($webhook->webhook_url, $url) !== false) {
@@ -937,7 +937,7 @@ class ConektaPrestashop extends PaymentModule
                             );
                     }
 
-                    $webhook = Conekta_Webhook::create(array_merge(array(
+                    $webhook = \Conekta\Webhook::create(array_merge(array( // TODO revisar que sigan siendo los mismos parámetros para la creación
                         "url" => $url
                         ), $mode, $events));
                     Configuration::updateValue('CONEKTA_WEBHOOK', $url);
