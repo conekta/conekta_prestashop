@@ -552,24 +552,19 @@ class ConektaPrestashop extends PaymentModule
             "shipping_contact" => $shipping_contact,
             "customer_info" => $customer_info
         );
+        $amount = $this->context->cart->getOrderTotal() * 100;
         try {
             $order = \Conekta\Order::create($order_details)
 
-            if ($type == "cash") { // TODO Agregar cargo con source oxxo_cash
-                $charge_details = array(
-                    'amount' => $this->context->cart->getOrderTotal() * 100,
-                    'reference_id' => (int)$this->context->cart->id,
-                    'cash' => array(
-                        'type' => 'oxxo'
-                        ) ,
-                    'details' => $details,
-                    'currency' => $this->context->currency->iso_code,
-                    'description' => $this->l('PrestaShop Customer ID:') . ' ' . (int)$this->context->cookie->id_customer . ' - ' . $this->l('PrestaShop Cart ID:') . ' ' . (int)$this->context->cart->id
+            if ($type == "cash") {
+                $charges_params =
+                    array(
+                        'source' => array('type' => 'oxxo_cash'),
+                        'amount' => $amount
                     );
-
-                $charge_response = Conekta_Charge::create($charge_details); // TODO el cargo se debe crear sobre la orden
+                $charge_response = $order->createCharge($charges_params);
                 $barcode_url = $charge_response->payment_method->barcode_url;
-                $reference = $charge_response->payment_method->barcode;
+                $reference = $charge_response->payment_method->reference;
                 $order_status = (int) Configuration::get('waiting_cash_payment');
 
                 $message = $this->l('Conekta Transaction Details:') . "\n\n" . $this->l('Reference:') . ' ' . $reference . "\n" . $this->l('Barcode:') . ' ' . $barcode_url . "\n" . $this->l('Amount:') . ' ' . ($charge_response->amount * 0.01) . "\n" . $this->l('Processed on:') . ' ' . strftime('%Y-%m-%d %H:%M:%S', $charge_response->created_at) . "\n" . $this->l('Currency:') . ' ' . Tools::strtoupper($charge_response->currency) . "\n" . $this->l('Mode:') . ' ' . ($charge_response->livemode == 'true' ? $this->l('Live') : $this->l('Test')) . "\n";
@@ -580,18 +575,13 @@ class ConektaPrestashop extends PaymentModule
                     '{barcode}' => (string)$reference
                     );
             } elseif ($type == "spei") {
-                $charge_details = array(
-                    'amount' => $this->context->cart->getOrderTotal() * 100,
-                    'reference_id' => (int)$this->context->cart->id,
-                    'bank' => array(
-                        'type' => 'spei'
-                        ) ,
-                    'details' => $details,
-                    'currency' => $this->context->currency->iso_code,
-                    'description' => $this->l('PrestaShop Customer ID:') . ' ' . (int)$this->context->cookie->id_customer . ' - ' . $this->l('PrestaShop Cart ID:') . ' ' . (int)$this->context->cart->id
+                $charges_params =
+                    array(
+                        'source' => array( 'type' => 'spei'),
+                        'amount' => $amount
                     );
-                $charge_response = Conekta_Charge::create($charge_details); // TODO crear cargo sobre orden
-                $reference = $charge_response->payment_method->receiving_account_number;
+                $charge_response = $order->createCharge($charges_params);
+                $reference = $charge_response->payment_method->clabe;
                 $order_status = (int)Configuration::get('waiting_spei_payment');
                 $message = $this->l('Conekta Transaction Details:') . "\n\n" . $this->l('Amount:') . ' ' . ($charge_response->amount * 0.01) . "\n" . $this->l('Processed on:') . ' ' . strftime('%Y-%m-%d %H:%M:%S', $charge_response->created_at) . "\n" . $this->l('Currency:') . ' ' . Tools::strtoupper($charge_response->currency) . "\n" . $this->l('Mode:') . ' ' . ($charge_response->livemode == 'true' ? $this->l('Live') : $this->l('Test')) . "\n";
                 $checkout = Module::getInstanceByName('conektaprestashop');
@@ -599,18 +589,12 @@ class ConektaPrestashop extends PaymentModule
                     '{receiving_account_number}' => (string)$reference
                     );
             } elseif ($type == "banorte") {
-                $charge_details = array(
-                    'amount' => $this->context->cart->getOrderTotal() * 100,
-                    'reference_id' => (int)$this->context->cart->id,
-                    'bank' => array(
-                        'type' => 'banorte'
-                        ) ,
-                    'details' => $details,
-                    'currency' => $this->context->currency->iso_code,
-                    'description' => $this->l('PrestaShop Customer ID:') . ' ' . (int)$this->context->cookie->id_customer . ' - ' . $this->l('PrestaShop Cart ID:') . ' ' . (int)$this->context->cart->id
-                    );
-
-                $charge_response = Conekta_Charge::create($charge_details); // TODO crear cargo sobre orden
+                $charges_params =
+                    array(
+                        'source' => array('type' => 'banorte'),
+                        'amount' => $amount
+                    )
+                $charge_response = $order->createCharge($charges_params);
                 $reference = $charge_response->payment_method->reference;
                 $service_name = $charge_response->payment_method->service_name;
                 $service_number = $charge_response->payment_method->service_number;
@@ -627,18 +611,16 @@ class ConektaPrestashop extends PaymentModule
                     '{service_number}' => (string)$service_number
                     );
             } else {
-                $charge_details = array(
-                    'amount' => $this->context->cart->getOrderTotal() * 100,
-                    'reference_id' => (int)$this->context->cart->id,
-                    'card' => $token,
-                    'monthly_installments' => $monthly_installments > 1 ? $monthly_installments : null,
-                    'details' => $details,
-                    'currency' => $this->context->currency->iso_code,
-                    'description' => $this->l('PrestaShop Customer ID:') . ' ' . (int)$this->context->cookie->id_customer . ' - ' . $this->l('PrestaShop Cart ID:') . ' ' . (int)$this->context->cart->id
-                    );
-                $charge_mode = true;
-                $charge_details['capture'] = $charge_mode;
-                $charge_response = Conekta_Charge::create($charge_details); // TODO Crear cargo sobre orden
+                $charges_params =
+                    array(
+                        'source' => array(
+                            'type'                 => 'card',
+                            'token_id'             => $token,
+                            'monthly_installments' => $monthly_installments > 1 ? $monthly_installments : null
+                          ),
+                         'amount' => $amount
+                     );
+                $charge_response = $order->createCharge($charges_params);
                 $order_status = (int)Configuration::get('PS_OS_PAYMENT');
                 $message = $this->l('Conekta Transaction Details:') . "\n\n" . $this->l('Amount:') . ' ' . ($charge_response->amount * 0.01) . "\n" . $this->l('Status:') . ' ' . ($charge_response->status == 'paid' ? $this->l('Paid') : $this->l('Unpaid')) . "\n" . $this->l('Processed on:') . ' ' . strftime('%Y-%m-%d %H:%M:%S', $charge_response->created_at) . "\n" . $this->l('Currency:') . ' ' . Tools::strtoupper($charge_response->currency) . "\n" . $this->l('Mode:') . ' ' . ($charge_response->livemode == 'true' ? $this->l('Live') : $this->l('Test')) . "\n";
             }
