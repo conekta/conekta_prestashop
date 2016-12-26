@@ -545,6 +545,7 @@ class ConektaPrestashop extends PaymentModule
             "email" => $customer->email
         );
         $order_details = array(
+            "currency" => $this->context->currency->iso_code,
             "line_items" => $line_items,
             "fiscal_entity" => $fiscal_entity,
             "shipping_lines" => $shipping_lines,
