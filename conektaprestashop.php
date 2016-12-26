@@ -470,12 +470,13 @@ class ConektaPrestashop extends PaymentModule
 
         require_once(dirname(__FILE__) . '/lib/conekta-php/lib/Conekta.php');
 
-        Conekta::setApiKey(Configuration::get('CONEKTA_MODE') ? Configuration::get('CONEKTA_PRIVATE_KEY_LIVE') : Configuration::get('CONEKTA_PRIVATE_KEY_TEST'));
+        \Conekta\Conekta::setApiKey(Configuration::get('CONEKTA_MODE') ? Configuration::get('CONEKTA_PRIVATE_KEY_LIVE') : Configuration::get('CONEKTA_PRIVATE_KEY_TEST'));
+        \Conekta\Conekta::setPlugin('Prestashop');
 
-        $cart = $this->context->cart;
-        $customer = new Customer((int) $cart->id_customer);
+        $cart             = $this->context->cart;
+        $customer         = new Customer((int) $cart->id_customer);
         $address_delivery = new Address((int) $cart->id_address_delivery);
-        $address_fiscal = new Address((int) $cart->id_address_invoice);
+        $address_fiscal   = new Address((int) $cart->id_address_invoice);
 
         // get shipping info
 
@@ -520,7 +521,6 @@ class ConektaPrestashop extends PaymentModule
             "phone" => $address_fiscal->phone,
             "address" => array(
                 "street1" => $address_fiscal->address1,
-//                "external_number" => 0,
                 "city" => $address_fiscal->city,
                 "country" => $address_fiscal->country,
                 "zip" => $address_fiscal->postcode,
