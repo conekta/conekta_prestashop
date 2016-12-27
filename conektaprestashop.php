@@ -663,7 +663,10 @@ class ConektaPrestashop extends PaymentModule
         } catch (\Conekta\ErrorList $e) {
             $message = $e->details[0]->message_to_purchaser;
             if (version_compare(_PS_VERSION_, '1.4.0.3', '>') && class_exists('Logger')) {
-                Logger::addLog($this->l('Payment transaction failed') . ' ' . $message, 2, null, 'Cart', (int)$this->context->cart->id, true);
+                foreach ($e->$details as $single_error) {
+                    Logger::addLog($this->l('Payment transaction failed') . ' ' . $single_error->message_to_purchaser, 2, null, 'Cart', (int)$this->context->cart->id, true);
+                }
+
             }
 
             $controller = Configuration::get('PS_ORDER_PROCESS_TYPE') ? 'order-opc.php' : 'order.php';
@@ -933,8 +936,10 @@ class ConektaPrestashop extends PaymentModule
                 } else {
                     Configuration::updateValue('CONEKTA_WEBHOOK_ERROR_MESSAGE', "Webhook was already register in Conekta!");
                 }
-            } catch (Exception $e) {
-                Configuration::updateValue('CONEKTA_WEBHOOK_ERROR_MESSAGE', $e->message_to_purchaser);
+            } catch (\Conekta\ErrorList $e)) {
+                foreach ($e->$details as $single_error) {
+                    Configuration::updateValue('CONEKTA_WEBHOOK_ERROR_MESSAGE', $single_error->message_to_purchaser);
+                }
             }
         } else {
             if ($url == Configuration::get('CONEKTA_WEBHOOK_FAILED_URL')) {
