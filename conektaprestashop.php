@@ -660,8 +660,8 @@ class ConektaPrestashop extends PaymentModule
             }
 
             Tools::redirect($redirect);
-        } catch (Conekta_Error $e) { // TODO Catch conekta error list
-            $message = $e->message_to_purchaser;
+        } catch (\Conekta\ErrorList $e) {
+            $message = $e->details[0]->message_to_purchaser;
             if (version_compare(_PS_VERSION_, '1.4.0.3', '>') && class_exists('Logger')) {
                 Logger::addLog($this->l('Payment transaction failed') . ' ' . $message, 2, null, 'Cart', (int)$this->context->cart->id, true);
             }
