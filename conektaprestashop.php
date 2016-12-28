@@ -96,6 +96,7 @@ class ConektaPrestashop extends PaymentModule
           `type` enum(\'payment\',\'refund\') NOT NULL,
           `id_cart` int(10) unsigned NOT NULL,
           `id_order` int(10) unsigned NOT NULL, 
+          `id_conekta_order` int(10) unsigned NOT NULL, 
           `id_transaction` varchar(32) NOT NULL, 
           `amount` decimal(10,2) NOT NULL, 
           `status` enum(\'paid\',\'unpaid\') NOT NULL,
@@ -480,8 +481,8 @@ class ConektaPrestashop extends PaymentModule
 
         // get shipping info
 
-        $carrier = new Carrier((int)$cart->id_carrier);
-        $shipping_price = $cart->getTotalShippingCost() * 100;
+        $carrier          = new Carrier((int)$cart->id_carrier);
+        $shipping_price   = $cart->getTotalShippingCost() * 100;
         $shipping_carrier = "other";
         $shipping_service = "other";
 
@@ -492,65 +493,65 @@ class ConektaPrestashop extends PaymentModule
 
         // build line items
 
-        $items = $cart->getProducts();
+        $items      = $cart->getProducts();
         $line_items = array();
         foreach ($items as $item) {
             $line_items = array_merge($line_items, array(
                 array(
-                    'name' => $item['name'],
-                    'unit_price' => (float)$item['price'] * 100,
+                    'name'        => $item['name'],
+                    'unit_price'  => (float)$item['price'] * 100,
                     'description' => $item['description_short'],
-                    'quantity' => $item['cart_quantity'],
-                    'sku' => $item['reference'],
-                    'type' => "physical",
-                    'tags' =>["prestashop"]
+                    'quantity'    => $item['cart_quantity'],
+                    'sku'         => $item['reference'],
+                    'type'        => "physical",
+                    'tags'        =>["prestashop"]
                     )
                 ));
         }
         $shipping_lines = array(
-            "description" => $shipping_service,
-            "amount" => $shipping_price,
+            "description"     => $shipping_service,
+            "amount"          => $shipping_price,
             "tracking_number" => $shipping_service,
-            "carrier" => $shipping_carrier,
-            "method" => $shipping_service
+            "carrier"         => $shipping_carrier,
+            "method"          => $shipping_service
         );
         $fiscal_entity = array(
-            "tax_id" => "",
+            "tax_id"       => "",
             "company_name" => $address_fiscal->company,
-            "email" => "",
-            "phone" => $address_fiscal->phone,
-            "address" => array(
+            "email"        => "",
+            "phone"        => $address_fiscal->phone,
+            "address"      => array(
                 "street1" => $address_fiscal->address1,
-                "city" => $address_fiscal->city,
+                "city"    => $address_fiscal->city,
                 "country" => $address_fiscal->country,
-                "zip" => $address_fiscal->postcode,
-                "state" => State::getNameById($address_fiscal->id_state)
+                "zip"     => $address_fiscal->postcode,
+                "state"   => State::getNameById($address_fiscal->id_state)
             )
         );
         $shipping_contact = array(
-            "email" => $customer->email,
-            "phone" => $address_delivery->phone,
+            "email"    => $customer->email,
+            "phone"    => $address_delivery->phone,
             "reciever" => $customer->firstname . " " . $customer->lastname,
-            "address" => array(
+            "address"  => array(
                 "street1" => $address_delivery->address1,
-                "city" => $address_delivery->city,
-                "state" => $address_delivery->state,
+                "city"    => $address_delivery->city,
+                "state"   => $address_delivery->state,
                 "country" => $address_delivery->country,
-                "zip" => $address_delivery->postcode
+                "zip"     => $address_delivery->postcode
             )
         );
         $customer_info = array(
-            "name" => $customer->firstname . " " . $customer->lastname,
+            "name"  => $customer->firstname . " " . $customer->lastname,
             "phone" => $address_delivery->phone,
             "email" => $customer->email
         );
         $order_details = array(
-            "currency" => $this->context->currency->iso_code,
-            "line_items" => $line_items,
-            "fiscal_entity" => $fiscal_entity,
-            "shipping_lines" => $shipping_lines,
+            "currency"         => $this->context->currency->iso_code,
+            "line_items"       => $line_items,
+            "fiscal_entity"    => $fiscal_entity,
+            "shipping_lines"   => $shipping_lines,
             "shipping_contact" => $shipping_contact,
-            "customer_info" => $customer_info
+            "customer_info"    => $customer_info
         );
         $amount = $this->context->cart->getOrderTotal() * 100;
         try {
@@ -639,13 +640,13 @@ class ConektaPrestashop extends PaymentModule
             }
 
             if (isset($charge_response->id) && $type == "cash") {
-                Db::getInstance()->Execute('INSERT INTO ' . _DB_PREFIX_ . 'conekta_transaction (type, id_cart, id_order, id_transaction, amount, status, currency, mode, date_add, reference, barcode, captured) VALUES (\'payment\', ' . pSQL((int) $this->context->cart->id) . ', ' . pSQL((int) $this->currentOrder) . ', \'' . pSQL($charge_response->id) . '\',\'' . ($charge_response->amount * 0.01) . '\', \'' . ($charge_response->status == 'paid' ? 'paid' : 'unpaid') . '\', \'' . pSQL($charge_response->currency) . '\', \'' . ($charge_response->livemode == 'true' ? 'live' : 'test') . '\', NOW(),\'' . $reference . '\',\'' . $barcode_url . '\',\'' . ($charge_response->livemode == 'true' ? '1' : '0') . '\' )');
+                Db::getInstance()->Execute('INSERT INTO ' . _DB_PREFIX_ . 'conekta_transaction (type, id_cart, id_order, id_conekta_order, id_transaction, amount, status, currency, mode, date_add, reference, barcode, captured) VALUES (\'payment\', ' . pSQL((int) $this->context->cart->id) . ', ' . pSQL((int) $this->currentOrder) . ', \'' . pSQL($order->id) . '\', \'' . pSQL($charge_response->id) . '\',\'' . ($order->amount * 0.01) . '\', \'' . ($charge_response->status == 'paid' ? 'paid' : 'unpaid') . '\', \'' . pSQL($charge_response->currency) . '\', \'' . ($charge_response->livemode == 'true' ? 'live' : 'test') . '\', NOW(),\'' . $reference . '\',\'' . $barcode_url . '\',\'' . ($charge_response->livemode == 'true' ? '1' : '0') . '\' )');
             } elseif (isset($charge_response->id) && $type == "spei") {
-                Db::getInstance()->Execute('INSERT INTO ' . _DB_PREFIX_ . 'conekta_transaction (type, id_cart, id_order, id_transaction, amount, status, currency, mode, date_add, reference, captured) VALUES (\'payment\', ' . (int) $this->context->cart->id . ', ' . (int) $this->currentOrder . ', \'' . pSQL($charge_response->id) . '\', \'' . ($charge_response->amount * 0.01) . '\', \'' . ($charge_response->status == 'paid' ? 'paid' : 'unpaid') . '\', \'' . pSQL($charge_response->currency) . '\', \'' . ($charge_response->livemode == 'true' ? 'live' : 'test') . '\', NOW(),\'' . $reference . '\', \'' . ($charge_response->livemode == 'true' ? '1' : '0') . '\' )');
+                Db::getInstance()->Execute('INSERT INTO ' . _DB_PREFIX_ . 'conekta_transaction (type, id_cart, id_order, id_conekta_order, id_transaction, amount, status, currency, mode, date_add, reference, captured) VALUES (\'payment\', ' . (int) $this->context->cart->id . ', ' . (int) $this->currentOrder . ', \'' . pSQL($order->id) . '\', \'' . pSQL($charge_response->id) . '\', \'' . ($charge_response->amount * 0.01) . '\', \'' . ($charge_response->status == 'paid' ? 'paid' : 'unpaid') . '\', \'' . pSQL($charge_response->currency) . '\', \'' . ($charge_response->livemode == 'true' ? 'live' : 'test') . '\', NOW(),\'' . $reference . '\', \'' . ($charge_response->livemode == 'true' ? '1' : '0') . '\' )');
             } elseif (isset($charge_response->id) && $type == "banorte") {
-                Db::getInstance()->Execute('INSERT INTO ' . _DB_PREFIX_ . 'conekta_transaction (type, id_cart, id_order, id_transaction, amount, status, currency, mode, date_add, reference, captured) VALUES (\'payment\', ' . (int) $this->context->cart->id . ', ' . (int) $this->currentOrder . ', \'' . pSQL($charge_response->id) . '\', \'' . ($charge_response->amount * 0.01) . '\', \'' . ($charge_response->status == 'paid' ? 'paid' : 'unpaid') . '\', \'' . pSQL($charge_response->currency) . '\', \'' . ($charge_response->livemode == 'true' ? 'live' : 'test') . '\', NOW(),\'' . $reference . '\', \'' . ($charge_response->livemode == 'true' ? '1' : '0') . '\' )');
+                Db::getInstance()->Execute('INSERT INTO ' . _DB_PREFIX_ . 'conekta_transaction (type, id_cart, id_order, id_conekta_order, id_transaction, amount, status, currency, mode, date_add, reference, captured) VALUES (\'payment\', ' . (int) $this->context->cart->id . ', ' . (int) $this->currentOrder . ', \'' . pSQL($order->id) . '\', \'' . pSQL($charge_response->id) . '\', \'' . ($charge_response->amount * 0.01) . '\', \'' . ($charge_response->status == 'paid' ? 'paid' : 'unpaid') . '\', \'' . pSQL($charge_response->currency) . '\', \'' . ($charge_response->livemode == 'true' ? 'live' : 'test') . '\', NOW(),\'' . $reference . '\', \'' . ($charge_response->livemode == 'true' ? '1' : '0') . '\' )');
             } elseif (isset($charge_response->id)) {
-                Db::getInstance()->Execute('INSERT INTO ' . _DB_PREFIX_ . 'conekta_transaction (type, id_cart, id_order, id_transaction, amount, status, currency, mode, date_add, captured) VALUES (\'payment\', ' . (int) $this->context->cart->id . ', ' . (int) $this->currentOrder . ', \'' . pSQL($charge_response->id) . '\',\'' . ($charge_response->amount * 0.01) . '\', \'' . ($charge_response->status == 'paid' ? 'paid' : 'unpaid') . '\', \'' . pSQL($charge_response->currency) . '\', \'' . ($charge_response->livemode == 'true' ? 'live' : 'test') . '\', NOW(), \'1\')');
+                Db::getInstance()->Execute('INSERT INTO ' . _DB_PREFIX_ . 'conekta_transaction (type, id_cart, id_order, id_conekta_order, id_transaction, amount, status, currency, mode, date_add, captured) VALUES (\'payment\', ' . (int) $this->context->cart->id . ', ' . (int) $this->currentOrder . ', \'' . pSQL($order->id) . '\', \'' . pSQL($charge_response->id) . '\',\'' . ($charge_response->amount * 0.01) . '\', \'' . ($charge_response->status == 'paid' ? 'paid' : 'unpaid') . '\', \'' . pSQL($charge_response->currency) . '\', \'' . ($charge_response->livemode == 'true' ? 'live' : 'test') . '\', NOW(), \'1\')');
             }
 
             if (version_compare(_PS_VERSION_, '1.5', '<')) {
@@ -874,10 +875,10 @@ class ConektaPrestashop extends PaymentModule
     {
         require_once(dirname(__FILE__) . '/lib/conekta-php/lib/Conekta.php');
 
-        Conekta::setApiKey(Configuration::get('CONEKTA_MODE') ? Configuration::get('CONEKTA_PRIVATE_KEY_LIVE') : Configuration::get('CONEKTA_PRIVATE_KEY_TEST'));
-        
-        Conekta::setApiVersion("1.0.0");
-        Conekta::setLocale('en');
+        \Conekta\Conekta:::setApiKey(Configuration::get('CONEKTA_MODE') ? Configuration::get('CONEKTA_PRIVATE_KEY_LIVE') : Configuration::get('CONEKTA_PRIVATE_KEY_TEST'));
+        \Conekta\Conekta::setPlugin("Prestashop");
+        \Conekta\Conekta::setApiVersion("1.1.0");
+        \Conekta\Conekta::setLocale('en');
 
         $events = array(
             "events" => array(
