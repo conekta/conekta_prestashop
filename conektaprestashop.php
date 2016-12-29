@@ -538,7 +538,7 @@ class ConektaPrestashop extends PaymentModule
             "address"  => array(
                 "street1" => $address_delivery->address1,
                 "city"    => $address_delivery->city,
-                "state"   => $address_delivery->state,
+                "state"   => State::getNameById($address_delivery->id_state),
                 "country" => $address_delivery->country,
                 "zip"     => $address_delivery->postcode
             )
