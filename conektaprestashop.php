@@ -561,12 +561,12 @@ class ConektaPrestashop extends PaymentModule
             $order = \Conekta\Order::create($order_details);
 
             if ($type == "cash") {
-                $charges_params =
+                $charge_params =
                     array(
                         'source' => array('type' => 'oxxo_cash'),
                         'amount' => $amount
                     );
-                $charge_response = $order->createCharge($charges_params);
+                $charge_response = $order->createCharge($charge_params);
                 $barcode_url = $charge_response->payment_method->barcode_url;
                 $reference = $charge_response->payment_method->reference;
                 $order_status = (int) Configuration::get('waiting_cash_payment');
@@ -579,12 +579,12 @@ class ConektaPrestashop extends PaymentModule
                     '{barcode}' => (string)$reference
                     );
             } elseif ($type == "spei") {
-                $charges_params =
+                $charge_params =
                     array(
                         'source' => array( 'type' => 'spei'),
                         'amount' => $amount
                     );
-                $charge_response = $order->createCharge($charges_params);
+                $charge_response = $order->createCharge($charge_params);
                 $reference = $charge_response->payment_method->clabe;
                 $order_status = (int)Configuration::get('waiting_spei_payment');
                 $message = $this->l('Conekta Transaction Details:') . "\n\n" . $this->l('Amount:') . ' ' . ($charge_response->amount * 0.01) . "\n" . $this->l('Processed on:') . ' ' . strftime('%Y-%m-%d %H:%M:%S', $charge_response->created_at) . "\n" . $this->l('Currency:') . ' ' . Tools::strtoupper($charge_response->currency) . "\n" . $this->l('Mode:') . ' ' . ($charge_response->livemode == 'true' ? $this->l('Live') : $this->l('Test')) . "\n";
@@ -593,12 +593,12 @@ class ConektaPrestashop extends PaymentModule
                     '{receiving_account_number}' => (string)$reference
                     );
             } elseif ($type == "banorte") {
-                $charges_params =
+                $charge_params =
                     array(
                         'source' => array('type' => 'banorte'),
                         'amount' => $amount
-                    )
-                $charge_response = $order->createCharge($charges_params);
+                    );
+                $charge_response = $order->createCharge($charge_params);
                 $reference = $charge_response->payment_method->reference;
                 $service_name = $charge_response->payment_method->service_name;
                 $service_number = $charge_response->payment_method->service_number;
@@ -615,7 +615,7 @@ class ConektaPrestashop extends PaymentModule
                     '{service_number}' => (string)$service_number
                     );
             } else {
-                $charges_params =
+                $charge_params =
                     array(
                         'source' => array(
                             'type'                 => 'card',
@@ -624,7 +624,7 @@ class ConektaPrestashop extends PaymentModule
                           ),
                          'amount' => $amount
                      );
-                $charge_response = $order->createCharge($charges_params);
+                $charge_response = $order->createCharge($charge_params);
                 $order_status = (int)Configuration::get('PS_OS_PAYMENT');
                 $message = $this->l('Conekta Transaction Details:') . "\n\n" . $this->l('Amount:') . ' ' . ($charge_response->amount * 0.01) . "\n" . $this->l('Status:') . ' ' . ($charge_response->status == 'paid' ? $this->l('Paid') : $this->l('Unpaid')) . "\n" . $this->l('Processed on:') . ' ' . strftime('%Y-%m-%d %H:%M:%S', $charge_response->created_at) . "\n" . $this->l('Currency:') . ' ' . Tools::strtoupper($charge_response->currency) . "\n" . $this->l('Mode:') . ' ' . ($charge_response->livemode == 'true' ? $this->l('Live') : $this->l('Test')) . "\n";
             }
