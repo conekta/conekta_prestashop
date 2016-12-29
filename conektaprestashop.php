@@ -510,11 +510,13 @@ class ConektaPrestashop extends PaymentModule
                 ));
         }
         $shipping_lines = array(
-            "description"     => $shipping_service,
-            "amount"          => $shipping_price,
-            "tracking_number" => $shipping_service,
-            "carrier"         => $shipping_carrier,
-            "method"          => $shipping_service
+            array(
+                "description"     => $shipping_service,
+                "amount"          => $shipping_price,
+                "tracking_number" => $shipping_service,
+                "carrier"         => $shipping_carrier,
+                "method"          => $shipping_service
+            )
         );
         $fiscal_entity = array(
             "tax_id"       => "",
