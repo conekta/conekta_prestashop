@@ -667,7 +667,7 @@ class ConektaPrestashop extends PaymentModule
         } catch (\Conekta\ErrorList $e) {
             $message = $e->details[0]->message_to_purchaser;
             if (version_compare(_PS_VERSION_, '1.4.0.3', '>') && class_exists('Logger')) {
-                foreach ($e->$details as $single_error) {
+                foreach ($e->details as $single_error) {
                     Logger::addLog($this->l('Payment transaction failed') . ' ' . $single_error->message_to_purchaser, 2, null, 'Cart', (int)$this->context->cart->id, true);
                 }
 
@@ -940,8 +940,8 @@ class ConektaPrestashop extends PaymentModule
                 } else {
                     Configuration::updateValue('CONEKTA_WEBHOOK_ERROR_MESSAGE', "Webhook was already register in Conekta!");
                 }
-            } catch (\Conekta\ErrorList $e)) {
-                foreach ($e->$details as $single_error) {
+            } catch (\Conekta\ErrorList $e) {
+                foreach ($e->details as $single_error) {
                     Configuration::updateValue('CONEKTA_WEBHOOK_ERROR_MESSAGE', $single_error->message_to_purchaser);
                 }
             }
