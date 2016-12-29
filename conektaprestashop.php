@@ -473,6 +473,7 @@ class ConektaPrestashop extends PaymentModule
 
         \Conekta\Conekta::setApiKey(Configuration::get('CONEKTA_MODE') ? Configuration::get('CONEKTA_PRIVATE_KEY_LIVE') : Configuration::get('CONEKTA_PRIVATE_KEY_TEST'));
         \Conekta\Conekta::setPlugin('Prestashop');
+        \Conekta\Conekta::setApiVersion('1.1.0');
 
         $cart             = $this->context->cart;
         $customer         = new Customer((int) $cart->id_customer);
