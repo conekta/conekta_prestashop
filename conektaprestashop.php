@@ -558,7 +558,7 @@ class ConektaPrestashop extends PaymentModule
         );
         $amount = $this->context->cart->getOrderTotal() * 100;
         try {
-            $order = \Conekta\Order::create($order_details)
+            $order = \Conekta\Order::create($order_details);
 
             if ($type == "cash") {
                 $charges_params =
