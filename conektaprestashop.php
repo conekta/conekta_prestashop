@@ -878,7 +878,7 @@ class ConektaPrestashop extends PaymentModule
     {
         require_once(dirname(__FILE__) . '/lib/conekta-php/lib/Conekta.php');
 
-        \Conekta\Conekta:::setApiKey(Configuration::get('CONEKTA_MODE') ? Configuration::get('CONEKTA_PRIVATE_KEY_LIVE') : Configuration::get('CONEKTA_PRIVATE_KEY_TEST'));
+        \Conekta\Conekta::setApiKey(Configuration::get('CONEKTA_MODE') ? Configuration::get('CONEKTA_PRIVATE_KEY_LIVE') : Configuration::get('CONEKTA_PRIVATE_KEY_TEST'));
         \Conekta\Conekta::setPlugin("Prestashop");
         \Conekta\Conekta::setApiVersion("1.1.0");
         \Conekta\Conekta::setLocale('en');
