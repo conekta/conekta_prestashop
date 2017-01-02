@@ -292,7 +292,7 @@ class ConektaPrestashop extends PaymentModule
         $this->smarty->assign('banorte', Configuration::get('CONEKTA_BANORTE'));
 
         if (Tools::getIsset("message")) {
-            $this->smarty->assign("message", Tools::getIsset("message"));
+            $this->smarty->assign("message", $_GET['message']);
             return $this->fetchTemplate('payment-methods-all.tpl');
         } else {
             $this->smarty->assign("message", '');
