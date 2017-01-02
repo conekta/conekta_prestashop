@@ -500,7 +500,7 @@ class ConektaPrestashop extends PaymentModule
             $line_items = array_merge($line_items, array(
                 array(
                     'name'        => $item['name'],
-                    'unit_price'  => (float)$item['price'] * 100,
+                    'unit_price'  => intval((float)$item['price'] * 100),
                     'description' => $item['description_short'],
                     'quantity'    => $item['cart_quantity'],
                     'sku'         => $item['reference'],
@@ -518,30 +518,18 @@ class ConektaPrestashop extends PaymentModule
                 "method"          => $shipping_service
             )
         );
-        $fiscal_entity = array(
-            "tax_id"       => "",
-            "company_name" => $address_fiscal->company,
-            "email"        => "",
-            "phone"        => $address_fiscal->phone,
-            "address"      => array(
-                "street1" => $address_fiscal->address1,
-                "city"    => $address_fiscal->city,
-                "country" => $address_fiscal->country,
-                "zip"     => $address_fiscal->postcode,
-                "state"   => State::getNameById($address_fiscal->id_state)
-            )
-        );
         $shipping_contact = array(
             "email"    => $customer->email,
             "phone"    => $address_delivery->phone,
-            "reciever" => $customer->firstname . " " . $customer->lastname,
+            "receiver" => $customer->firstname . " " . $customer->lastname,
             "address"  => array(
                 "street1" => $address_delivery->address1,
                 "city"    => $address_delivery->city,
                 "state"   => State::getNameById($address_delivery->id_state),
-                "country" => $address_delivery->country,
+                "country" => Country::getIsoById($address_delivery->id_country),
                 "zip"     => $address_delivery->postcode
-            )
+            ),
+            "metadata" => array("soft_validations" => true)
         );
         $customer_info = array(
             "name"  => $customer->firstname . " " . $customer->lastname,
@@ -551,7 +539,6 @@ class ConektaPrestashop extends PaymentModule
         $order_details = array(
             "currency"         => $this->context->currency->iso_code,
             "line_items"       => $line_items,
-            "fiscal_entity"    => $fiscal_entity,
             "shipping_lines"   => $shipping_lines,
             "shipping_contact" => $shipping_contact,
             "customer_info"    => $customer_info
