@@ -500,7 +500,7 @@ class ConektaPrestashop extends PaymentModule
             $line_items = array_merge($line_items, array(
                 array(
                     'name'        => $item['name'],
-                    'unit_price'  => intval((float)$item['price'] * 100),
+                    'unit_price'  => intval((float)$item['total'] * 100),
                     'description' => $item['description_short'],
                     'quantity'    => $item['cart_quantity'],
                     'sku'         => $item['reference'],
