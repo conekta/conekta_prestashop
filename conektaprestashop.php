@@ -661,14 +661,14 @@ class ConektaPrestashop extends PaymentModule
 
             Tools::redirect($redirect);
         } catch (\Conekta\ErrorList $e) {
-            $message = $e->details[0]->message_to_purchaser;
+            $message = "";
             if (version_compare(_PS_VERSION_, '1.4.0.3', '>') && class_exists('Logger')) {
-                foreach ($e->$details as $single_error) {
+                foreach ($e->details as $single_error) {
+                    $message .= $single_error->message_to_purchaser . ' ';
                     Logger::addLog($this->l('Payment transaction failed') . ' ' . $single_error->message_to_purchaser, 2, null, 'Cart', (int)$this->context->cart->id, true);
                 }
 
             }
-
             $controller = Configuration::get('PS_ORDER_PROCESS_TYPE') ? 'order-opc.php' : 'order.php';
             $location = $this->context->link->getPageLink($controller, true) . (strpos($controller, '?') !== false ? '&' : '?') . 'step=3&conekta_error=1&message=' . $message . '#conekta_error';
             Tools::redirectLink($location);
