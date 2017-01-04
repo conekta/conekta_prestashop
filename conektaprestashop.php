@@ -293,7 +293,7 @@ class ConektaPrestashop extends PaymentModule
         $this->smarty->assign('banorte', Configuration::get('CONEKTA_BANORTE'));
 
         if (Tools::getIsset("message")) {
-            $this->smarty->assign("message", Tools::getIsset("message"));
+            $this->smarty->assign("message", $_GET['message']);
             return $this->fetchTemplate('payment-methods-all.tpl');
         } else {
             $this->smarty->assign("message", '');
@@ -648,12 +648,15 @@ class ConektaPrestashop extends PaymentModule
 
             Tools::redirect($redirect);
         } catch (\Conekta\ErrorList $e) {
-            $message = $e->details[0]->message_to_purchaser;
+            $message = "";
             if (version_compare(_PS_VERSION_, '1.4.0.3', '>') && class_exists('Logger')) {
                 foreach ($e->details as $single_error) {
                     Logger::addLog($this->l('Payment transaction failed') . ' ' . $single_error->message_to_purchaser, 2, null, 'Cart', (int)$this->context->cart->id, true);
                 }
 
+            }
+            foreach($e->details as $single_error){
+                $message .= $single_error->message_to_purchaser . ' ';
             }
 
             $controller = Configuration::get('PS_ORDER_PROCESS_TYPE') ? 'order-opc.php' : 'order.php';
