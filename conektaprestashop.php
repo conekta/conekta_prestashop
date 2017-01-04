@@ -593,12 +593,8 @@ class ConektaPrestashop extends PaymentModule
                 $message = $this->l('Conekta Transaction Details:') . "\n\n" . $this->l('Amount:') . ' ' . ($charge_response->amount * 0.01) . "\n" . $this->l('Processed on:') . ' ' . strftime('%Y-%m-%d %H:%M:%S', $charge_response->created_at) . "\n" . $this->l('Currency:') . ' ' . Tools::strtoupper($charge_response->currency) . "\n" . $this->l('Mode:') . ' ' . ($charge_response->livemode == 'true' ? $this->l('Live') : $this->l('Test')) . "\n";
                 $checkout = Module::getInstanceByName('conektaprestashop');
                 $checkout->extra_mail_vars = array(
-                    '{reference}' => (string)$reference
-                    );
-                $checkout->extra_mail_vars = array(
-                    '{service_name}' => (string)$service_name
-                    );
-                $checkout->extra_mail_vars = array(
+                    '{reference}' => (string)$reference,
+                    '{service_name}' => (string)$service_name,
                     '{service_number}' => (string)$service_number
                     );
             } else {
