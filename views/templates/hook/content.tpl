@@ -137,6 +137,24 @@
 					<input name="conekta_public_key_live" value="{$conekta_public_key_live|escape:'htmlall':'UTF-8'}" type="text">
 				</div>			
 			</div>
+			<div class="form-group">
+				<label class="control-label col-lg-3">
+					{l s='Signature Test Key' mod='conektaprestashop'}
+				</label>
+				<div class="col-lg-3">
+					<textarea name="conekta_signature_key_test" class="form-control" rows="5" value="" type="text">{$conekta_signature_key_test|escape:'htmlall':'UTF-8'}</textarea>
+				</div>		
+			</div>
+			<div class="form-group">
+				<label class="control-label col-lg-3">
+					{l s='Signature Live Key' mod='conektaprestashop'}
+				</label>
+				<div class="col-lg-3">
+					<textarea name="conekta_signature_key_live" class="form-control" rows="5" value="" type="text">
+					{$conekta_signature_key_live|escape:'htmlall':'UTF-8'}
+					</textarea>	
+				</div>		
+			</div>
 		</div>
 
 		<div class="panel-footer">
