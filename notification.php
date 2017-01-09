@@ -20,6 +20,7 @@ if (!defined('_PS_VERSION_')) {
 // To configure, add webhook in account storename.com/modules/conektaefectivo/notification.php
 
 $body = Tools::file_get_contents('php://input');
+authenticateEvent($body, $_SERVER['HTTP_DIGEST']);
 $event_json = Tools::jsonDecode($body);
 
 if ($event_json->type == 'charge.paid') {
@@ -45,6 +46,33 @@ if ($event_json->type == 'charge.paid') {
         }
     }
 }
+
+function authenticateEvent($body, $digest) {
+    if (Configuration::get('CONEKTA_MODE')) {
+            $private_key_string = Configuration::get('CONEKTA_SIGNATURE_KEY_LIVE');
+        } else {
+            $private_key_string = Configuration::get('CONEKTA_SIGNATURE_KEY_TEST');
+        }
+    if (!empty($private_key_string) && !empty($body)) {
+      if (!empty($digest)) {
+        $private_key = openssl_pkey_get_private($private_key_string);
+        $encrypted_message = base64_decode($digest);
+        $sha256_message = "";
+        openssl_private_decrypt($encrypted_message, $sha256_message, $private_key);
+        if (hash("sha256", $body) != $sha256_message) {
+            authenticateLogger("unauthenticated event");
+        }
+      } else {
+        authenticateLogger("Empty digest");
+      }
+    }
+  }
+
+  function authenticateLogger($log_message){
+    if (version_compare(_PS_VERSION_, '1.4.0.3', '>') && class_exists('Logger')) {
+        Logger::addLog($log_message, 1, null,'notification', '');
+    }
+  }
 
 header('HTTP/1.1 200 OK');
 exit;

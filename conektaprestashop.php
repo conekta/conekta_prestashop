@@ -237,7 +237,7 @@ class ConektaPrestashop extends PaymentModule
      */
     public function uninstall()
     {
-        return parent::uninstall() && Configuration::deleteByName('CONEKTA_PRESTASHOP_VERSION') && Configuration::deleteByName('CONEKTA_MSI') && Configuration::deleteByName('CONEKTA_CARDS') && Configuration::deleteByName('CONEKTA_CASH') && Configuration::deleteByName('CONEKTA_BANORTE') && Configuration::deleteByName('CONEKTA_SPEI') && Configuration::deleteByName('CONEKTA_PUBLIC_KEY_TEST') && Configuration::deleteByName('CONEKTA_PUBLIC_KEY_LIVE') && Configuration::deleteByName('CONEKTA_MODE') && Configuration::deleteByName('CONEKTA_PRIVATE_KEY_TEST') && Configuration::deleteByName('CONEKTA_PRIVATE_KEY_LIVE') && Configuration::deleteByName('CONEKTA_PAYMENT_ORDER_STATUS') && Configuration::deleteByName('CONEKTA_WEBHOOK') && Configuration::deleteByName('CONEKTA_WEBHOOK_FAILED_ATTEMPTS') && Configuration::deleteByName('CONEKTA_WEBHOOK_ERROR_MESSAGE') && Configuration::deleteByName('CONEKTA_WEBHOOK_FAILED_URL') && Db::getInstance()->Execute('DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'conekta_customer`') && Db::getInstance()->Execute('DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'conekta_transaction`');
+        return parent::uninstall() && Configuration::deleteByName('CONEKTA_PRESTASHOP_VERSION') && Configuration::deleteByName('CONEKTA_MSI') && Configuration::deleteByName('CONEKTA_CARDS') && Configuration::deleteByName('CONEKTA_CASH') && Configuration::deleteByName('CONEKTA_BANORTE') && Configuration::deleteByName('CONEKTA_SPEI') && Configuration::deleteByName('CONEKTA_PUBLIC_KEY_TEST') && Configuration::deleteByName('CONEKTA_PUBLIC_KEY_LIVE') && Configuration::deleteByName('CONEKTA_MODE') && Configuration::deleteByName('CONEKTA_PRIVATE_KEY_TEST') && Configuration::deleteByName('CONEKTA_PRIVATE_KEY_LIVE') && Configuration::deleteByName('CONEKTA_SIGNATURE_KEY_LIVE') && Configuration::deleteByName('CONEKTA_SIGNATURE_KEY_TEST') && Configuration::deleteByName('CONEKTA_PAYMENT_ORDER_STATUS') && Configuration::deleteByName('CONEKTA_WEBHOOK') && Configuration::deleteByName('CONEKTA_WEBHOOK_FAILED_ATTEMPTS') && Configuration::deleteByName('CONEKTA_WEBHOOK_ERROR_MESSAGE') && Configuration::deleteByName('CONEKTA_WEBHOOK_FAILED_URL') && Db::getInstance()->Execute('DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'conekta_customer`') && Db::getInstance()->Execute('DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'conekta_transaction`');
     }
 
     /**
@@ -293,7 +293,7 @@ class ConektaPrestashop extends PaymentModule
         $this->smarty->assign('banorte', Configuration::get('CONEKTA_BANORTE'));
 
         if (Tools::getIsset("message")) {
-            $this->smarty->assign("message", Tools::getIsset("message"));
+            $this->smarty->assign("message", $_GET['message']);
             return $this->fetchTemplate('payment-methods-all.tpl');
         } else {
             $this->smarty->assign("message", '');
@@ -473,6 +473,7 @@ class ConektaPrestashop extends PaymentModule
 
         \Conekta\Conekta::setApiKey(Configuration::get('CONEKTA_MODE') ? Configuration::get('CONEKTA_PRIVATE_KEY_LIVE') : Configuration::get('CONEKTA_PRIVATE_KEY_TEST'));
         \Conekta\Conekta::setPlugin('Prestashop');
+        \Conekta\Conekta::setApiVersion('1.1.0');
 
         $cart             = $this->context->cart;
         $customer         = new Customer((int) $cart->id_customer);
@@ -499,7 +500,7 @@ class ConektaPrestashop extends PaymentModule
             $line_items = array_merge($line_items, array(
                 array(
                     'name'        => $item['name'],
-                    'unit_price'  => (float)$item['price'] * 100,
+                    'unit_price'  => intval((float)$item['total'] * 100),
                     'description' => $item['description_short'],
                     'quantity'    => $item['cart_quantity'],
                     'sku'         => $item['reference'],
@@ -509,36 +510,26 @@ class ConektaPrestashop extends PaymentModule
                 ));
         }
         $shipping_lines = array(
-            "description"     => $shipping_service,
-            "amount"          => $shipping_price,
-            "tracking_number" => $shipping_service,
-            "carrier"         => $shipping_carrier,
-            "method"          => $shipping_service
-        );
-        $fiscal_entity = array(
-            "tax_id"       => "",
-            "company_name" => $address_fiscal->company,
-            "email"        => "",
-            "phone"        => $address_fiscal->phone,
-            "address"      => array(
-                "street1" => $address_fiscal->address1,
-                "city"    => $address_fiscal->city,
-                "country" => $address_fiscal->country,
-                "zip"     => $address_fiscal->postcode,
-                "state"   => State::getNameById($address_fiscal->id_state)
+            array(
+                "description"     => $shipping_service,
+                "amount"          => $shipping_price,
+                "tracking_number" => $shipping_service,
+                "carrier"         => $shipping_carrier,
+                "method"          => $shipping_service
             )
         );
         $shipping_contact = array(
             "email"    => $customer->email,
             "phone"    => $address_delivery->phone,
-            "reciever" => $customer->firstname . " " . $customer->lastname,
+            "receiver" => $customer->firstname . " " . $customer->lastname,
             "address"  => array(
                 "street1" => $address_delivery->address1,
                 "city"    => $address_delivery->city,
-                "state"   => $address_delivery->state,
-                "country" => $address_delivery->country,
+                "state"   => State::getNameById($address_delivery->id_state),
+                "country" => Country::getIsoById($address_delivery->id_country),
                 "zip"     => $address_delivery->postcode
-            )
+            ),
+            "metadata" => array("soft_validations" => true)
         );
         $customer_info = array(
             "name"  => $customer->firstname . " " . $customer->lastname,
@@ -548,22 +539,21 @@ class ConektaPrestashop extends PaymentModule
         $order_details = array(
             "currency"         => $this->context->currency->iso_code,
             "line_items"       => $line_items,
-            "fiscal_entity"    => $fiscal_entity,
             "shipping_lines"   => $shipping_lines,
             "shipping_contact" => $shipping_contact,
             "customer_info"    => $customer_info
         );
         $amount = $this->context->cart->getOrderTotal() * 100;
         try {
-            $order = \Conekta\Order::create($order_details)
+            $order = \Conekta\Order::create($order_details);
 
             if ($type == "cash") {
-                $charges_params =
+                $charge_params =
                     array(
                         'source' => array('type' => 'oxxo_cash'),
                         'amount' => $amount
                     );
-                $charge_response = $order->createCharge($charges_params);
+                $charge_response = $order->createCharge($charge_params);
                 $barcode_url = $charge_response->payment_method->barcode_url;
                 $reference = $charge_response->payment_method->reference;
                 $order_status = (int) Configuration::get('waiting_cash_payment');
@@ -576,12 +566,12 @@ class ConektaPrestashop extends PaymentModule
                     '{barcode}' => (string)$reference
                     );
             } elseif ($type == "spei") {
-                $charges_params =
+                $charge_params =
                     array(
                         'source' => array( 'type' => 'spei'),
                         'amount' => $amount
                     );
-                $charge_response = $order->createCharge($charges_params);
+                $charge_response = $order->createCharge($charge_params);
                 $reference = $charge_response->payment_method->clabe;
                 $order_status = (int)Configuration::get('waiting_spei_payment');
                 $message = $this->l('Conekta Transaction Details:') . "\n\n" . $this->l('Amount:') . ' ' . ($charge_response->amount * 0.01) . "\n" . $this->l('Processed on:') . ' ' . strftime('%Y-%m-%d %H:%M:%S', $charge_response->created_at) . "\n" . $this->l('Currency:') . ' ' . Tools::strtoupper($charge_response->currency) . "\n" . $this->l('Mode:') . ' ' . ($charge_response->livemode == 'true' ? $this->l('Live') : $this->l('Test')) . "\n";
@@ -590,12 +580,12 @@ class ConektaPrestashop extends PaymentModule
                     '{receiving_account_number}' => (string)$reference
                     );
             } elseif ($type == "banorte") {
-                $charges_params =
+                $charge_params =
                     array(
                         'source' => array('type' => 'banorte'),
                         'amount' => $amount
-                    )
-                $charge_response = $order->createCharge($charges_params);
+                    );
+                $charge_response = $order->createCharge($charge_params);
                 $reference = $charge_response->payment_method->reference;
                 $service_name = $charge_response->payment_method->service_name;
                 $service_number = $charge_response->payment_method->service_number;
@@ -603,25 +593,23 @@ class ConektaPrestashop extends PaymentModule
                 $message = $this->l('Conekta Transaction Details:') . "\n\n" . $this->l('Amount:') . ' ' . ($charge_response->amount * 0.01) . "\n" . $this->l('Processed on:') . ' ' . strftime('%Y-%m-%d %H:%M:%S', $charge_response->created_at) . "\n" . $this->l('Currency:') . ' ' . Tools::strtoupper($charge_response->currency) . "\n" . $this->l('Mode:') . ' ' . ($charge_response->livemode == 'true' ? $this->l('Live') : $this->l('Test')) . "\n";
                 $checkout = Module::getInstanceByName('conektaprestashop');
                 $checkout->extra_mail_vars = array(
-                    '{reference}' => (string)$reference
-                    );
-                $checkout->extra_mail_vars = array(
-                    '{service_name}' => (string)$service_name
-                    );
-                $checkout->extra_mail_vars = array(
+                    '{reference}' => (string)$reference,
+                    '{service_name}' => (string)$service_name,
                     '{service_number}' => (string)$service_number
                     );
             } else {
-                $charges_params =
+                $charge_params =
                     array(
                         'source' => array(
                             'type'                 => 'card',
-                            'token_id'             => $token,
-                            'monthly_installments' => $monthly_installments > 1 ? $monthly_installments : null
+                            'token_id'             => $token
                           ),
                          'amount' => $amount
                      );
-                $charge_response = $order->createCharge($charges_params);
+                if($monthly_installments > 1){
+                    array_merge($charge_params->source, array('monthly_installments' => $monthly_installments)) ;   
+                }    
+                $charge_response = $order->createCharge($charge_params);
                 $order_status = (int)Configuration::get('PS_OS_PAYMENT');
                 $message = $this->l('Conekta Transaction Details:') . "\n\n" . $this->l('Amount:') . ' ' . ($charge_response->amount * 0.01) . "\n" . $this->l('Status:') . ' ' . ($charge_response->status == 'paid' ? $this->l('Paid') : $this->l('Unpaid')) . "\n" . $this->l('Processed on:') . ' ' . strftime('%Y-%m-%d %H:%M:%S', $charge_response->created_at) . "\n" . $this->l('Currency:') . ' ' . Tools::strtoupper($charge_response->currency) . "\n" . $this->l('Mode:') . ' ' . ($charge_response->livemode == 'true' ? $this->l('Live') : $this->l('Test')) . "\n";
             }
@@ -662,12 +650,15 @@ class ConektaPrestashop extends PaymentModule
 
             Tools::redirect($redirect);
         } catch (\Conekta\ErrorList $e) {
-            $message = $e->details[0]->message_to_purchaser;
+            $message = "";
             if (version_compare(_PS_VERSION_, '1.4.0.3', '>') && class_exists('Logger')) {
-                foreach ($e->$details as $single_error) {
+                foreach ($e->details as $single_error) {
                     Logger::addLog($this->l('Payment transaction failed') . ' ' . $single_error->message_to_purchaser, 2, null, 'Cart', (int)$this->context->cart->id, true);
                 }
 
+            }
+            foreach($e->details as $single_error){
+                $message .= $single_error->message_to_purchaser . ' ';
             }
 
             $controller = Configuration::get('PS_ORDER_PROCESS_TYPE') ? 'order-opc.php' : 'order.php';
@@ -781,16 +772,18 @@ class ConektaPrestashop extends PaymentModule
 
         if ($submitConfigEvent) {
             $configuration_values = array(
-                'CONEKTA_MODE' => Tools::getValue('conekta_mode') ,
-                'CONEKTA_PUBLIC_KEY_TEST' => rtrim(Tools::getValue('conekta_public_key_test')) ,
-                'CONEKTA_PUBLIC_KEY_LIVE' => rtrim(Tools::getValue('conekta_public_key_live')) ,
-                'CONEKTA_PRIVATE_KEY_TEST' => rtrim(Tools::getValue('conekta_private_key_test')) ,
-                'CONEKTA_PRIVATE_KEY_LIVE' => rtrim(Tools::getValue('conekta_private_key_live')) ,
-                'CONEKTA_CARDS' => rtrim(Tools::getValue('conekta_cards')) ,
-                'CONEKTA_MSI' => rtrim(Tools::getValue('conekta_msi')) ,
-                'CONEKTA_CASH' => rtrim(Tools::getValue('conekta_cash')) ,
-                'CONEKTA_BANORTE' => rtrim(Tools::getValue('conekta_banorte')) ,
-                'CONEKTA_SPEI' => rtrim(Tools::getValue('conekta_spei'))
+                'CONEKTA_MODE'               => Tools::getValue('conekta_mode') ,
+                'CONEKTA_PUBLIC_KEY_TEST'    => rtrim(Tools::getValue('conekta_public_key_test')) ,
+                'CONEKTA_PUBLIC_KEY_LIVE'    => rtrim(Tools::getValue('conekta_public_key_live')) ,
+                'CONEKTA_PRIVATE_KEY_TEST'   => rtrim(Tools::getValue('conekta_private_key_test')) ,
+                'CONEKTA_PRIVATE_KEY_LIVE'   => rtrim(Tools::getValue('conekta_private_key_live')) ,
+                'CONEKTA_CARDS'              => rtrim(Tools::getValue('conekta_cards')) ,
+                'CONEKTA_MSI'                => rtrim(Tools::getValue('conekta_msi')) ,
+                'CONEKTA_CASH'               => rtrim(Tools::getValue('conekta_cash')) ,
+                'CONEKTA_BANORTE'            => rtrim(Tools::getValue('conekta_banorte')) ,
+                'CONEKTA_SPEI'               => rtrim(Tools::getValue('conekta_spei')),
+                'CONEKTA_SIGNATURE_KEY_TEST' => rtrim(Tools::getValue('conekta_signature_key_test')),
+                'CONEKTA_SIGNATURE_KEY_LIVE' => rtrim(Tools::getValue('conekta_signature_key_live'))
                 );
 
             foreach ($configuration_values as $configuration_key => $configuration_value) {
@@ -840,6 +833,8 @@ class ConektaPrestashop extends PaymentModule
         $this->smarty->assign("conekta_private_key_test", Configuration::get('CONEKTA_PRIVATE_KEY_TEST'));
         $this->smarty->assign("conekta_public_key_live", Configuration::get('CONEKTA_PUBLIC_KEY_LIVE'));
         $this->smarty->assign("conekta_private_key_live", Configuration::get('CONEKTA_PRIVATE_KEY_LIVE'));
+        $this->smarty->assign("conekta_signature_key_test", Configuration::get('CONEKTA_SIGNATURE_KEY_TEST'));
+        $this->smarty->assign("conekta_signature_key_live", Configuration::get('CONEKTA_SIGNATURE_KEY_LIVE'));
 
 
         $this->smarty->assign("url", $url);
@@ -875,7 +870,7 @@ class ConektaPrestashop extends PaymentModule
     {
         require_once(dirname(__FILE__) . '/lib/conekta-php/lib/Conekta.php');
 
-        \Conekta\Conekta:::setApiKey(Configuration::get('CONEKTA_MODE') ? Configuration::get('CONEKTA_PRIVATE_KEY_LIVE') : Configuration::get('CONEKTA_PRIVATE_KEY_TEST'));
+        \Conekta\Conekta::setApiKey(Configuration::get('CONEKTA_MODE') ? Configuration::get('CONEKTA_PRIVATE_KEY_LIVE') : Configuration::get('CONEKTA_PRIVATE_KEY_TEST'));
         \Conekta\Conekta::setPlugin("Prestashop");
         \Conekta\Conekta::setApiVersion("1.1.0");
         \Conekta\Conekta::setLocale('en');
@@ -937,8 +932,8 @@ class ConektaPrestashop extends PaymentModule
                 } else {
                     Configuration::updateValue('CONEKTA_WEBHOOK_ERROR_MESSAGE', "Webhook was already register in Conekta!");
                 }
-            } catch (\Conekta\ErrorList $e)) {
-                foreach ($e->$details as $single_error) {
+            } catch (\Conekta\ErrorList $e) {
+                foreach ($e->details as $single_error) {
                     Configuration::updateValue('CONEKTA_WEBHOOK_ERROR_MESSAGE', $single_error->message_to_purchaser);
                 }
             }
