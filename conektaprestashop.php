@@ -532,9 +532,10 @@ class ConektaPrestashop extends PaymentModule
             "metadata" => array("soft_validations" => true)
         );
         $customer_info = array(
-            "name"  => $customer->firstname . " " . $customer->lastname,
-            "phone" => $address_delivery->phone,
-            "email" => $customer->email
+            "name"     => $customer->firstname . " " . $customer->lastname,
+            "phone"    => $address_delivery->phone,
+            "email"    => $customer->email,
+            "metadata" => array("soft_validations" => true)
         );
         $order_details = array(
             "currency"         => $this->context->currency->iso_code,
