@@ -500,14 +500,26 @@ class ConektaPrestashop extends PaymentModule
             $line_items = array_merge($line_items, array(
                 array(
                     'name'        => $item['name'],
-                    'unit_price'  => intval((float)$item['total'] * 100),
+                    'unit_price'  => intval((float)$item['price'] * 100),
                     'description' => $item['description_short'],
-                    'quantity'    => $item['cart_quantity'],
+                    'quantity'    => intval($item['cart_quantity']),
                     'sku'         => $item['reference'],
                     'type'        => "physical",
                     'tags'        =>["prestashop"]
                     )
                 ));
+        }
+        $tax_lines = array();
+        foreach ($items as $item) {
+            $tax       = intval(((float)$item['total_wt'] - (float)$item['total']) * 100);
+            if (!empty($item['tax_name'])) {
+                $tax_lines = array_merge($tax_lines, array(
+                    array(
+                        'description' => $item['tax_name'],
+                        'amount'      => $tax
+                    )
+                ));
+            }
         }
         $shipping_lines = array(
             array(
@@ -540,11 +552,26 @@ class ConektaPrestashop extends PaymentModule
         $order_details = array(
             "currency"         => $this->context->currency->iso_code,
             "line_items"       => $line_items,
+            "tax_lines"        => $tax_lines,
             "shipping_lines"   => $shipping_lines,
             "shipping_contact" => $shipping_contact,
-            "customer_info"    => $customer_info
+            "customer_info"    => $customer_info,
+            "metadata" => array("soft_validations" => true)
         );
-        $amount = $this->context->cart->getOrderTotal() * 100;
+
+        $amount = 0;
+
+        foreach ($line_items as $item) {
+            $amount = $amount + ($item['quantity'] * $item['unit_price']);
+        }
+        foreach ($tax_lines as $tax) {
+            $amount = $amount + $tax['amount'];
+        }
+        foreach ($shipping_lines as $shipping) {
+            $amount = $amount + $shipping['amount'];
+        }
+        //faltan los descuentos
+
         try {
             $order = \Conekta\Order::create($order_details);
 
