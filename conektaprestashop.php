@@ -504,7 +504,7 @@ class ConektaPrestashop extends PaymentModule
                     'description' => $item['description_short'],
                     'quantity'    => intval($item['cart_quantity']),
                     'sku'         => $item['reference'],
-                    'type'        => "physical",
+                    'type'        => $item['is_virtual'] ? "downloadable" : "physical",
                     'tags'        =>["prestashop"]
                     )
                 ));
