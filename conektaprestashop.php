@@ -473,7 +473,7 @@ class ConektaPrestashop extends PaymentModule
 
         \Conekta\Conekta::setApiKey(Configuration::get('CONEKTA_MODE') ? Configuration::get('CONEKTA_PRIVATE_KEY_LIVE') : Configuration::get('CONEKTA_PRIVATE_KEY_TEST'));
         \Conekta\Conekta::setPlugin('Prestashop');
-        \Conekta\Conekta::setApiVersion('1.1.0');
+        \Conekta\Conekta::setApiVersion('2.0.0');
 
         $cart             = $this->context->cart;
         $customer         = new Customer((int) $cart->id_customer);
@@ -521,6 +521,21 @@ class ConektaPrestashop extends PaymentModule
                 ));
             }
         }
+        $discount_lines = array();
+        $discounts = $cart->getDiscounts();
+        if(!empty($discounts)){
+            foreach ($discounts as $single_discount) {
+                $discount_amount = $single_discount['value_real'];
+                    $discount_lines = array_merge($discount_lines, array(
+                        array(
+                            'code' => $single_discount['description'],
+                            'amount'      => intval(round(floatval($discount_amount) / 10), 2),
+                            'type'        => $single_discount['code']  
+                        )
+                    ));
+            }
+        }
+        
         $shipping_lines = array(
             array(
                 "description"     => $shipping_service,
@@ -556,7 +571,8 @@ class ConektaPrestashop extends PaymentModule
             "shipping_lines"   => $shipping_lines,
             "shipping_contact" => $shipping_contact,
             "customer_info"    => $customer_info,
-            "metadata" => array("soft_validations" => true)
+            "discount_lines"   => $discount_lines,
+            "metadata"         => array("soft_validations" => true)
         );
 
         $amount = 0;
@@ -578,7 +594,7 @@ class ConektaPrestashop extends PaymentModule
             if ($type == "cash") {
                 $charge_params =
                     array(
-                        'source' => array('type' => 'oxxo_cash'),
+                        'payment_source' => array('type' => 'oxxo_cash'),
                         'amount' => $amount
                     );
                 $charge_response = $order->createCharge($charge_params);
@@ -596,7 +612,7 @@ class ConektaPrestashop extends PaymentModule
             } elseif ($type == "spei") {
                 $charge_params =
                     array(
-                        'source' => array( 'type' => 'spei'),
+                        'payment_source' => array( 'type' => 'spei'),
                         'amount' => $amount
                     );
                 $charge_response = $order->createCharge($charge_params);
@@ -610,7 +626,7 @@ class ConektaPrestashop extends PaymentModule
             } elseif ($type == "banorte") {
                 $charge_params =
                     array(
-                        'source' => array('type' => 'banorte'),
+                        'payment_source' => array('type' => 'banorte'),
                         'amount' => $amount
                     );
                 $charge_response = $order->createCharge($charge_params);
@@ -628,7 +644,7 @@ class ConektaPrestashop extends PaymentModule
             } else {
                 $charge_params =
                     array(
-                        'source' => array(
+                        'payment_source' => array(
                             'type'                 => 'card',
                             'token_id'             => $token
                           ),
@@ -900,7 +916,7 @@ class ConektaPrestashop extends PaymentModule
 
         \Conekta\Conekta::setApiKey(Configuration::get('CONEKTA_MODE') ? Configuration::get('CONEKTA_PRIVATE_KEY_LIVE') : Configuration::get('CONEKTA_PRIVATE_KEY_TEST'));
         \Conekta\Conekta::setPlugin("Prestashop");
-        \Conekta\Conekta::setApiVersion("1.1.0");
+        \Conekta\Conekta::setApiVersion("2.0.0");
         \Conekta\Conekta::setLocale('en');
 
         $events = array(
