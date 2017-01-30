@@ -29,11 +29,10 @@ class OrderTest extends UnitTestCase
     public function testSuccesfulCreateOrder()
     {
         setApiKey();
-        setApiVersion("1.1.0");
         $order = \Conekta\Order::create(self::$valid_order);
-
         $this->assertTrue(strpos($order->metadata["test"], 'extra info') !== false);
         $this->assertTrue(strpos(get_class($order), 'Order') !== false);
+
     }
 
     public function testSuccesfulCreateOrderWithCharges()
@@ -42,7 +41,7 @@ class OrderTest extends UnitTestCase
             array(
                 'charges' => array(
                     array(
-                        'source' => array(
+                        'payment_source' => array(
                             'type' => 'oxxo_cash',
                             'expires_at' => strtotime(date("Y-m-d H:i:s")) + "36000"
                         ),
@@ -57,7 +56,6 @@ class OrderTest extends UnitTestCase
                 )
             );
         setApiKey();
-        setApiVersion('1.1.0');
         $order = \Conekta\Order::create(array_merge(self::$valid_order, $charges));
         $this->assertTrue(strpos(get_class($order), 'Order') !== false);
         $this->assertTrue(count($order->charges) > 0);
@@ -75,10 +73,9 @@ class OrderTest extends UnitTestCase
                 )
             );
         setApiKey();
-        setApiVersion('1.1.0');
         $order = \Conekta\Order::create(array_merge(self::$valid_order, $other_params));
         $charge_params = array(
-            'source' => array('type' => 'oxxo_cash'),
+            'payment_source' => array('type' => 'oxxo_cash'),
             'amount' => 20000
         );
         $charge = $order->createCharge($charge_params);
@@ -92,7 +89,6 @@ class OrderTest extends UnitTestCase
     public function testSuccesfulOrderUpdate()
     {
         setApiKey();
-        setApiVersion('1.1.0');
         $order = \Conekta\Order::create(self::$valid_order);
 
         $updated_parameters = array(
@@ -119,7 +115,7 @@ class OrderTest extends UnitTestCase
     {
         $charges = array(
             array(
-                'source' => array(
+                'payment_source' => array(
                     'type' => 'oxxo_cash'
                 ),
                 'amount' => 10
@@ -127,7 +123,6 @@ class OrderTest extends UnitTestCase
         );
 
         setApiKey();
-        setApiVersion('1.1.0');
         $order = \Conekta\Order::create(self::$valid_order);
         try {
             $order->update(array('charges' => $charges));
@@ -139,7 +134,6 @@ class OrderTest extends UnitTestCase
     public function testSuccesfulOrderFind()
     {
         setApiKey();
-        setApiVersion('1.1.0');
         $id = \Conekta\Order::create(self::$valid_order)->id;
         $order = \Conekta\Order::find($id);
         $this->assertTrue(strpos(get_class($order), 'Order') !== false);
@@ -148,7 +142,6 @@ class OrderTest extends UnitTestCase
     public function testSuccesfulOrderWhere()
     {
         setApiKey();
-        setApiVersion('1.1.0');
         $orders = \Conekta\Order::where();
 
         $this->assertTrue(strpos(get_class($orders), 'ConektaList') !== false);
@@ -160,7 +153,6 @@ class OrderTest extends UnitTestCase
     public function testSuccessfulLineItem()
     {
         setApiKey();
-        setApiVersion('1.1.0');
         $order = \Conekta\Order::create(self::$valid_order);
 
         $line_item = $order->createLineItem(array(
@@ -180,7 +172,6 @@ class OrderTest extends UnitTestCase
     public function testSuccessfulTaxLine()
     {
         setApiKey();
-        setApiVersion('1.1.0');
         $order = \Conekta\Order::create(self::$valid_order);
 
         $tax_line = $order->createTaxLine(array(
@@ -201,7 +192,6 @@ class OrderTest extends UnitTestCase
     public function testSuccessfulShippingLine()
     {
         setApiKey();
-        setApiVersion('1.1.0');
         $order = \Conekta\Order::create(self::$valid_order);
 
         $shipping_line = $order->createShippingLine(array(
@@ -220,12 +210,11 @@ class OrderTest extends UnitTestCase
     public function testSuccessfulDiscountLine()
     {
         setApiKey();
-        setApiVersion('1.1.0');
         $order = \Conekta\Order::create(self::$valid_order);
         $discount_line = $order->createDiscountLine(array(
-            'description' => 'Cupon de descuento',
+            'code' => 'Cupon de descuento',
             'amount' => 10,
-            'kind' => 'loyalty'
+            'type' => 'loyalty'
         ));
         $this->assertTrue(strpos(get_class($discount_line), 'DiscountLine') !== false);
         $this->assertTrue(strpos(get_class($order->discount_lines), 'ConektaList') !== false);
@@ -235,9 +224,8 @@ class OrderTest extends UnitTestCase
     public function testSuccessfulFiscalEntity()
     {
         setApiKey();
-        setApiVersion('1.1.0');
+        
         $order = \Conekta\Order::create(self::$valid_order);
-
         $fiscal_entity = $order->createFiscalEntity(array(
             'tax_id' => 'AMGH851205MN1',
             'company_name' => 'Test SA de CV',
@@ -245,12 +233,12 @@ class OrderTest extends UnitTestCase
             'phone' => '+5213353319758',
             'address' => array(
                 'street1' => '250 Alexis St',
-                'internal_number' => 19,
-                'external_number' => 10,
+                'internal_number' => '19',
+                'external_number' => '10',
                 'city' => 'Red Deer',
                 'state' => 'Alberta',
                 'country' => 'MX',
-                'zip' => '78216')
+                'postal_code' => '78216')
             ));
 
         $this->assertTrue(strpos(get_class($fiscal_entity), 'FiscalEntity') !== false);
@@ -262,7 +250,7 @@ class OrderTest extends UnitTestCase
             array(
                 'charges' => array(
                     array(
-                        'source' => array(
+                        'payment_source' => array(
                             'type' => 'card',
                             'token_id' => 'tok_test_visa_4242'
                         ),
@@ -277,7 +265,6 @@ class OrderTest extends UnitTestCase
                 )
             );
         setApiKey();
-        setApiVersion('1.1.0');
         $order = \Conekta\Order::create(array_merge(self::$valid_order, $charges));
         $order->createReturn(array_merge(self::$valid_return, array('order_id' => $order->id)));
         $returnedOrder = \Conekta\Order::find($order->id);
@@ -289,10 +276,10 @@ class OrderTest extends UnitTestCase
     {
         $charges =
             array(
-                'capture' => false,
+                'preauthorize' => true,
                 'charges' => array(
                     array(
-                        'source' => array(
+                        'payment_source' => array(
                             'type' => 'oxxo_cash',
                             'expires_at' => strtotime(date("Y-m-d H:i:s")) + "36000"
                         ),
@@ -307,10 +294,9 @@ class OrderTest extends UnitTestCase
                 )
             );
         setApiKey();
-        setApiVersion('1.1.0');
         $order = \Conekta\Order::create(array_merge(self::$valid_order, $charges));
-        $this->assertTrue($order->capture == false);
+        $this->assertTrue($order->preauthorize == true);
         $order->capture();
-        $this->assertTrue($order->capture == true);
+        $this->assertTrue($order->preauthorize == false);
     }
 }

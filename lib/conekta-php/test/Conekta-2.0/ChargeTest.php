@@ -73,14 +73,6 @@ class ChargeTest extends UnitTestCase
         $this->assertTrue(strpos(get_class($pm), 'Charge') !== false);
     }
 
-    public function testSuccesfulWhere()
-    {
-        setApiKey();
-        $charges = \Conekta\Charge::where();
-        $this->assertTrue(strpos(get_class($charges), 'Object') !== false);
-        $this->assertTrue(strpos(get_class($charges[0]), 'Charge') !== false);
-    }
-
     public function testSuccesfulBankPMCreate()
     {
         $pm = self::$valid_payment_method;
@@ -126,52 +118,4 @@ class ChargeTest extends UnitTestCase
         $this->assertTrue($opm->status == 'pending_payment');
     }
 
-    public function testUnsuccesfulPMCreate()
-    {
-        $pm = self::$intvalid_payment_method;
-        $card = self::$valid_visa_card;
-        setApiKey();
-        try {
-            $cpm = \Conekta\Charge::create(array_merge($pm, $card));
-        } catch (Exception $e) {
-            $this->assertTrue(strpos($e->getMessage(), 'The minimum for card payments is 3 pesos. Check that the amount is in cents as explained in the documentation.') !== false);
-        }
-    }
-
-    public function testSuccesfulRefund()
-    {
-        $pm = self::$valid_payment_method;
-        $card = self::$valid_visa_card;
-        setApiKey();
-        $cpm = \Conekta\Charge::create(array_merge($pm, $card));
-        $this->assertTrue($cpm->status == 'paid');
-        $cpm->refund();
-        $this->assertTrue($cpm->status == 'refunded');
-    }
-
-    public function testUnsuccesfulRefund()
-    {
-        $pm = self::$valid_payment_method;
-        $card = self::$valid_visa_card;
-        setApiKey();
-        $cpm = \Conekta\Charge::create(array_merge($pm, $card));
-        $this->assertTrue($cpm->status == 'paid');
-        try {
-            $cpm->refund(3000);
-        } catch (Exception $e) {
-            $this->assertTrue(strpos($e->getMessage(), 'The amount to refund exceeds the charge total') !== false);
-        }
-    }
-
-    public function testSuccesfulCapture()
-    {
-        $pm = self::$valid_payment_method;
-        $card = self::$valid_visa_card;
-        $capture = array('capture' => false);
-        setApiKey();
-        $cpm = \Conekta\Charge::create(array_merge($pm, $card, $capture));
-        $this->assertTrue($cpm->status == 'pre_authorized');
-        $cpm->capture();
-        $this->assertTrue($cpm->status == 'paid');
-    }
 }

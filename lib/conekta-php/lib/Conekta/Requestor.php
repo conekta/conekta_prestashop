@@ -96,8 +96,8 @@ class Requestor
         $json_response = json_decode($response, true);
 
         if ($response_code != 200) {
-            if($this->apiVersion == '1.1.0'){
-                ErrorList::errorHandler($json_response , $response_code);
+            if($this->apiVersion == '2.0.0'){
+                throw ErrorList::errorHandler($json_response , $response_code);
             }else{
                 throw Error::errorHandler($json_response, $response_code);
             }
