@@ -504,14 +504,14 @@ class ConektaPrestashop extends PaymentModule
                     'description' => $item['description_short'],
                     'quantity'    => intval($item['cart_quantity']),
                     'sku'         => $item['reference'],
-                    'type'        => $item['is_virtual'] ? "downloadable" : "physical",
-                    'tags'        =>["prestashop"]
+                    'tags'        => ["prestashop"]
                     )
                 ));
         }
+
         $tax_lines = array();
         foreach ($items as $item) {
-            $tax       = intval(((float)$item['total_wt'] - (float)$item['total']) * 100);
+            $tax = intval(((float)$item['total_wt'] - (float)$item['total']) * 100);
             if (!empty($item['tax_name'])) {
                 $tax_lines = array_merge($tax_lines, array(
                     array(
@@ -521,72 +521,99 @@ class ConektaPrestashop extends PaymentModule
                 ));
             }
         }
+
         $discount_lines = array();
-        $discounts = $cart->getDiscounts();
+        $discounts      = $cart->getDiscounts();
+
         if(!empty($discounts)){
-            foreach ($discounts as $single_discount) {
-                $discount_amount = $single_discount['value_real'];
-                    $discount_lines = array_merge($discount_lines, array(
-                        array(
-                            'code' => $single_discount['description'],
-                            'amount'      => intval(round(floatval($discount_amount) / 10), 2),
-                            'type'        => $single_discount['code']  
-                        )
-                    ));
+            foreach ($discounts as $discount) {
+                $discount_lines = array_merge($discount_lines, array(
+                    array(
+                        'code'   => $discount['code'],
+                        'amount' => (int)$discount['value_real'] * 100,
+                        'type'   => 'coupon'
+                    )
+                ));
             }
         }
-        
-        $shipping_lines = array(
-            array(
-                "description"     => $shipping_service,
-                "amount"          => $shipping_price,
-                "tracking_number" => $shipping_service,
-                "carrier"         => $shipping_carrier,
-                "method"          => $shipping_service
-            )
-        );
+
+        if (!empty($shipping_carrier)) {
+            $shipping_lines = array(
+                array(
+                    "amount"          => $shipping_price,
+                    "tracking_number" => $shipping_service,
+                    "carrier"         => $shipping_carrier,
+                    "method"          => $shipping_service
+                )
+            );
+        }
+
         $shipping_contact = array(
-            "email"    => $customer->email,
-            "phone"    => $address_delivery->phone,
             "receiver" => $customer->firstname . " " . $customer->lastname,
+            "phone"    => $address_delivery->phone,
             "address"  => array(
-                "street1" => $address_delivery->address1,
-                "city"    => $address_delivery->city,
-                "state"   => State::getNameById($address_delivery->id_state),
-                "country" => Country::getIsoById($address_delivery->id_country),
-                "zip"     => $address_delivery->postcode
+                "street1"     => $address_delivery->address1,
+                "city"        => $address_delivery->city,
+                "state"       => State::getNameById($address_delivery->id_state),
+                "country"     => Country::getIsoById($address_delivery->id_country),
+                "postal_code" => $address_delivery->postcode
             ),
             "metadata" => array("soft_validations" => true)
         );
+
         $customer_info = array(
             "name"     => $customer->firstname . " " . $customer->lastname,
             "phone"    => $address_delivery->phone,
             "email"    => $customer->email,
             "metadata" => array("soft_validations" => true)
         );
+
         $order_details = array(
             "currency"         => $this->context->currency->iso_code,
             "line_items"       => $line_items,
-            "tax_lines"        => $tax_lines,
-            "shipping_lines"   => $shipping_lines,
             "shipping_contact" => $shipping_contact,
             "customer_info"    => $customer_info,
-            "discount_lines"   => $discount_lines,
             "metadata"         => array("soft_validations" => true)
         );
+
+        if (!empty($tax_lines)) {
+            $order_details =
+                array_merge($order_details, array('tax_lines' => $tax_lines));
+        }
+
+        if (!empty($discount_lines)) {
+            $order_details =
+                array_merge($order_details, array('discount_lines' => $discount_lines));
+        }
+
+        if (isset($shipping_lines)) {
+            $order_details =
+                array_merge($order_details, array('shipping_lines' => $shipping_lines));
+        }
 
         $amount = 0;
 
         foreach ($line_items as $item) {
             $amount = $amount + ($item['quantity'] * $item['unit_price']);
         }
-        foreach ($tax_lines as $tax) {
-            $amount = $amount + $tax['amount'];
+
+        if (isset($tax_lines)) {
+            foreach ($tax_lines as $tax) {
+                $amount = $amount + $tax['amount'];
+            }
         }
-        foreach ($shipping_lines as $shipping) {
-            $amount = $amount + $shipping['amount'];
+
+        if (isset($shipping_lines)) {
+            foreach ($shipping_lines as $shipping) {
+                $amount = $amount + $shipping['amount'];
+            }
         }
-        //faltan los descuentos
+
+        if (isset($discount_lines)) {
+            foreach ($discount_lines as $discount) {
+                $amount = $amount - $discount['amount'];
+            }
+        }
 
         try {
             $order = \Conekta\Order::create($order_details);
