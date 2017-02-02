@@ -464,7 +464,7 @@ class ConektaPrestashop extends PaymentModule
 
             $controller = Configuration::get('PS_ORDER_PROCESS_TYPE') ? 'order-opc.php' : 'order.php';
 
-            $location = $this->context->link->getPageLink($controller, true) . (strpos($controller, '?') !== false ? '&' : '?') . 'step=3&message_to_purchaser=token&conekta_error=1#conekta_error';
+            $location = $this->context->link->getPageLink($controller, true) . (strpos($controller, '?') !== false ? '&' : '?') . 'step=3&message=token&conekta_error=1#conekta_error';
 
             Tools::redirectLink($location);
         }
@@ -987,14 +987,15 @@ class ConektaPrestashop extends PaymentModule
                 $different = true;
                 $webhooks = \Conekta\Webhook::where();
 
+                $urls = array();
+
                 foreach ($webhooks as $webhook) {
-                    if (strpos($webhook->webhook_url, $url) !== false) {
-                        $different = false;
-                    }
+                    array_push($urls, $webhook->webhook_url);
                 }
 
-                if ($different) {
-                    if (Configuration::get('CONEKTA_MODE')) {
+
+                if (!in_array($url_string, $urls)){
+                      if (Configuration::get('CONEKTA_MODE')) {
                         $mode = array(
                             "production_enabled" => 1
                             );
@@ -1014,12 +1015,10 @@ class ConektaPrestashop extends PaymentModule
                     Configuration::deleteByName('CONEKTA_WEBHOOK_FAILED_ATTEMPTS');
                     Configuration::deleteByName('CONEKTA_WEBHOOK_FAILED_URL');
                     Configuration::deleteByName('CONEKTA_WEBHOOK_ERROR_MESSAGE');
-                } else {
-                    Configuration::updateValue('CONEKTA_WEBHOOK_ERROR_MESSAGE', "Webhook was already register in Conekta!");
                 }
             } catch (\Conekta\ErrorList $e) {
                 foreach ($e->details as $single_error) {
-                    Configuration::updateValue('CONEKTA_WEBHOOK_ERROR_MESSAGE', $single_error->message_to_purchaser);
+                    Configuration::updateValue('CONEKTA_WEBHOOK_ERROR_MESSAGE', $single_error->message);
                 }
             }
         } else {
@@ -1043,3 +1042,5 @@ class ConektaPrestashop extends PaymentModule
         }
     }
 }
+
+?>

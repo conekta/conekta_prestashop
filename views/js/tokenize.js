@@ -85,7 +85,7 @@ var conektaErrorResponseHandler = function(response) {
         $('.conekta-payment-errors').fadeIn(1000);
     else
     {
-        $('#conekta-payment-form').prepend('<div class="conekta-payment-errors">' + response.message_to_purchaser +'</div>');
+        $('#conekta-payment-form').prepend('<div class="conekta-payment-errors">' + response.message +'</div>');
         $('.conekta-payment-errors').fadeIn(1000);
     }
     
