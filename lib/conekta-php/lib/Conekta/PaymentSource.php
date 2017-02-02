@@ -7,7 +7,7 @@ use \Conekta\Lang;
 use \Conekta\Error;
 use \Conekta\Conekta;
 
-class ShippingLine extends Resource
+class PaymentSource extends Resource
 {
     public function instanceUrl()
     {
@@ -16,11 +16,10 @@ class ShippingLine extends Resource
         parent::idValidator($id);
 
         $class = get_class($this);
-        $base = $this->classUrl($class);
+        $base = "/payment_sources";
         $extn = urlencode($id);
-        $orderUrl = $this->order->instanceUrl();
-
-        return $orderUrl . $base . "/{$extn}";
+        $customerUrl = $this->customer->instanceUrl();
+        return $customerUrl . $base . "/{$extn}";
     }
 
     public function update($params = null)
@@ -30,6 +29,6 @@ class ShippingLine extends Resource
 
     public function delete()
     {
-        return parent::_delete('order', 'shipping_lines');
+        return parent::_delete('customer', 'payment_sources');
     }
 }

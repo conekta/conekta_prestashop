@@ -48,7 +48,7 @@ abstract class Resource extends Object
 
     protected static function _scpWhere($class, $params)
     {
-        if (Conekta::$apiVersion == "1.1.0") {
+        if (Conekta::$apiVersion == "2.0.0") {
             $path = explode('\\', $class);
             $instance = new ConektaList(array_pop($path));
         } else {
@@ -87,24 +87,29 @@ abstract class Resource extends Object
     public function instanceUrl()
     {
         $id = $this->id;
+        $this->idValidator($id);
+        $class = get_class($this);
+        $base = $this->classUrl($class);
+        $extn = urlencode($id);
+
+        return "{$base}/{$extn}";
+    }
+
+    protected function idValidator($id)
+    {
         if (!$id) {
             $error = new Error(
                 Lang::translate('error.resource.id', Lang::EN, array('RESOURCE' => get_class())),
                 Lang::translate('error.resource.id_purchaser', Conekta::$locale)
             );
 
-            if(Conekta::$apiVersion == "1.1.0"){
+            if(Conekta::$apiVersion == "2.0.0"){
                 $errorList = new ErrorList();
-                $errorList->details = $error;
+                $errorList->details[] = $error;
                 throw $errorList;
             }
             throw $error;
         }
-        $class = get_class($this);
-        $base = $this->classUrl($class);
-        $extn = urlencode($id);
-
-        return "{$base}/{$extn}";
     }
 
     protected function _delete($parent = null, $member = null)
@@ -151,7 +156,7 @@ abstract class Resource extends Object
             strpos($member, 'payout_methods') !== false) {
 
             if (empty($this->$member)) {
-                if (Conekta::$apiVersion == '1.1.0') {
+                if (Conekta::$apiVersion == '2.0.0') {
                    $this->$member = new ConektaList($member);
                 } else {
                     $this->$member = new Object();
@@ -172,6 +177,7 @@ abstract class Resource extends Object
             $instance = end($instances);
         } else {
             $class = '\\Conekta\\' . ucfirst($member);
+
             $instance = new $class();
             $instance->loadFromArray($response);
             $this->$member = $instance;
