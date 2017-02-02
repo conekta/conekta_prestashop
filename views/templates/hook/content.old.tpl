@@ -19,7 +19,7 @@
 *
 *  @author Conekta <support@conekta.io>
 *  @copyright  2012-2016 PrestaShop SA
-*  @version  v1.2.0
+*  @version  v2.0.0
 *  @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 *}
 {if $fancy_box}

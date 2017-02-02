@@ -5,3 +5,5 @@
 * Add Banorte CEP.
 === 1.0.0 2016-06-14
 * Fix validation and templating errors.
+=== 2.0.0 2017-02-02
+* Adapt plugin to use API 2.0.0.
