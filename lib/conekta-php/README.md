@@ -1,7 +1,7 @@
 
 ![alt tag](https://raw.github.com/conekta/conekta-php/master/readme_files/cover.png)
 
-# Conekta PHP v.2.0.5
+# Conekta PHP v.3.0.0
 
 This is a php library that allows interaction with https://api.conekta.io API.
 
@@ -17,13 +17,13 @@ To get started, add the following to your PHP script:
 
 You can also install this library with composer:
 
-  require: "conekta/conekta-php": "dev-master"
+  require: "conekta/conekta-php": "3.0.0"
 
 ## Usage
 ```php
-Conekta::setApiKey('1tv5yJp3xnVZ7eK67m4h');
+\Conekta\Conekta::setApiKey('1tv5yJp3xnVZ7eK67m4h');
 try {
-  $charge = Conekta_Charge::create(array(
+  $charge = \Conekta\Charge::create(array(
     "amount"=> 51000,
     "currency"=> "MXN",
     "description"=> "Pizza Delivery",
