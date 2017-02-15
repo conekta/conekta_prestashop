@@ -554,18 +554,6 @@ class ConektaPrestashop extends PaymentModule
             );
         }
 
-        $fiscal_entity = array(
-            "name"    => $address_fiscal->firstname . " " . $address_fiscal->lastname,
-            "address" => array(
-                 "street1"     => $address_fiscal->address1,
-                 "city"        => $address_fiscal->city,
-                 "country"     => Country::getIsoById($address_fiscal->id_country),
-                 "postal_code" => $address_fiscal->postcode,
-                 "state"       => State::getNameById($address_fiscal->id_state)
-            ),
-            "metadata" => array("soft_validations" => true)
-         );
-
         $shipping_contact = array(
             "receiver" => $customer->firstname . " " . $customer->lastname,
             "phone"    => $address_delivery->phone,
@@ -590,7 +578,6 @@ class ConektaPrestashop extends PaymentModule
             "currency"         => $this->context->currency->iso_code,
             "line_items"       => $line_items,
             "shipping_contact" => $shipping_contact,
-            "fiscal_entity"    => $fiscal_entity,
             "customer_info"    => $customer_info,
             "metadata"         => array("soft_validations" => true)
         );
@@ -658,7 +645,7 @@ class ConektaPrestashop extends PaymentModule
             } elseif ($type == "spei") {
                 $charge_params =
                     array(
-                        'payment_source' => array( 'type' => 'spei'),
+                        'payment_method' => array( 'type' => 'spei'),
                         'amount' => $amount
                     );
                 $charge_response = $order->createCharge($charge_params);

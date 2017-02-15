@@ -62,7 +62,7 @@
 
 <div class="payment_module conekta-payment-module cash-option" >
 
-<h3 class="conekta_title">{l s='Pago en efectivo (Oxxo)' mod='conektaprestashop'}</h3>
+<h3 class="conekta_title">{l s='Pago en efectivo (OXXOPay)' mod='conektaprestashop'}</h3>
 
 {* Classic Credit card form *}
 <div id="conekta-ajax-loader"><img src="{$module_dir|escape:'htmlall':'UTF-8'}views/img/ajax-loader.gif" alt="" /> {l s='Transaction in progress, please wait.' mod='conektaprestashop'}</div>
