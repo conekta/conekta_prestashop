@@ -503,10 +503,16 @@ class ConektaPrestashop extends PaymentModule
                     'unit_price'  => intval((float)$item['price'] * 100),
                     'description' => $item['description_short'],
                     'quantity'    => intval($item['cart_quantity']),
-                    'sku'         => $item['reference'],
                     'tags'        => ["prestashop"]
                     )
                 ));
+            if(strlen($item['reference']) > 0){
+                array_merge($line_items, array(
+                    array(
+                        'sku' => $item['reference']
+                        )
+                ));
+            }
         }
 
         $tax_lines = array();
