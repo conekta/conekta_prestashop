@@ -640,7 +640,7 @@ class ConektaPrestashop extends PaymentModule
             if ($type == "cash") {
                 $charge_params =
                     array(
-                        'payment_source' => array('type' => 'oxxo_cash'),
+                        'payment_method' => array('type' => 'oxxo_cash'),
                         'amount' => $amount
                     );
                 $charge_response = $order->createCharge($charge_params);
@@ -672,7 +672,7 @@ class ConektaPrestashop extends PaymentModule
             } elseif ($type == "banorte") {
                 $charge_params =
                     array(
-                        'payment_source' => array('type' => 'banorte'),
+                        'payment_method' => array('type' => 'banorte'),
                         'amount' => $amount
                     );
                 $charge_response = $order->createCharge($charge_params);
@@ -690,7 +690,7 @@ class ConektaPrestashop extends PaymentModule
             } else {
                 $charge_params =
                     array(
-                        'payment_source' => array(
+                        'payment_method' => array(
                             'type'                 => 'card',
                             'token_id'             => $token
                           ),
