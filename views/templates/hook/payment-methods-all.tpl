@@ -113,7 +113,7 @@
 
 <p class="payment_module conekta-payment-module cash-option" >
 
-<a class="conekta_title ">{l s='Pago en efectivo (Oxxo)' mod='conektaprestashop'}</a>
+<a class="conekta_title ">{l s='Pago en efectivo (OXXOPay)' mod='conektaprestashop'}</a>
 </p>
 
 

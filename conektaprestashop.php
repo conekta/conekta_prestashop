@@ -554,18 +554,6 @@ class ConektaPrestashop extends PaymentModule
             );
         }
 
-        $fiscal_entity = array(
-            "name"    => $address_fiscal->firstname . " " . $address_fiscal->lastname,
-            "address" => array(
-                 "street1"     => $address_fiscal->address1,
-                 "city"        => $address_fiscal->city,
-                 "country"     => Country::getIsoById($address_fiscal->id_country),
-                 "postal_code" => $address_fiscal->postcode,
-                 "state"       => State::getNameById($address_fiscal->id_state)
-            ),
-            "metadata" => array("soft_validations" => true)
-         );
-
         $shipping_contact = array(
             "receiver" => $customer->firstname . " " . $customer->lastname,
             "phone"    => $address_delivery->phone,
@@ -590,7 +578,6 @@ class ConektaPrestashop extends PaymentModule
             "currency"         => $this->context->currency->iso_code,
             "line_items"       => $line_items,
             "shipping_contact" => $shipping_contact,
-            "fiscal_entity"    => $fiscal_entity,
             "customer_info"    => $customer_info,
             "metadata"         => array("soft_validations" => true)
         );
@@ -640,7 +627,7 @@ class ConektaPrestashop extends PaymentModule
             if ($type == "cash") {
                 $charge_params =
                     array(
-                        'payment_source' => array('type' => 'oxxo_cash'),
+                        'payment_method' => array('type' => 'oxxo_cash'),
                         'amount' => $amount
                     );
                 $charge_response = $order->createCharge($charge_params);
@@ -658,7 +645,7 @@ class ConektaPrestashop extends PaymentModule
             } elseif ($type == "spei") {
                 $charge_params =
                     array(
-                        'payment_source' => array( 'type' => 'spei'),
+                        'payment_method' => array( 'type' => 'spei'),
                         'amount' => $amount
                     );
                 $charge_response = $order->createCharge($charge_params);
@@ -672,7 +659,7 @@ class ConektaPrestashop extends PaymentModule
             } elseif ($type == "banorte") {
                 $charge_params =
                     array(
-                        'payment_source' => array('type' => 'banorte'),
+                        'payment_method' => array('type' => 'banorte'),
                         'amount' => $amount
                     );
                 $charge_response = $order->createCharge($charge_params);
@@ -690,7 +677,7 @@ class ConektaPrestashop extends PaymentModule
             } else {
                 $charge_params =
                     array(
-                        'payment_source' => array(
+                        'payment_method' => array(
                             'type'                 => 'card',
                             'token_id'             => $token
                           ),
@@ -718,7 +705,7 @@ class ConektaPrestashop extends PaymentModule
             }
 
             if (isset($charge_response->id) && $type == "cash") {
-                Db::getInstance()->Execute('INSERT INTO ' . _DB_PREFIX_ . 'conekta_transaction (type, id_cart, id_order, id_conekta_order, id_transaction, amount, status, currency, mode, date_add, reference, barcode, captured) VALUES (\'payment\', ' . pSQL((int) $this->context->cart->id) . ', ' . pSQL((int) $this->currentOrder) . ', \'' . pSQL($order->id) . '\', \'' . pSQL($charge_response->id) . '\',\'' . ($order->amount * 0.01) . '\', \'' . ($charge_response->status == 'paid' ? 'paid' : 'unpaid') . '\', \'' . pSQL($charge_response->currency) . '\', \'' . ($charge_response->livemode == 'true' ? 'live' : 'test') . '\', NOW(),\'' . $reference . '\',\'' . $barcode_url . '\',\'' . ($charge_response->livemode == 'true' ? '1' : '0') . '\' )');
+                Db::getInstance()->Execute('INSERT INTO ' . _DB_PREFIX_ . 'conekta_transaction (type, id_cart, id_order, id_conekta_order, id_transaction, amount, status, currency, mode, date_add, reference, barcode, captured) VALUES (\'payment\', ' . pSQL((int) $this->context->cart->id) . ', ' . pSQL((int) $this->currentOrder) . ', \'' . pSQL($order->id) . '\', \'' . pSQL($charge_response->id) . '\',\'' . ($order->amount * 0.01) . '\', \'' . ($charge_response->status == 'paid' ? 'paid' : 'unpaid') . '\', \'' . pSQL($charge_response->currency) . '\', \'' . ($charge_response->livemode == 'true' ? 'live' : 'test') . '\', NOW(),\'' . $reference . '\',\'' . $reference . '\',\'' . ($charge_response->livemode == 'true' ? '1' : '0') . '\' )');
             } elseif (isset($charge_response->id) && $type == "spei") {
                 Db::getInstance()->Execute('INSERT INTO ' . _DB_PREFIX_ . 'conekta_transaction (type, id_cart, id_order, id_conekta_order, id_transaction, amount, status, currency, mode, date_add, reference, captured) VALUES (\'payment\', ' . (int) $this->context->cart->id . ', ' . (int) $this->currentOrder . ', \'' . pSQL($order->id) . '\', \'' . pSQL($charge_response->id) . '\', \'' . ($charge_response->amount * 0.01) . '\', \'' . ($charge_response->status == 'paid' ? 'paid' : 'unpaid') . '\', \'' . pSQL($charge_response->currency) . '\', \'' . ($charge_response->livemode == 'true' ? 'live' : 'test') . '\', NOW(),\'' . $reference . '\', \'' . ($charge_response->livemode == 'true' ? '1' : '0') . '\' )');
             } elseif (isset($charge_response->id) && $type == "banorte") {
