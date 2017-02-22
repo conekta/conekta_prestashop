@@ -57,16 +57,3 @@
                 <br /><br /><span>
 <div class="conf confirmation">{l s='Por favor de realizar el pago por medio de SPEI.' mod='conektaprestashop'}</div>
 {/if}
-
-{if $banorte }
-<p> {l s='Informacion para realizar el pago por medio de BANORTE:' mod='conektaprestashop'} <p>
-                <br><br><b>{l s='Monto:' mod='conektaprestashop'}</b> $ {$conekta_order.amount|escape:'htmlall':'UTF-8' } {$conekta_order.currency|escape:'htmlall':'UTF-8' }
-                <br><br><b>{l s='Referencia:' mod='conektaprestashop'}</b>
-                <br>{$conekta_order.reference|escape:'htmlall':'UTF-8'}
-                <br><br><b>{l s='Número de servicio:' mod='conektaprestashop'}</b>
-                <br>{$conekta_order.service_number|escape:'htmlall':'UTF-8'}
-                <br><br><b>{l s='Nombre de servicio:' mod='conektaprestashop'}</b>
-                <br>{$conekta_order.service_name|escape:'htmlall':'UTF-8'}
-                <br /><br /><span>
-<div class="conf confirmation">{l s='Por favor de realizar el pago por medio de BANORTE.' mod='conektaprestashop'}</div>
-{/if}

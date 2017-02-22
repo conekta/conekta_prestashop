@@ -78,7 +78,7 @@ class ConektaPrestashop extends PaymentModule
             }
         }
 
-        $ret = parent::install() && $this->_createPendingCashState() && $this->_createPendingBanorteState() && $this->_createPendingSpeiState() && $this->registerHook('adminOrder') && $this->registerHook('payment') && $this->registerHook('header') && $this->registerHook('backOfficeHeader') && $this->registerHook('paymentReturn') && Configuration::updateValue('CONEKTA_CARDS', 1) && Configuration::updateValue('CONEKTA_MSI', 1) && Configuration::updateValue('CONEKTA_CASH', 1) && Configuration::updateValue('CONEKTA_BANORTE', 1) && Configuration::updateValue('CONEKTA_SPEI', 1) && Configuration::updateValue('CONEKTA_MODE', 0) && Configuration::updateValue('CONEKTA_PAYMENT_ORDER_STATUS', (int)Configuration::get('PS_OS_PAYMENT')) && $this->installDb();
+        $ret = parent::install() && $this->_createPendingCashState() && $this->_createPendingSpeiState() && $this->registerHook('adminOrder') && $this->registerHook('payment') && $this->registerHook('header') && $this->registerHook('backOfficeHeader') && $this->registerHook('paymentReturn') && Configuration::updateValue('CONEKTA_CARDS', 1) && Configuration::updateValue('CONEKTA_MSI', 1) && Configuration::updateValue('CONEKTA_CASH', 1) && Configuration::updateValue('CONEKTA_SPEI', 1) && Configuration::updateValue('CONEKTA_MODE', 0) && Configuration::updateValue('CONEKTA_PAYMENT_ORDER_STATUS', (int)Configuration::get('PS_OS_PAYMENT')) && $this->installDb();
 
         Configuration::updateValue('CONEKTA_PRESTASHOP_VERSION', $this->version);
         return $ret;
@@ -151,46 +151,6 @@ class ConektaPrestashop extends PaymentModule
         return true;
     }
 
-    private function _createPendingBanorteState()
-    {
-        $state = new OrderState();
-        $languages = Language::getLanguages();
-        $names = array();
-        
-        foreach ($languages as $lang) {
-            $names[$lang['id_lang']] = 'En espera de pago';
-        }
-
-        $state->name = $names;
-        $state->color = '#4169E1';
-        $state->send_email = true;
-        $state->module_name = 'conektaprestashop';
-        $templ = array();
-
-        foreach ($languages as $lang) {
-            $templ[$lang['id_lang']] = 'conektaprestashop';
-        }
-
-        $state->template = $templ;
-        if ($state->save()) {
-            Configuration::updateValue('waiting_banorte_payment', $state->id);
-            $directory = _PS_MODULE_DIR_ . $this->name . '/mails/';
-            if ($dhvalue = opendir($directory)) {
-                while (($file = readdir($dhvalue)) !== false) {
-                    if (is_dir($directory . $file) && $file[0] != '.') {
-                        copy($directory . $file . '/conektabanorte.html', '../mails/' . $file . '/conektabanorte.html');
-                    }
-                }
-
-                closedir($dhvalue);
-            }
-        } else {
-            return false;
-        }
-
-        return true;
-    }
-
     private function _createPendingCashState()
     {
         $state = new OrderState();
@@ -237,7 +197,7 @@ class ConektaPrestashop extends PaymentModule
      */
     public function uninstall()
     {
-        return parent::uninstall() && Configuration::deleteByName('CONEKTA_PRESTASHOP_VERSION') && Configuration::deleteByName('CONEKTA_MSI') && Configuration::deleteByName('CONEKTA_CARDS') && Configuration::deleteByName('CONEKTA_CASH') && Configuration::deleteByName('CONEKTA_BANORTE') && Configuration::deleteByName('CONEKTA_SPEI') && Configuration::deleteByName('CONEKTA_PUBLIC_KEY_TEST') && Configuration::deleteByName('CONEKTA_PUBLIC_KEY_LIVE') && Configuration::deleteByName('CONEKTA_MODE') && Configuration::deleteByName('CONEKTA_PRIVATE_KEY_TEST') && Configuration::deleteByName('CONEKTA_PRIVATE_KEY_LIVE') && Configuration::deleteByName('CONEKTA_SIGNATURE_KEY_LIVE') && Configuration::deleteByName('CONEKTA_SIGNATURE_KEY_TEST') && Configuration::deleteByName('CONEKTA_PAYMENT_ORDER_STATUS') && Configuration::deleteByName('CONEKTA_WEBHOOK') && Configuration::deleteByName('CONEKTA_WEBHOOK_FAILED_ATTEMPTS') && Configuration::deleteByName('CONEKTA_WEBHOOK_ERROR_MESSAGE') && Configuration::deleteByName('CONEKTA_WEBHOOK_FAILED_URL') && Db::getInstance()->Execute('DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'conekta_customer`') && Db::getInstance()->Execute('DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'conekta_transaction`');
+        return parent::uninstall() && Configuration::deleteByName('CONEKTA_PRESTASHOP_VERSION') && Configuration::deleteByName('CONEKTA_MSI') && Configuration::deleteByName('CONEKTA_CARDS') && Configuration::deleteByName('CONEKTA_CASH') && Configuration::deleteByName('CONEKTA_SPEI') && Configuration::deleteByName('CONEKTA_PUBLIC_KEY_TEST') && Configuration::deleteByName('CONEKTA_PUBLIC_KEY_LIVE') && Configuration::deleteByName('CONEKTA_MODE') && Configuration::deleteByName('CONEKTA_PRIVATE_KEY_TEST') && Configuration::deleteByName('CONEKTA_PRIVATE_KEY_LIVE') && Configuration::deleteByName('CONEKTA_SIGNATURE_KEY_LIVE') && Configuration::deleteByName('CONEKTA_SIGNATURE_KEY_TEST') && Configuration::deleteByName('CONEKTA_PAYMENT_ORDER_STATUS') && Configuration::deleteByName('CONEKTA_WEBHOOK') && Configuration::deleteByName('CONEKTA_WEBHOOK_FAILED_ATTEMPTS') && Configuration::deleteByName('CONEKTA_WEBHOOK_ERROR_MESSAGE') && Configuration::deleteByName('CONEKTA_WEBHOOK_FAILED_URL') && Db::getInstance()->Execute('DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'conekta_customer`') && Db::getInstance()->Execute('DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'conekta_transaction`');
     }
 
     /**
@@ -290,7 +250,6 @@ class ConektaPrestashop extends PaymentModule
         $this->smarty->assign('msi', Configuration::get('CONEKTA_MSI'));
         $this->smarty->assign('cash', Configuration::get('CONEKTA_CASH'));
         $this->smarty->assign('spei', Configuration::get('CONEKTA_SPEI'));
-        $this->smarty->assign('banorte', Configuration::get('CONEKTA_BANORTE'));
 
         if (Tools::getIsset("message")) {
             $this->smarty->assign("message", $_GET['message']);
@@ -419,15 +378,6 @@ class ConektaPrestashop extends PaymentModule
                     $this->smarty->assign('spei', true);
                     $this->smarty->assign('conekta_order', array(
                         'receiving_account_number' => $conekta_transaction_details['reference'],
-                        'amount' => $conekta_transaction_details['amount'],
-                        'currency' => $conekta_transaction_details['currency']
-                        ));
-                } else {
-                    $this->smarty->assign('banorte', true);
-                    $this->smarty->assign('conekta_order', array(
-                        'service_name' => "Conekta",
-                        'service_number' => "127589",
-                        'reference' => $conekta_transaction_details['reference'],
                         'amount' => $conekta_transaction_details['amount'],
                         'currency' => $conekta_transaction_details['currency']
                         ));
@@ -656,24 +606,6 @@ class ConektaPrestashop extends PaymentModule
                 $checkout->extra_mail_vars = array(
                     '{receiving_account_number}' => (string)$reference
                     );
-            } elseif ($type == "banorte") {
-                $charge_params =
-                    array(
-                        'payment_method' => array('type' => 'banorte'),
-                        'amount' => $amount
-                    );
-                $charge_response = $order->createCharge($charge_params);
-                $reference = $charge_response->payment_method->reference;
-                $service_name = $charge_response->payment_method->service_name;
-                $service_number = $charge_response->payment_method->service_number;
-                $order_status = (int)Configuration::get('waiting_banorte_payment');
-                $message = $this->l('Conekta Transaction Details:') . "\n\n" . $this->l('Amount:') . ' ' . ($charge_response->amount * 0.01) . "\n" . $this->l('Processed on:') . ' ' . strftime('%Y-%m-%d %H:%M:%S', $charge_response->created_at) . "\n" . $this->l('Currency:') . ' ' . Tools::strtoupper($charge_response->currency) . "\n" . $this->l('Mode:') . ' ' . ($charge_response->livemode == 'true' ? $this->l('Live') : $this->l('Test')) . "\n";
-                $checkout = Module::getInstanceByName('conektaprestashop');
-                $checkout->extra_mail_vars = array(
-                    '{reference}' => (string)$reference,
-                    '{service_name}' => (string)$service_name,
-                    '{service_number}' => (string)$service_number
-                    );
             } else {
                 $charge_params =
                     array(
@@ -707,8 +639,6 @@ class ConektaPrestashop extends PaymentModule
             if (isset($charge_response->id) && $type == "cash") {
                 Db::getInstance()->Execute('INSERT INTO ' . _DB_PREFIX_ . 'conekta_transaction (type, id_cart, id_order, id_conekta_order, id_transaction, amount, status, currency, mode, date_add, reference, barcode, captured) VALUES (\'payment\', ' . pSQL((int) $this->context->cart->id) . ', ' . pSQL((int) $this->currentOrder) . ', \'' . pSQL($order->id) . '\', \'' . pSQL($charge_response->id) . '\',\'' . ($order->amount * 0.01) . '\', \'' . ($charge_response->status == 'paid' ? 'paid' : 'unpaid') . '\', \'' . pSQL($charge_response->currency) . '\', \'' . ($charge_response->livemode == 'true' ? 'live' : 'test') . '\', NOW(),\'' . $reference . '\',\'' . $reference . '\',\'' . ($charge_response->livemode == 'true' ? '1' : '0') . '\' )');
             } elseif (isset($charge_response->id) && $type == "spei") {
-                Db::getInstance()->Execute('INSERT INTO ' . _DB_PREFIX_ . 'conekta_transaction (type, id_cart, id_order, id_conekta_order, id_transaction, amount, status, currency, mode, date_add, reference, captured) VALUES (\'payment\', ' . (int) $this->context->cart->id . ', ' . (int) $this->currentOrder . ', \'' . pSQL($order->id) . '\', \'' . pSQL($charge_response->id) . '\', \'' . ($charge_response->amount * 0.01) . '\', \'' . ($charge_response->status == 'paid' ? 'paid' : 'unpaid') . '\', \'' . pSQL($charge_response->currency) . '\', \'' . ($charge_response->livemode == 'true' ? 'live' : 'test') . '\', NOW(),\'' . $reference . '\', \'' . ($charge_response->livemode == 'true' ? '1' : '0') . '\' )');
-            } elseif (isset($charge_response->id) && $type == "banorte") {
                 Db::getInstance()->Execute('INSERT INTO ' . _DB_PREFIX_ . 'conekta_transaction (type, id_cart, id_order, id_conekta_order, id_transaction, amount, status, currency, mode, date_add, reference, captured) VALUES (\'payment\', ' . (int) $this->context->cart->id . ', ' . (int) $this->currentOrder . ', \'' . pSQL($order->id) . '\', \'' . pSQL($charge_response->id) . '\', \'' . ($charge_response->amount * 0.01) . '\', \'' . ($charge_response->status == 'paid' ? 'paid' : 'unpaid') . '\', \'' . pSQL($charge_response->currency) . '\', \'' . ($charge_response->livemode == 'true' ? 'live' : 'test') . '\', NOW(),\'' . $reference . '\', \'' . ($charge_response->livemode == 'true' ? '1' : '0') . '\' )');
             } elseif (isset($charge_response->id)) {
                 Db::getInstance()->Execute('INSERT INTO ' . _DB_PREFIX_ . 'conekta_transaction (type, id_cart, id_order, id_conekta_order, id_transaction, amount, status, currency, mode, date_add, captured) VALUES (\'payment\', ' . (int) $this->context->cart->id . ', ' . (int) $this->currentOrder . ', \'' . pSQL($order->id) . '\', \'' . pSQL($charge_response->id) . '\',\'' . ($charge_response->amount * 0.01) . '\', \'' . ($charge_response->status == 'paid' ? 'paid' : 'unpaid') . '\', \'' . pSQL($charge_response->currency) . '\', \'' . ($charge_response->livemode == 'true' ? 'live' : 'test') . '\', NOW(), \'1\')');
@@ -858,7 +788,6 @@ class ConektaPrestashop extends PaymentModule
                 'CONEKTA_CARDS'              => rtrim(Tools::getValue('conekta_cards')) ,
                 'CONEKTA_MSI'                => rtrim(Tools::getValue('conekta_msi')) ,
                 'CONEKTA_CASH'               => rtrim(Tools::getValue('conekta_cash')) ,
-                'CONEKTA_BANORTE'            => rtrim(Tools::getValue('conekta_banorte')) ,
                 'CONEKTA_SPEI'               => rtrim(Tools::getValue('conekta_spei')),
                 'CONEKTA_SIGNATURE_KEY_TEST' => rtrim(Tools::getValue('conekta_signature_key_test')),
                 'CONEKTA_SIGNATURE_KEY_LIVE' => rtrim(Tools::getValue('conekta_signature_key_live'))
@@ -904,7 +833,6 @@ class ConektaPrestashop extends PaymentModule
         $this->smarty->assign("conekta_cards", Configuration::get('CONEKTA_CARDS'));
         $this->smarty->assign("conekta_msi", Configuration::get('CONEKTA_MSI'));
         $this->smarty->assign("conekta_cash", Configuration::get('CONEKTA_CASH'));
-        $this->smarty->assign("conekta_banorte", Configuration::get('CONEKTA_BANORTE'));
         $this->smarty->assign("conekta_spei", Configuration::get('CONEKTA_SPEI'));
 
         $this->smarty->assign("conekta_public_key_test", Configuration::get('CONEKTA_PUBLIC_KEY_TEST'));

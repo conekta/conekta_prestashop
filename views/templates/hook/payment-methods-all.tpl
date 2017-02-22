@@ -155,29 +155,6 @@
 
 {/if}
 
-
-{if $banorte == 1 }
-
-<p class="payment_module conekta-payment-module banorte-option" >
-<a class="conekta_title">{l s='Pago por medio de BANORTE' mod='conektaprestashop'}</a>
-</p>
-<form data-ajax="false" action="{$module_dir|escape:'htmlall':'UTF-8'}charge.php" method="POST" class="conekta-payment-form" id="conekta-cash-form">
-<label> {l s='Haz clic en el siguiente boton para generar la ficha de pago' mod='conektaprestashop'} </label>
-<br />
-<br />
- <input type="hidden" value="banorte" name="type"/>
-<button type="submit" value="{l s='Generar Referencia para Realizar Pago' mod='conektaprestashop'}" id="conekta-submit-button" class="conekta-submit-button btn btn-default button button-medium" data-icon="check" data-iconpos="right" data-theme="b" >
-<span>
-{l s='Generar Referencia para Realizar Pago' mod='conektaprestashop' }
-</span>
-
-</button>
-
-</form>
-
-
-{/if}
-
 {literal}
 <script>
 if ( !$.mobile ) {
