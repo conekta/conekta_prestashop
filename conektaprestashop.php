@@ -501,7 +501,6 @@ class ConektaPrestashop extends PaymentModule
                 array(
                     'name'        => $item['name'],
                     'unit_price'  => intval((float)$item['price'] * 100),
-                    'description' => $item['description_short'],
                     'quantity'    => intval($item['cart_quantity']),
                     'tags'        => ["prestashop"]
                     )
@@ -510,6 +509,13 @@ class ConektaPrestashop extends PaymentModule
                 array_merge($line_items, array(
                     array(
                         'sku' => $item['reference']
+                        )
+                ));
+            }
+            if(strlen($item['description_short']) > 2){
+                array_merge($line_items, array(
+                    array(
+                        'description' => $item['reference']
                         )
                 ));
             }
@@ -631,7 +637,7 @@ class ConektaPrestashop extends PaymentModule
                         'amount' => $amount
                     );
                 $charge_response = $order->createCharge($charge_params);
-                $barcode_url = $charge_response->payment_method->barcode_url;
+                $barcode_url = $charge_response->payment_method->reference;
                 $reference = $charge_response->payment_method->reference;
                 $order_status = (int) Configuration::get('waiting_cash_payment');
 
