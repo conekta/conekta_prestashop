@@ -88,9 +88,6 @@
 						<label for="conekta_cash"><input name="conekta_cash" value="1" id="conekta_cash" {if $conekta_cash}checked="checked"{/if}type="checkbox">{l s='Cash' mod='conektaprestashop'}</label>
 					</div>
 					<div class="checkbox">
-						<label for="conekta_banorte"><input name="conekta_banorte" value="1" id="conekta_banorte" {if $conekta_banorte}checked="checked"{/if}type="checkbox">{l s='Banorte' mod='conektaprestashop'}</label>
-					</div>
-					<div class="checkbox">
 						<label for="conekta_spei"><input name="conekta_spei" value="1" id="conekta_spei" {if $conekta_spei}checked="checked"{/if}type="checkbox">{l s='SPEI' mod='conektaprestashop'}</label>
 					</div>
 				</div>
