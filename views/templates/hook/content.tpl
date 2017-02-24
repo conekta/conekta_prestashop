@@ -85,7 +85,7 @@
 						<label for="conekta_msi"><input name="conekta_msi" value="1" id="conekta_msi" {if $conekta_msi}checked="checked"{/if}type="checkbox">{l s='Monthly Installments' mod='conektaprestashop'}</label>
 					</div>
 					<div class="checkbox">
-						<label for="conekta_cash"><input name="conekta_cash" value="1" id="conekta_cash" {if $conekta_cash}checked="checked"{/if}type="checkbox">{l s='Cash' mod='conektaprestashop'}</label>
+						<label for="conekta_cash"><input name="conekta_cash" value="1" id="conekta_cash" {if $conekta_cash}checked="checked"{/if}type="checkbox">{l s='OxxoPay' mod='conektaprestashop'}</label>
 					</div>
 					<div class="checkbox">
 						<label for="conekta_spei"><input name="conekta_spei" value="1" id="conekta_spei" {if $conekta_spei}checked="checked"{/if}type="checkbox">{l s='SPEI' mod='conektaprestashop'}</label>
