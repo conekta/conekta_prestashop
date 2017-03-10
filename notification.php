@@ -23,26 +23,24 @@ $body = Tools::file_get_contents('php://input');
 authenticateEvent($body, $_SERVER['HTTP_DIGEST']);
 $event_json = Tools::jsonDecode($body);
 
-if ($event_json->type == 'charge.paid') {
-    $charge = $event_json->data->object;
+if ($event_json->type == 'order.paid') {
+    $conekta_order = $event_json->data->object;
 
-    $reference_id = (integer) $charge->reference_id;
+    $reference_id = (integer) $conekta_order->metadata->reference_id;
     $id_order = Order::getOrderByCartId($reference_id);
     $order = new Order($id_order);
     $order_fields = $order->getFields();
     $currency_payment = Currency::getPaymentCurrencies(Module::getModuleIdByName('conektaprestashop'), $order_fields['id_shop']);
-    $total_order_amount = (integer) $order->getOrdersTotalPaid();
-    $str_total_order_amount = (string) $total_order_amount;
-    $format_total_order_amount = str_pad($str_total_order_amount, (strlen($str_total_order_amount) + 2), '0', STR_PAD_RIGHT);
+    $total_order_amount = $order->getOrdersTotalPaid();
+    $str_total_order_amount = (string) $total_order_amount * 100;
 
-    if ($currency_payment[0]['iso_code'] === $charge->currency) {
-        if ($format_total_order_amount == $charge->amount) {
+    if ($currency_payment[0]['iso_code'] === $conekta_order->currency) {  
+        if ($str_total_order_amount == $conekta_order->amount) {  
             $orderHistory = new OrderHistory();
-            $orderHistory->id_order = $order;
-            $orderHistory->changeIdOrderState(Configuration::get('PS_OS_PAYMENT'), $order);
+            $orderHistory->id_order = (int) $order->id;
+            $orderHistory->changeIdOrderState((int) Configuration::get('PS_OS_PAYMENT'), (int)$order->id);
             $orderHistory->addWithEmail();
-
-            Db::getInstance()->Execute('UPDATE ' . _DB_PREFIX_ . 'conekta_transaction SET status = "paid" WHERE id_order = ' . pSQL($reference_id) . '');
+            Db::getInstance()->Execute('UPDATE ' . _DB_PREFIX_ . 'conekta_transaction SET status = "paid" WHERE id_order = ' . pSQL($id_order));
         }
     }
 }
