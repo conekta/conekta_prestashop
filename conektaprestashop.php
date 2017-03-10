@@ -535,7 +535,7 @@ class ConektaPrestashop extends PaymentModule
             "line_items"       => $line_items,
             "shipping_contact" => $shipping_contact,
             "customer_info"    => $customer_info,
-            "metadata"         => array("soft_validations" => true)
+            "metadata"         => array("soft_validations" => true, 'reference_id' => (int)$this->context->cart->id)
         );
 
         if (!empty($tax_lines)) {
