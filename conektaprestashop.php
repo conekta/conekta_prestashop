@@ -21,7 +21,7 @@ class ConektaPrestashop extends PaymentModule
     {
         $this->name = 'conektaprestashop';
         $this->tab = 'payments_gateways';
-        $this->version = '2.0.0';
+        $this->version = '2.0.4';
         $this->author = 'Conekta';
         $this->bootstrap = true;
         parent::__construct();
