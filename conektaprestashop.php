@@ -616,14 +616,14 @@ class ConektaPrestashop extends PaymentModule
                 $charge_params =
                     array(
                         'payment_method' => array(
-                            'type'                 => 'card',
-                            'token_id'             => $token
+                            'type'     => 'card',
+                            'token_id' => $token
                           ),
                          'amount' => $amount
                      );
                 if($monthly_installments > 1){
-                    array_merge($charge_params->source, array('monthly_installments' => $monthly_installments)) ;   
-                }    
+                    $charge_params['payment_method']['monthly_installments'] = $monthly_installments;
+                }
                 $charge_response = $order->createCharge($charge_params);
                 $order_status = (int)Configuration::get('PS_OS_PAYMENT');
                 $message = $this->l('Conekta Transaction Details:') . "\n\n" . $this->l('Amount:') . ' ' . ($charge_response->amount * 0.01) . "\n" . $this->l('Status:') . ' ' . ($charge_response->status == 'paid' ? $this->l('Paid') : $this->l('Unpaid')) . "\n" . $this->l('Processed on:') . ' ' . strftime('%Y-%m-%d %H:%M:%S', $charge_response->created_at) . "\n" . $this->l('Currency:') . ' ' . Tools::strtoupper($charge_response->currency) . "\n" . $this->l('Mode:') . ' ' . ($charge_response->livemode == 'true' ? $this->l('Live') : $this->l('Test')) . "\n";
