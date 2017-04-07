@@ -6,7 +6,7 @@
  *
  *  @author Conekta <support@conekta.io>
  *  @copyright  2012-2016 Conekta
- *  @version  v2.0.0
+ *  @version  v2.0.6
  *  @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 if (!defined('_PS_VERSION_')) {
@@ -21,7 +21,7 @@ class ConektaPrestashop extends PaymentModule
     {
         $this->name = 'conektaprestashop';
         $this->tab = 'payments_gateways';
-        $this->version = '2.0.4';
+        $this->version = '2.0.6';
         $this->author = 'Conekta';
         $this->bootstrap = true;
         parent::__construct();
@@ -621,8 +621,9 @@ class ConektaPrestashop extends PaymentModule
                           ),
                          'amount' => $amount
                      );
+                $monthly_installments = (int) $monthly_installments;
                 if($monthly_installments > 1){
-                    $charge_params['payment_method']['monthly_installments'] = $monthly_installments;
+                 $charge_params['payment_method'] = array_merge($charge_params['payment_method'], array('monthly_installments'=> $monthly_installments));
                 }
                 $charge_response = $order->createCharge($charge_params);
                 $order_status = (int)Configuration::get('PS_OS_PAYMENT');
