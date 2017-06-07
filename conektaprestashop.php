@@ -994,7 +994,7 @@ class ConektaPrestashop extends PaymentModule
                 }
 
 
-                if (!in_array($url_string, $urls)){
+                if (!in_array($url, $urls)){
                       if (Configuration::get('CONEKTA_MODE')) {
                         $mode = array(
                             "production_enabled" => 1
