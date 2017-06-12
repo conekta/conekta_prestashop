@@ -6,7 +6,7 @@
  *
  *  @author Conekta <support@conekta.io>
  *  @copyright  2012-2016 Conekta
- *  @version  v2.0.6
+ *  @version  v2.0.7
  *  @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 if (!defined('_PS_VERSION_')) {
@@ -21,7 +21,7 @@ class ConektaPrestashop extends PaymentModule
     {
         $this->name = 'conektaprestashop';
         $this->tab = 'payments_gateways';
-        $this->version = '2.0.6';
+        $this->version = '2.0.7';
         $this->author = 'Conekta';
         $this->bootstrap = true;
         parent::__construct();
