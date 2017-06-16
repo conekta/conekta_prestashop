@@ -266,35 +266,10 @@ class ConektaPrestashop extends PaymentModule
             return;
         }
 
-        $id_order = (int) ($params['id_order']);
+        $id_order = intval($params['id_order']);
+        $status = $this->getTransactionStatus($id_order);
 
-        if (Db::getInstance()->getValue('SELECT module FROM ' . _DB_PREFIX_ . 'orders WHERE id_order = ' . (int) $id_order) == $this->name) {
-            $conekta_transaction_details = Db::getInstance()->getRow('SELECT * FROM ' . _DB_PREFIX_ . 'conekta_transaction WHERE id_order = ' . pSQL((int) $id_order) . ' AND type = \'payment\' AND status = \'paid\'');
-
-            $this->smarty->assign('conekta_transaction_details', $conekta_transaction_details);
-
-            
-            if ($conekta_transaction_details['status'] === 'paid') {
-                $this->smarty->assign("color_status", "green");
-                $this->smarty->assign("message_status", $this->l("Paid"));
-            } else {
-                $this->smarty->assign("color_status", "#CC0000");
-                $this->smarty->assign("message_status", $this->l("Unpaid"));
-            }
-
-            $this->smarty->assign("display_price", Tools::displayPrice($conekta_transaction_details['amount']));
-            $this->smarty->assign("processed_on", Tools::safeOutput($conekta_transaction_details['date_add']));
-
-            if ($conekta_transaction_details['mode'] === "live") {
-                $this->smarty->assign("color_mode", "green");
-                $this->smarty->assign("txt_mode", $this->l("Live"));
-            } else {
-                $this->smarty->assign("color_mode", "#CC0000");
-                $this->smarty->assign("txt_mode", $this->l('Test (No payment has been processed and you will need to enable the &quot;Live&quot; mode)'));
-            }
-            
-            return $this->fetchTemplate("admin-order.tpl");
-        }
+        return $status;    
     }
 
     /**
@@ -314,35 +289,10 @@ class ConektaPrestashop extends PaymentModule
             return;
         }
         
-        $id_order = (int) Tools::getValue('id_order');
+        $id_order = intval($params['id_order']);
+        $status = $this->getTransactionStatus($id_order);
 
-        if (Db::getInstance()->getValue('SELECT module FROM ' . _DB_PREFIX_ . 'orders WHERE id_order = ' . pSQL((int) $id_order)) == $this->name) {
-            $conekta_transaction_details = Db::getInstance()->getRow('SELECT * FROM ' . _DB_PREFIX_ . 'conekta_transaction WHERE id_order = ' . pSQL((int) $id_order) . ' AND type = \'payment\' AND status = \'paid\'');
-
-            $this->smarty->assign('conekta_transaction_details', $conekta_transaction_details);
-
-            
-            if ($conekta_transaction_details['status'] === 'paid') {
-                $this->smarty->assign("color_status", "green");
-                $this->smarty->assign("message_status", $this->l("Paid"));
-            } else {
-                $this->smarty->assign("color_status", "#CC0000");
-                $this->smarty->assign("message_status", $this->l("Unpaid"));
-            }
-
-            $this->smarty->assign("display_price", Tools::displayPrice($conekta_transaction_details['amount']));
-            $this->smarty->assign("processed_on", Tools::safeOutput($conekta_transaction_details['date_add']));
-
-            if ($conekta_transaction_details['mode'] === "live") {
-                $this->smarty->assign("color_mode", "green");
-                $this->smarty->assign("txt_mode", $this->l("Live"));
-            } else {
-                $this->smarty->assign("color_mode", "#CC0000");
-                $this->smarty->assign("txt_mode", $this->l('Test (No payment has been processed and you will need to enable the "Live" mode)'));
-            }
-            
-            return $this->fetchTemplate("admin-order.tpl");
-        }
+        return $status; 
     }
 
     /**
@@ -968,6 +918,58 @@ class ConektaPrestashop extends PaymentModule
             Configuration::updateValue('CONEKTA_WEBHOOK_FAILED_ATTEMPTS', $failed_attempts);
             Configuration::updateValue('CONEKTA_WEBHOOK_FAILED_URL', $url);
         }
+    }
+
+    /**
+     * Display the transaction status (paid or unpaid) and mode
+     *
+     * @return string HTML/JS Content
+     */
+
+    public function getTransactionStatus($order_id)
+    {
+        if ($this->getOrderConekta($order_id) == $this->name) {
+
+            $conekta_transaction_details = $this->getConektaTransaction($order_id);
+
+            $this->smarty->assign('conekta_transaction_details', $conekta_transaction_details);
+
+            if ($conekta_transaction_details['status'] === 'paid') {
+                $this->smarty->assign("color_status", "green");
+                $this->smarty->assign("message_status", $this->l("Paid"));
+            } else {
+                $this->smarty->assign("color_status", "#CC0000");
+                $this->smarty->assign("message_status", $this->l("Unpaid"));
+            }
+
+            $this->smarty->assign("display_price", Tools::displayPrice($conekta_transaction_details['amount']));
+            $this->smarty->assign("processed_on", Tools::safeOutput($conekta_transaction_details['date_add']));
+
+            if ($conekta_transaction_details['mode'] === "live") {
+                $this->smarty->assign("color_mode", "green");
+                $this->smarty->assign("txt_mode", $this->l("Live"));
+            } else {
+                $this->smarty->assign("color_mode", "#CC0000");
+                $this->smarty->assign("txt_mode", $this->l('Test (No payment has been processed and you will need to enable the &quot;Live&quot; mode)'));
+            }
+            
+            return $this->fetchTemplate("admin-order.tpl");
+        } 
+    }
+
+    public function getOrderConekta($order_id)
+    {
+        return Db::getInstance()->getValue(
+            'SELECT module FROM ' . _DB_PREFIX_ . 'orders '
+            .'WHERE id_order = ' . pSQL((int) $order_id));
+    }
+
+    public function getConektaTransaction($order_id)
+    {
+        return Db::getInstance()->getRow(
+                'SELECT * FROM ' . _DB_PREFIX_ . 'conekta_transaction '
+                .'WHERE id_order = ' . pSQL((int) $order_id) . 
+                ' AND type = \'payment\'');
     }
 }
 
