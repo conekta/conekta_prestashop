@@ -14,3 +14,5 @@
 === 2.0.7 2017-06-12
 * webhook validation for registered ones
 * lost mail template fix
+=== 2.0.8 2017-06-20
+* Fix OxxoPay transaction status error
