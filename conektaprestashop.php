@@ -6,7 +6,7 @@
  *
  *  @author Conekta <support@conekta.io>
  *  @copyright  2012-2016 Conekta
- *  @version  v2.0.7
+ *  @version  v2.0.8
  *  @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 if (!defined('_PS_VERSION_')) {
@@ -21,7 +21,7 @@ class ConektaPrestashop extends PaymentModule
     {
         $this->name = 'conektaprestashop';
         $this->tab = 'payments_gateways';
-        $this->version = '2.0.7';
+        $this->version = '2.0.8';
         $this->author = 'Conekta';
         $this->bootstrap = true;
         parent::__construct();
@@ -485,7 +485,7 @@ class ConektaPrestashop extends PaymentModule
             "line_items"       => $line_items,
             "shipping_contact" => $shipping_contact,
             "customer_info"    => $customer_info,
-            "metadata"         => array("soft_validations" => true, 'reference_id' => (int)$this->context->cart->id)
+            "metadata"         => array("soft_validations" => true, 'reference_id' => (int)$this->context->cart->id, 'version' => 'conekta-prestashop v'.$this->version)
         );
 
         if (!empty($tax_lines)) {
