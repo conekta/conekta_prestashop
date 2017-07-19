@@ -140,7 +140,6 @@ class Conekta_Prestashop extends PaymentModule
 
     public function hookPaymentOptions($params)
     {
-      error_log("======ENTROU NO hookPaymentOptions=======");
         if (!$this->active) {
             return;
         }
@@ -157,12 +156,9 @@ class Conekta_Prestashop extends PaymentModule
 
 
         $payment_options = [
-            //$this->getOfflinePaymentOption(),
-            //$this->getExternalPaymentOption(),
           $this->getCardPaymentOption(),
           $this->getOxxoPaymentOption(),
           $this->getSpeiPaymentOption(),
-            //$this->getIframePaymentOption(),
         ];
 
         return $payment_options;
@@ -207,23 +203,7 @@ class Conekta_Prestashop extends PaymentModule
         return $offlineOption;
     }
 
-    public function getExternalPaymentOption()
-    {
-        $externalOption = new PaymentOption();
-        $externalOption->setCallToActionText($this->l('Pay external'))
-                       ->setAction($this->context->link->getModuleLink($this->name, 'validation', array(), true))
-                       ->setInputs([
-                            'token' => [
-                                'name' =>'token',
-                                'type' =>'hidden',
-                                'value' =>'12345689',
-                            ],
-                        ])
-                       ->setAdditionalInformation($this->context->smarty->fetch('module:conekta_prestashop/views/templates/front/payment_infos.tpl'))
-                       ->setLogo(Media::getMediaPath(_PS_MODULE_DIR_.$this->name.'/payment.jpg'));
-
-        return $externalOption;
-    }
+    
 
 
     public function getCardPaymentOption() 
@@ -237,20 +217,12 @@ class Conekta_Prestashop extends PaymentModule
                        ->setAction($this->context->link->getModuleLink($this->name, 'validation', array(), true))
                        ->setForm($this->generateCardPaymentForm())
                        ->setAdditionalInformation($this->context->smarty->fetch('module:conekta_prestashop/views/templates/front/payment_infos.tpl'))
-                       ->setLogo(Media::getMediaPath(_PS_MODULE_DIR_.$this->name.'/payment.jpg'));
+                       ->setLogo(Media::getMediaPath(_PS_MODULE_DIR_.$this->name.'/views/img/cards.png'));
 
         return $embeddedOption;
     }
 
-    public function getIframePaymentOption()
-    {
-        $iframeOption = new PaymentOption();
-        $iframeOption->setCallToActionText($this->l('Pay iframe'))
-                     ->setAdditionalInformation($this->context->smarty->fetch('module:conekta_prestashop/views/templates/front/payment_infos.tpl'))
-                     ->setLogo(Media::getMediaPath(_PS_MODULE_DIR_.$this->name.'/payment.jpg'));
-
-        return $iframeOption;
-    }
+    
     private function _postValidation()
     {
         if (Tools::isSubmit('btnSubmit')) {
