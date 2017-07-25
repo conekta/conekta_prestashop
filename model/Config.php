@@ -70,7 +70,6 @@ class Config
     }
     public function getShippingLines($shipping_carrier = '', $shipping_price = '', $shipping_service)
     {
-         if (!empty($shipping_carrier)) {
             $shipping_lines = array(
                 array(
                     "amount"          => $shipping_price,
@@ -79,7 +78,6 @@ class Config
                     "method"          => $shipping_service
                 )
             );
-        }
 
         return $shipping_lines;
     }
