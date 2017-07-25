@@ -746,22 +746,22 @@ class Conekta_Prestashop extends PaymentModule
 
                 $charge_params =
                     array(
-                        'payment_method'    => array('type' => 'oxxo_cash'),
-                        'amount'            => $amount
+                        'payment_method' => array('type' => 'oxxo_cash'),
+                        'amount'         => $amount
                     );
 
-                $charge_response    = $order->createCharge($charge_params);
-                $barcode_url        = $charge_response->payment_method->reference;
-                $reference          = $charge_response->payment_method->reference;
-                $order_status       = (int) Configuration::get('waiting_cash_payment');
-                $message            = $this->l('Conekta Transaction Details:') . "\n\n" 
-                                    . $this->l('Reference:') . ' ' . $reference . "\n" 
-                                    . $this->l('Barcode:') . ' ' . $barcode_url . "\n" 
-                                    . $this->l('Amount:') . ' ' . ($charge_response->amount * 0.01) . "\n" 
-                                    . $this->l('Processed on:') . ' ' . strftime('%Y-%m-%d %H:%M:%S', $charge_response->created_at) . "\n" 
-                                    . $this->l('Currency:') . ' ' . Tools::strtoupper($charge_response->currency) . "\n" 
-                                    . $this->l('Mode:') . ' ' . ($charge_response->livemode == 'true' ? $this->l('Live') : $this->l('Test')) . "\n";
-                $checkout           = Module::getInstanceByName('conekta_prestashop');
+                $charge_response = $order->createCharge($charge_params);
+                $barcode_url     = $charge_response->payment_method->reference;
+                $reference       = $charge_response->payment_method->reference;
+                $order_status    = (int) Configuration::get('waiting_cash_payment');
+                $message         = $this->l('Conekta Transaction Details:') . "\n\n" 
+                                 . $this->l('Reference:') . ' ' . $reference . "\n" 
+                                 . $this->l('Barcode:') . ' ' . $barcode_url . "\n" 
+                                 . $this->l('Amount:') . ' ' . ($charge_response->amount * 0.01) . "\n" 
+                                 . $this->l('Processed on:') . ' ' . strftime('%Y-%m-%d %H:%M:%S', $charge_response->created_at) . "\n" 
+                                 . $this->l('Currency:') . ' ' . Tools::strtoupper($charge_response->currency) . "\n" 
+                                 . $this->l('Mode:') . ' ' . ($charge_response->livemode == 'true' ? $this->l('Live') : $this->l('Test')) . "\n";
+                $checkout        = Module::getInstanceByName('conekta_prestashop');
 
                 $checkout->extra_mail_vars = array(
                     '{barcode_url}' => (string)$barcode_url,
@@ -772,8 +772,8 @@ class Conekta_Prestashop extends PaymentModule
 
                 $charge_params =
                     array(
-                        'payment_method'    => array( 'type' => 'spei'),
-                        'amount'            => $amount
+                        'payment_method' => array( 'type' => 'spei'),
+                        'amount'         => $amount
                     );
 
                 $charge_response = $order->createCharge($charge_params);
@@ -794,11 +794,11 @@ class Conekta_Prestashop extends PaymentModule
 
                 $charge_params =
                     array(
-                        'payment_method'    => array(
-                            'type'          => 'card',
-                            'token_id'      =>  'tok_test_visa_4242'
+                        'payment_method' => array(
+                            'type'       => 'card',
+                            'token_id'   =>  'tok_test_visa_4242'
                           ),
-                         'amount'           => $amount
+                         'amount'        => $amount
                      );
 
                 $monthly_installments = (int) $monthly_installments;
@@ -806,14 +806,14 @@ class Conekta_Prestashop extends PaymentModule
                 if($monthly_installments > 1)
                     $charge_params['payment_method'] = array_merge($charge_params['payment_method'], array('monthly_installments'=> $monthly_installments));
                 
-                $charge_response    = $order->createCharge($charge_params);
-                $order_status       = (int)Configuration::get('PS_OS_PAYMENT');
-                $message            = $this->l('Conekta Transaction Details:') . "\n\n" 
-                                    . $this->l('Amount:') . ' ' . ($charge_response->amount * 0.01) . "\n" 
-                                    . $this->l('Status:') . ' ' . ($charge_response->status == 'paid' ? $this->l('Paid') : $this->l('Unpaid')) . "\n" 
-                                    . $this->l('Processed on:') . ' ' . strftime('%Y-%m-%d %H:%M:%S', $charge_response->created_at) . "\n" 
-                                    . $this->l('Currency:') . ' ' . Tools::strtoupper($charge_response->currency) . "\n" 
-                                    . $this->l('Mode:') . ' ' . ($charge_response->livemode == 'true' ? $this->l('Live') : $this->l('Test')) . "\n";
+                $charge_response = $order->createCharge($charge_params);
+                $order_status    = (int)Configuration::get('PS_OS_PAYMENT');
+                $message         = $this->l('Conekta Transaction Details:') . "\n\n" 
+                                 . $this->l('Amount:') . ' ' . ($charge_response->amount * 0.01) . "\n" 
+                                 . $this->l('Status:') . ' ' . ($charge_response->status == 'paid' ? $this->l('Paid') : $this->l('Unpaid')) . "\n" 
+                                 . $this->l('Processed on:') . ' ' . strftime('%Y-%m-%d %H:%M:%S', $charge_response->created_at) . "\n" 
+                                 . $this->l('Currency:') . ' ' . Tools::strtoupper($charge_response->currency) . "\n" 
+                                 . $this->l('Mode:') . ' ' . ($charge_response->livemode == 'true' ? $this->l('Live') : $this->l('Test')) . "\n";
             }
 
             $this->validateOrder(
@@ -840,9 +840,9 @@ class Conekta_Prestashop extends PaymentModule
             if (isset($charge_response->id) && $type == "cash") {
                 Database::insertOxxoPayment($order,$charge_response,$reference,$this->currentOrder, $this->context->cart->id);
             } elseif (isset($charge_response->id) && $type == "spei") {
-                Database::insertOxxoPayment($order,$charge_response,$reference,$this->currentOrder, $this->context->cart->id);
+                Database::insertSpeiPayment($order,$charge_response,$reference,$this->currentOrder, $this->context->cart->id);
             } elseif (isset($charge_response->id)) {
-                Db::getInstance()->Execute('INSERT INTO ' . _DB_PREFIX_ . 'conekta_transaction (type, id_cart, id_order, id_conekta_order, id_transaction, amount, status, currency, mode, date_add, captured) VALUES (\'payment\', ' . (int) $this->context->cart->id . ', ' . (int) $this->currentOrder . ', \'' . pSQL($order->id) . '\', \'' . pSQL($charge_response->id) . '\',\'' . ($charge_response->amount * 0.01) . '\', \'' . ($charge_response->status == 'paid' ? 'paid' : 'unpaid') . '\', \'' . pSQL($charge_response->currency) . '\', \'' . ($charge_response->livemode == 'true' ? 'live' : 'test') . '\', NOW(), \'1\')');
+                Database::insertCardPayment($order,$charge_response,$reference,$this->currentOrder, $this->context->cart->id);
             }
 
             $redirect = $this->context->link->getPageLink('order-confirmation', true, null, array(
