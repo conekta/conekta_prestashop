@@ -26,7 +26,9 @@
 
 use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
 require_once(dirname(__FILE__) . '/model/Config.php');
+require_once(dirname(__FILE__) . '/model/Database.php');
 require_once(dirname(__FILE__) . '/lib/conekta-php/lib/Conekta.php');
+
 if (!defined('_PS_VERSION_')) {
     exit;
 }
@@ -133,21 +135,19 @@ class Conekta_Prestashop extends PaymentModule
 
     public function install()
     {
-
-            /* For 1.4.3 and less compatibility */
         $updateConfig = array(
-            'PS_OS_CHEQUE' => 1,
-            'PS_OS_PAYMENT' => 2,
+            'PS_OS_CHEQUE'      => 1,
+            'PS_OS_PAYMENT'     => 2,
             'PS_OS_PREPARATION' => 3,
-            'PS_OS_SHIPPING' => 4,
-            'PS_OS_DELIVERED' => 5,
-            'PS_OS_CANCELED' => 6,
-            'PS_OS_REFUND' => 7,
-            'PS_OS_ERROR' => 8,
-            'PS_OS_OUTOFSTOCK' => 9,
-            'PS_OS_BANKWIRE' => 10,
-            'PS_OS_PAYPAL' => 11,
-            'PS_OS_WS_PAYMENT' => 12
+            'PS_OS_SHIPPING'    => 4,
+            'PS_OS_DELIVERED'   => 5,
+            'PS_OS_CANCELED'    => 6,
+            'PS_OS_REFUND'      => 7,
+            'PS_OS_ERROR'       => 8,
+            'PS_OS_OUTOFSTOCK'  => 9,
+            'PS_OS_BANKWIRE'    => 10,
+            'PS_OS_PAYPAL'      => 11,
+            'PS_OS_WS_PAYMENT'  => 12
             );
 
         foreach ($updateConfig as $u => $v) {
@@ -163,40 +163,24 @@ class Conekta_Prestashop extends PaymentModule
      if (!parent::install() || 
             !$this->registerHook('paymentOptions') || 
                 !$this->registerHook('paymentReturn') || 
-                    !$this->installDb() ||
+                    !Database::installDb() ||
                         !$this->registerHook('adminOrder')) {
             return false;
         }
         return true;
     }
 
-
-    /**
-     * Conekta's module database tables
+     /**
+     * Conekta's module uninstallation
      *
-     * @return boolean Database tables installation result
+     * @return boolean Uninstall result
      */
-    public function installDb()
+    public function uninstall()
     {
-        return (Db::getInstance()->Execute('CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'conekta_transaction` (
-          `id_conekta_transaction` int(11) NOT NULL AUTO_INCREMENT,
-          `type` enum(\'payment\',\'refund\') NOT NULL,
-          `id_cart` int(10) unsigned NOT NULL,
-          `id_order` int(10) unsigned NOT NULL, 
-          `id_conekta_order` int(10) unsigned NOT NULL, 
-          `id_transaction` varchar(32) NOT NULL, 
-          `amount` decimal(10,2) NOT NULL, 
-          `status` enum(\'paid\',\'unpaid\') NOT NULL,
-          `currency` varchar(3) NOT NULL,
-          `mode` enum(\'live\',\'test\') NOT NULL,
-          `date_add` datetime NOT NULL,
-          `reference` varchar(30) NOT NULL,
-          `barcode` varchar(230) NOT NULL,
-          `captured` tinyint(1) NOT NULL DEFAULT \'1\',
-          PRIMARY KEY (`id_conekta_transaction`),
-          KEY `idx_transaction` (`type`,`id_order`,`status`))
-          ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8 AUTO_INCREMENT=1'));
+        return parent::uninstall() && 
+        Db::getInstance()->Execute('DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'conekta_transaction`');
     }
+
 
     private function _createPendingSpeiState()
     {
@@ -208,11 +192,11 @@ class Conekta_Prestashop extends PaymentModule
             $names[$lang['id_lang']] = 'En espera de pago';
         }
 
-        $state->name = $names;
-        $state->color = '#4169E1';
-        $state->send_email = true;
+        $state->name        = $names;
+        $state->color       = '#4169E1';
+        $state->send_email  = true;
         $state->module_name = 'conekta_prestashop';
-        $templ = array();
+        $templ              = array();
         
         foreach ($languages as $lang) {
             $templ[$lang['id_lang']] = 'conekta_prestashop';
@@ -244,7 +228,12 @@ class Conekta_Prestashop extends PaymentModule
      */
     public function hookHeader()
     {
-        if (Tools::getValue('controller') != 'order-opc' && (!($_SERVER['PHP_SELF'] == __PS_BASE_URI__ . 'order.php' || $_SERVER['PHP_SELF'] == __PS_BASE_URI__ . 'order-opc.php' || Tools::getValue('controller') == 'order' || Tools::getValue('controller') == 'orderopc' || Tools::getValue('step') == 3))) {
+        if (Tools::getValue('controller') != 'order-opc' 
+            && (!($_SERVER['PHP_SELF'] == __PS_BASE_URI__ . 'order.php' 
+                || $_SERVER['PHP_SELF'] == __PS_BASE_URI__ . 'order-opc.php' 
+                || Tools::getValue('controller') == 'order' 
+                || Tools::getValue('controller') == 'orderopc' 
+                || Tools::getValue('step') == 3))) {
             return;
         }
 
@@ -262,12 +251,9 @@ class Conekta_Prestashop extends PaymentModule
 
     public function hookAdminOrder($params)
     {
-
         $id_order = intval($params['id_order']);
         $status = $this->getTransactionStatus($id_order);
-         if (class_exists('Logger')) {
-            Logger::addLog(json_encode($status), 1, null, null, null, true);
-        }
+
         return $status;    
     }
 
@@ -285,9 +271,6 @@ class Conekta_Prestashop extends PaymentModule
        $this->smarty->assign( [
             'test_private_key' => Configuration::get('TEST_PRIVATE_KEY'),
         ]);
-
-
-
 
         $payment_options = [
           $this->getCardPaymentOption(),
@@ -313,7 +296,6 @@ class Conekta_Prestashop extends PaymentModule
         return false;
     }
 
-
     public function getSpeiPaymentOption()
     {
         $offlineOption = new PaymentOption();
@@ -324,7 +306,6 @@ class Conekta_Prestashop extends PaymentModule
 
         return $offlineOption;
     }
-
 
     public function getOxxoPaymentOption()
     {
@@ -341,7 +322,6 @@ class Conekta_Prestashop extends PaymentModule
     {
         $embeddedOption = new PaymentOption();
         $embeddedOption->setModuleName($this->name)
-          //->setCallToActionText($this->l('Pago con tarjeta de crédito y débito (con opción de meses sin intereses)'))
                        ->setCallToActionText($this->l($this->name))
                        ->setAction($this->context->link->getModuleLink($this->name, 'validation', array(), true))
                        ->setForm($this->generateCardPaymentForm())
@@ -386,7 +366,6 @@ class Conekta_Prestashop extends PaymentModule
     {
         if (Tools::isSubmit('btnSubmit')) {
             Configuration::updateValue('CHEQUE_NAME', Tools::getValue('CHEQUE_NAME'));
-
             Configuration::updateValue('CHEQUE_ADDRESS', Tools::getValue('CHEQUE_ADDRESS'));
             Configuration::updateValue('MODE', Tools::getValue('MODE'));
             Configuration::updateValue('WEB_HOOK', Tools::getValue('WEB_HOOK'));
@@ -395,7 +374,6 @@ class Conekta_Prestashop extends PaymentModule
             Configuration::updateValue('PAYMENT_METHS_CASH', Tools::getValue('PAYMENT_METHS_CASH'));
             Configuration::updateValue('PAYMENT_METHS_BANORTE', Tools::getValue('PAYMENT_METHS_BANORTE'));
             Configuration::updateValue('PAYMENT_METHS_SPEI', Tools::getValue('PAYMENT_METHS_SPEI'));
-
             Configuration::updateValue('TEST_PRIVATE_KEY', Tools::getValue('TEST_PRIVATE_KEY'));
             Configuration::updateValue('TEST_PUBLIC_KEY', Tools::getValue('TEST_PUBLIC_KEY'));
             Configuration::updateValue('LIVE_PRIVATE_KEY', Tools::getValue('LIVE_PRIVATE_KEY'));
@@ -413,19 +391,19 @@ class Conekta_Prestashop extends PaymentModule
     public function getConfigFieldsValues()
     {
         return array(
-            'CHEQUE_NAME' => Tools::getValue('CHEQUE_NAME', Configuration::get('CHEQUE_NAME')),
-            'CHEQUE_ADDRESS' => Tools::getValue('CHEQUE_ADDRESS', Configuration::get('CHEQUE_ADDRESS')),
-            'MODE' => Tools::getValue('MODE', Configuration::get('MODE')),
-            'WEB_HOOK' => Tools::getValue('WEB_HOOK', Configuration::get('WEB_HOOK')),
-            'PAYMENT_METHS_CARD' => Tools::getValue('PAYMENT_METHS_CARD', Configuration::get('PAYMENT_METHS_CARD')),
-            'PAYMENT_METHS_INSTALLMET' => Tools::getValue('PAYMENT_METHS_INSTALLMET', Configuration::get('PAYMENT_METHS_INSTALLMET')),
-            'PAYMENT_METHS_CASH' => Tools::getValue('PAYMENT_METHS_CASH', Configuration::get('PAYMENT_METHS_CASH')),
-            'PAYMENT_METHS_BANORTE' => Tools::getValue('PAYMENT_METHS_BANORTE', Configuration::get('PAYMENT_METHS_BANORTE')),
-            'PAYMENT_METHS_SPEI' => Tools::getValue('PAYMENT_METHS_SPEI', Configuration::get('PAYMENT_METHS_SPEI')),
-            'TEST_PRIVATE_KEY' => Tools::getValue('TEST_PRIVATE_KEY', Configuration::get('TEST_PRIVATE_KEY')),
-            'TEST_PUBLIC_KEY' => Tools::getValue('TEST_PUBLIC_KEY', Configuration::get('TEST_PUBLIC_KEY')),
-            'LIVE_PRIVATE_KEY' => Tools::getValue('LIVE_PRIVATE_KEY', Configuration::get('LIVE_PRIVATE_KEY')),
-            'LIVE_PUBLIC_KEY' => Tools::getValue('LIVE_PUBLIC_KEY', Configuration::get('LIVE_PUBLIC_KEY')),
+            'CHEQUE_NAME'               => Tools::getValue('CHEQUE_NAME', Configuration::get('CHEQUE_NAME')),
+            'CHEQUE_ADDRESS'            => Tools::getValue('CHEQUE_ADDRESS', Configuration::get('CHEQUE_ADDRESS')),
+            'MODE'                      => Tools::getValue('MODE', Configuration::get('MODE')),
+            'WEB_HOOK'                  => Tools::getValue('WEB_HOOK', Configuration::get('WEB_HOOK')),
+            'PAYMENT_METHS_CARD'        => Tools::getValue('PAYMENT_METHS_CARD', Configuration::get('PAYMENT_METHS_CARD')),
+            'PAYMENT_METHS_INSTALLMET'  => Tools::getValue('PAYMENT_METHS_INSTALLMET', Configuration::get('PAYMENT_METHS_INSTALLMET')),
+            'PAYMENT_METHS_CASH'        => Tools::getValue('PAYMENT_METHS_CASH', Configuration::get('PAYMENT_METHS_CASH')),
+            'PAYMENT_METHS_BANORTE'     => Tools::getValue('PAYMENT_METHS_BANORTE', Configuration::get('PAYMENT_METHS_BANORTE')),
+            'PAYMENT_METHS_SPEI'        => Tools::getValue('PAYMENT_METHS_SPEI', Configuration::get('PAYMENT_METHS_SPEI')),
+            'TEST_PRIVATE_KEY'          => Tools::getValue('TEST_PRIVATE_KEY', Configuration::get('TEST_PRIVATE_KEY')),
+            'TEST_PUBLIC_KEY'           => Tools::getValue('TEST_PUBLIC_KEY', Configuration::get('TEST_PUBLIC_KEY')),
+            'LIVE_PRIVATE_KEY'          => Tools::getValue('LIVE_PRIVATE_KEY', Configuration::get('LIVE_PRIVATE_KEY')),
+            'LIVE_PUBLIC_KEY'           => Tools::getValue('LIVE_PUBLIC_KEY', Configuration::get('LIVE_PUBLIC_KEY')),
         );
     }
 
@@ -436,14 +414,12 @@ class Conekta_Prestashop extends PaymentModule
             'form' => array(
                 'legend' => array(
                   'title' => $this->trans('Contact details', array(), 'Modules.Conekta_Prestashop.Admin'),
-                  //'title' => 'some-title',  
                   'icon' => 'icon-envelope'
                 ),
                 'input' => array(
                     array(
                         'type' => 'text',
                         'label' => $this->trans('Payee (name)', array(), 'Modules.Conekta_Prestashop.Admin'),
-                        //'label' => 'some-label', 
                         'name' => 'CHEQUE_NAME',
                         'required' => true
                     ),
@@ -451,8 +427,6 @@ class Conekta_Prestashop extends PaymentModule
                         'type' => 'textarea',
                         'label' => $this->trans('Address', array(), 'Modules.Conekta_Prestashop.Admin'),
                         'desc' => $this->trans('Address where the check should be sent to.', array(), 'Modules.Conekta_Prestashop.Admin'),
-                        //'label' => 'some-new-label', 
-                        //'desc' => 'some-desc', 
                         'name' => 'CHEQUE_ADDRESS',
                         'required' => true
                       ),
@@ -482,7 +456,6 @@ class Conekta_Prestashop extends PaymentModule
                      array(
                         'type' => 'text',
                         'label' => $this->trans('Webhook', array(), 'Modules.Conekta_Prestashop.Admin'),
-                        //'label' => 'some-label', 
                         'name' => 'WEB_HOOK',
                         'required' => true
                       ),
@@ -560,7 +533,6 @@ class Conekta_Prestashop extends PaymentModule
             ),
                 'submit' => array(
                     'title' => $this->trans('Save', array(), 'Admin.Actions'),
-                    //'title' => 'submit title'),
                 )
             ),
           );
@@ -570,7 +542,6 @@ class Conekta_Prestashop extends PaymentModule
     public function renderForm()
     {
       $fields_form  = $this->buildAdminContent();
-      //$fields_form = buildAdminParameters(); 
       $helper = new HelperForm();
         $helper->show_toolbar = false;
         $helper->id = (int)Tools::getValue('id_carrier');
@@ -586,6 +557,7 @@ class Conekta_Prestashop extends PaymentModule
 
         return $helper->generateForm(array($fields_form));
     }
+
     public function getContent()
     {
         $this->_html = '';
@@ -669,41 +641,6 @@ class Conekta_Prestashop extends PaymentModule
             $customer, $address_delivery, $state, $country
         );
 
-        if (class_exists('Logger')) {
-            Logger::addLog(json_encode($order_details), 2, null, null, null, true);
-        }
-
-       
-        // $customer_info = array(
-        //     "name"     => $customer->firstname . " " . $customer->lastname,
-        //     "phone"    => $address_delivery->phone,
-        //     "email"    => $customer->email,
-        //     "metadata" => array("soft_validations" => true)
-        // );
-
-        // $order_details = array(
-        //     "currency"         => $this->context->currency->iso_code,
-        //     "line_items"       => $line_items,
-        //     "shipping_contact" => $shipping_contact,
-        //     "customer_info"    => $customer_info,
-        //     "metadata"         => array("soft_validations" => true, 'reference_id' => (int)$this->context->cart->id, 'version' => 'conekta-prestashop v'.$this->version)
-        // );
-
-        // if (!empty($tax_lines)) {
-        //     $order_details =
-        //         array_merge($order_details, array('tax_lines' => $tax_lines));
-        // }
-
-        // if (!empty($discount_lines)) {
-        //     $order_details =
-        //         array_merge($order_details, array('discount_lines' => $discount_lines));
-        // }
-
-        // if (isset($shipping_lines)) {
-        //     $order_details =
-        //         array_merge($order_details, array('shipping_lines' => $shipping_lines));
-        // }
-
         $amount = 0;
 
         foreach ($order_details['line_items'] as $item) {
@@ -732,57 +669,88 @@ class Conekta_Prestashop extends PaymentModule
             $order = \Conekta\Order::create($order_details);
 
             if ($type == "cash") {
+
                 $charge_params =
                     array(
-                        'payment_method' => array('type' => 'oxxo_cash'),
-                        'amount' => $amount
+                        'payment_method'    => array('type' => 'oxxo_cash'),
+                        'amount'            => $amount
                     );
-                $charge_response = $order->createCharge($charge_params);
-                $barcode_url = $charge_response->payment_method->reference;
-                $reference = $charge_response->payment_method->reference;
-                $order_status = (int) Configuration::get('waiting_cash_payment');
 
-                $message = $this->l('Conekta Transaction Details:') . "\n\n" . $this->l('Reference:') . ' ' . $reference . "\n" . $this->l('Barcode:') . ' ' . $barcode_url . "\n" . $this->l('Amount:') . ' ' . ($charge_response->amount * 0.01) . "\n" . $this->l('Processed on:') . ' ' . strftime('%Y-%m-%d %H:%M:%S', $charge_response->created_at) . "\n" . $this->l('Currency:') . ' ' . Tools::strtoupper($charge_response->currency) . "\n" . $this->l('Mode:') . ' ' . ($charge_response->livemode == 'true' ? $this->l('Live') : $this->l('Test')) . "\n";
+                $charge_response    = $order->createCharge($charge_params);
+                $barcode_url        = $charge_response->payment_method->reference;
+                $reference          = $charge_response->payment_method->reference;
+                $order_status       = (int) Configuration::get('waiting_cash_payment');
+                $message            = $this->l('Conekta Transaction Details:') . "\n\n" 
+                                    . $this->l('Reference:') . ' ' . $reference . "\n" 
+                                    . $this->l('Barcode:') . ' ' . $barcode_url . "\n" 
+                                    . $this->l('Amount:') . ' ' . ($charge_response->amount * 0.01) . "\n" 
+                                    . $this->l('Processed on:') . ' ' . strftime('%Y-%m-%d %H:%M:%S', $charge_response->created_at) . "\n" 
+                                    . $this->l('Currency:') . ' ' . Tools::strtoupper($charge_response->currency) . "\n" 
+                                    . $this->l('Mode:') . ' ' . ($charge_response->livemode == 'true' ? $this->l('Live') : $this->l('Test')) . "\n";
+                $checkout           = Module::getInstanceByName('conekta_prestashop');
 
-                $checkout = Module::getInstanceByName('conekta_prestashop');
                 $checkout->extra_mail_vars = array(
                     '{barcode_url}' => (string)$barcode_url,
-                    '{barcode}' => (string)$reference
-                    );
+                    '{barcode}'     => (string)$reference
+                );
+
             } elseif ($type == "spei") {
+
                 $charge_params =
                     array(
-                        'payment_method' => array( 'type' => 'spei'),
-                        'amount' => $amount
+                        'payment_method'    => array( 'type' => 'spei'),
+                        'amount'            => $amount
                     );
+
                 $charge_response = $order->createCharge($charge_params);
-                $reference = $charge_response->payment_method->clabe;
-                $order_status = (int)Configuration::get('waiting_spei_payment');
-                $message = $this->l('Conekta Transaction Details:') . "\n\n" . $this->l('Amount:') . ' ' . ($charge_response->amount * 0.01) . "\n" . $this->l('Processed on:') . ' ' . strftime('%Y-%m-%d %H:%M:%S', $charge_response->created_at) . "\n" . $this->l('Currency:') . ' ' . Tools::strtoupper($charge_response->currency) . "\n" . $this->l('Mode:') . ' ' . ($charge_response->livemode == 'true' ? $this->l('Live') : $this->l('Test')) . "\n";
-                $checkout = Module::getInstanceByName('conekta_prestashop');
+                $reference       = $charge_response->payment_method->clabe;
+                $order_status    = (int)Configuration::get('waiting_spei_payment');
+                $message         = $this->l('Conekta Transaction Details:') . "\n\n" 
+                                 . $this->l('Amount:') . ' ' . ($charge_response->amount * 0.01) . "\n" 
+                                 . $this->l('Processed on:') . ' ' . strftime('%Y-%m-%d %H:%M:%S', $charge_response->created_at) . "\n" 
+                                 . $this->l('Currency:') . ' ' . Tools::strtoupper($charge_response->currency) . "\n" 
+                                 . $this->l('Mode:') . ' ' . ($charge_response->livemode == 'true' ? $this->l('Live') : $this->l('Test')) . "\n";
+                $checkout        = Module::getInstanceByName('conekta_prestashop');
+
                 $checkout->extra_mail_vars = array(
                     '{receiving_account_number}' => (string)$reference
                     );
+
             } else {
+
                 $charge_params =
                     array(
-                        'payment_method' => array(
-                            'type'     => 'card',
-                           // 'token_id' => $token
-                            'token_id' =>  'tok_test_visa_4242'
+                        'payment_method'    => array(
+                            'type'          => 'card',
+                            'token_id'      =>  'tok_test_visa_4242'
                           ),
-                         'amount' => $amount
+                         'amount'           => $amount
                      );
+
                 $monthly_installments = (int) $monthly_installments;
-                if($monthly_installments > 1){
-                 $charge_params['payment_method'] = array_merge($charge_params['payment_method'], array('monthly_installments'=> $monthly_installments));
-                }
-                $charge_response = $order->createCharge($charge_params);
-                $order_status = (int)Configuration::get('PS_OS_PAYMENT');
-                $message = $this->l('Conekta Transaction Details:') . "\n\n" . $this->l('Amount:') . ' ' . ($charge_response->amount * 0.01) . "\n" . $this->l('Status:') . ' ' . ($charge_response->status == 'paid' ? $this->l('Paid') : $this->l('Unpaid')) . "\n" . $this->l('Processed on:') . ' ' . strftime('%Y-%m-%d %H:%M:%S', $charge_response->created_at) . "\n" . $this->l('Currency:') . ' ' . Tools::strtoupper($charge_response->currency) . "\n" . $this->l('Mode:') . ' ' . ($charge_response->livemode == 'true' ? $this->l('Live') : $this->l('Test')) . "\n";
+
+                if($monthly_installments > 1)
+                    $charge_params['payment_method'] = array_merge($charge_params['payment_method'], array('monthly_installments'=> $monthly_installments));
+                
+                $charge_response    = $order->createCharge($charge_params);
+                $order_status       = (int)Configuration::get('PS_OS_PAYMENT');
+                $message            = $this->l('Conekta Transaction Details:') . "\n\n" 
+                                    . $this->l('Amount:') . ' ' . ($charge_response->amount * 0.01) . "\n" 
+                                    . $this->l('Status:') . ' ' . ($charge_response->status == 'paid' ? $this->l('Paid') : $this->l('Unpaid')) . "\n" 
+                                    . $this->l('Processed on:') . ' ' . strftime('%Y-%m-%d %H:%M:%S', $charge_response->created_at) . "\n" 
+                                    . $this->l('Currency:') . ' ' . Tools::strtoupper($charge_response->currency) . "\n" 
+                                    . $this->l('Mode:') . ' ' . ($charge_response->livemode == 'true' ? $this->l('Live') : $this->l('Test')) . "\n";
             }
 
-            $this->validateOrder((int)$this->context->cart->id, (int) $order_status, $this->context->cart->getOrderTotal(), $this->displayName, $message, array(), null, false, $this->context->customer->secure_key);
+            $this->validateOrder(
+                (int)$this->context->cart->id, 
+                (int) $order_status, 
+                $this->context->cart->getOrderTotal(), 
+                $this->displayName, 
+                $message, array(), 
+                null, false, 
+                $this->context->customer->secure_key
+            );
 
             if (version_compare(_PS_VERSION_, '1.5', '>=')) {
                 $new_order = new Order((int)$this->currentOrder);
@@ -796,39 +764,28 @@ class Conekta_Prestashop extends PaymentModule
             }
 
             if (isset($charge_response->id) && $type == "cash") {
-                Db::getInstance()->Execute('INSERT INTO ' . _DB_PREFIX_ . 'conekta_transaction (type, id_cart, id_order, id_conekta_order, id_transaction, amount, status, currency, mode, date_add, reference, barcode, captured) VALUES (\'payment\', ' . pSQL((int) $this->context->cart->id) . ', ' . pSQL((int) $this->currentOrder) . ', \'' . pSQL($order->id) . '\', \'' . pSQL($charge_response->id) . '\',\'' . ($order->amount * 0.01) . '\', \'' . ($charge_response->status == 'paid' ? 'paid' : 'unpaid') . '\', \'' . pSQL($charge_response->currency) . '\', \'' . ($charge_response->livemode == 'true' ? 'live' : 'test') . '\', NOW(),\'' . $reference . '\',\'' . $reference . '\',\'' . ($charge_response->livemode == 'true' ? '1' : '0') . '\' )');
+                Database::insertOxxoPayment($order,$charge_response,$reference,$this->currentOrder, $this->context->cart->id);
             } elseif (isset($charge_response->id) && $type == "spei") {
-                if (class_exists('Logger')) {
-                    Logger::addLog('INSERTADO', 1, null, null, null, true);
-                }
                 Db::getInstance()->Execute('INSERT INTO ' . _DB_PREFIX_ . 'conekta_transaction (type, id_cart, id_order, id_conekta_order, id_transaction, amount, status, currency, mode, date_add, reference, captured) VALUES (\'payment\', ' . (int) $this->context->cart->id . ', ' . (int) $this->currentOrder . ', \'' . pSQL($order->id) . '\', \'' . pSQL($charge_response->id) . '\', \'' . ($charge_response->amount * 0.01) . '\', \'' . ($charge_response->status == 'paid' ? 'paid' : 'unpaid') . '\', \'' . pSQL($charge_response->currency) . '\', \'' . ($charge_response->livemode == 'true' ? 'live' : 'test') . '\', NOW(),\'' . $reference . '\', \'' . ($charge_response->livemode == 'true' ? '1' : '0') . '\' )');
             } elseif (isset($charge_response->id)) {
                 Db::getInstance()->Execute('INSERT INTO ' . _DB_PREFIX_ . 'conekta_transaction (type, id_cart, id_order, id_conekta_order, id_transaction, amount, status, currency, mode, date_add, captured) VALUES (\'payment\', ' . (int) $this->context->cart->id . ', ' . (int) $this->currentOrder . ', \'' . pSQL($order->id) . '\', \'' . pSQL($charge_response->id) . '\',\'' . ($charge_response->amount * 0.01) . '\', \'' . ($charge_response->status == 'paid' ? 'paid' : 'unpaid') . '\', \'' . pSQL($charge_response->currency) . '\', \'' . ($charge_response->livemode == 'true' ? 'live' : 'test') . '\', NOW(), \'1\')');
             }
 
-            if (version_compare(_PS_VERSION_, '1.5', '<')) {
-                $redirect = 'order-confirmation.php?id_cart=' . (int) $this->context->cart->id . '&id_module=' . (int) $this->id . '&id_order=' . (int)$this->currentOrder . '&key=' . $this->context->customer->secure_key;
-            } else {
-                $redirect = $this->context->link->getPageLink('order-confirmation', true, null, array(
-                    'id_order' => (int) $this->currentOrder,
-                    'id_cart' => (int) $this->context->cart->id,
-                    'key' => $this->context->customer->secure_key,
-                    'id_module' => (int) $this->id
-                    ));
-            }
+            $redirect = $this->context->link->getPageLink('order-confirmation', true, null, array(
+                'id_order'  => (int) $this->currentOrder,
+                'id_cart'   => (int) $this->context->cart->id,
+                'key'       => $this->context->customer->secure_key,
+                'id_module' => (int) $this->id
+            ));
 
             Tools::redirect($redirect);
         } catch (\Conekta\ErrorList $e) {
             $message = "";
-            if (version_compare(_PS_VERSION_, '1.4.0.3', '>') && class_exists('Logger')) {
-                foreach ($e->details as $single_error) {
-                    //$log_message .= $single_error->message . ' ';
-                    //Logger::addLog($this->l('Payment transaction failed') . ' ' . $log_message, 2, null, 'Cart', (int)$this->context->cart->id, true);
+            if (class_exists('Logger')) {
+                foreach($e->details as $single_error){
+                    $log_message .= $single_error->message . ' ';
+                    Logger::addLog($this->l('Payment transaction failed') . ' ' . $log_message, 2, null, 'Cart', (int)$this->context->cart->id, true);
                 }
-
-            }
-            foreach($e->details as $single_error){
-                $message .= $single_error->message . ' ';
             }
 
             $controller = Configuration::get('PS_ORDER_PROCESS_TYPE') ? 'order-opc.php' : 'order.php';
@@ -840,19 +797,15 @@ class Conekta_Prestashop extends PaymentModule
 
     public function fetchTemplate($name)
     {
-        if (version_compare(_PS_VERSION_, '1.4', '<')) {
-            $this->context->smarty->currentTemplate = $name;
-        } else {
-            $views = 'views/templates/';
-            if (@filemtime(dirname(__FILE__) . '/' . $name)) {
-                return $this->display(__FILE__, $name);
-            } elseif (@filemtime(dirname(__FILE__) . '/' . $views . 'hook/' . $name)) {
-                return $this->display(__FILE__, $views . 'hook/' . $name);
-            } elseif (@filemtime(dirname(__FILE__) . '/' . $views . 'front/' . $name)) {
-                return $this->display(__FILE__, $views . 'front/' . $name);
-            } elseif (@filemtime(dirname(__FILE__) . '/' . $views . 'admin/' . $name)) {
-                return $this->display(__FILE__, $views . 'admin/' . $name);
-            }
+        $views = 'views/templates/';
+        if (@filemtime(dirname(__FILE__) . '/' . $name)) {
+            return $this->display(__FILE__, $name);
+        } elseif (@filemtime(dirname(__FILE__) . '/' . $views . 'hook/' . $name)) {
+            return $this->display(__FILE__, $views . 'hook/' . $name);
+        } elseif (@filemtime(dirname(__FILE__) . '/' . $views . 'front/' . $name)) {
+            return $this->display(__FILE__, $views . 'front/' . $name);
+        } elseif (@filemtime(dirname(__FILE__) . '/' . $views . 'admin/' . $name)) {
+            return $this->display(__FILE__, $views . 'admin/' . $name);
         }
 
         return $this->display(__FILE__, $name);
@@ -866,9 +819,9 @@ class Conekta_Prestashop extends PaymentModule
 
     public function getTransactionStatus($order_id)
     {
-        if ($this->getOrderConekta($order_id) == $this->name) {
+        if (Database::getOrderConekta($order_id) == $this->name) {
 
-            $conekta_transaction_details = $this->getConektaTransaction($order_id);
+            $conekta_transaction_details = Database::getConektaTransaction($order_id);
 
             $this->smarty->assign('conekta_transaction_details', $conekta_transaction_details);
 
@@ -893,20 +846,5 @@ class Conekta_Prestashop extends PaymentModule
             
             return $this->fetchTemplate("admin-order.tpl");
         } 
-    }
-
-    public function getOrderConekta($order_id)
-    {
-        return Db::getInstance()->getValue(
-            'SELECT module FROM ' . _DB_PREFIX_ . 'orders '
-            .'WHERE id_order = ' . pSQL((int) $order_id));
-    }
-
-    public function getConektaTransaction($order_id)
-    {
-        return Db::getInstance()->getRow(
-                'SELECT * FROM ' . _DB_PREFIX_ . 'conekta_transaction '
-                .'WHERE id_order = ' . pSQL((int) $order_id) . 
-                ' AND type = \'payment\'');
     }
 }
