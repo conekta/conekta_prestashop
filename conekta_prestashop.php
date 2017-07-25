@@ -25,7 +25,8 @@
 */
 
 use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
-//include_once "/var/www/html/modules/conekta_prestashop/modules/conekta_prestashop/admin_controller.php";
+require_once(dirname(__FILE__) . '/model/Config.php');
+require_once(dirname(__FILE__) . '/lib/conekta-php/lib/Conekta.php');
 if (!defined('_PS_VERSION_')) {
     exit;
 }
@@ -273,7 +274,6 @@ class Conekta_Prestashop extends PaymentModule
 
     public function hookPaymentOptions($params)
     {
-      error_log("======ENTROU NO hookPaymentOptions=======");
         if (!$this->active) {
             return;
         }
@@ -339,8 +339,6 @@ class Conekta_Prestashop extends PaymentModule
 
     public function getCardPaymentOption() 
     {
-        //PrestaShopLogger::addLog("getCardPaymentOptios", 1, null, '', 0, true, 1234) 
-
         $embeddedOption = new PaymentOption();
         $embeddedOption->setModuleName($this->name)
           //->setCallToActionText($this->l('Pago con tarjeta de crédito y débito (con opción de meses sin intereses)'))
@@ -633,9 +631,8 @@ class Conekta_Prestashop extends PaymentModule
 
     public function processPayment($type)
     {
-        require_once(dirname(__FILE__) . '/lib/conekta-php/lib/Conekta.php');
-
-        \Conekta\Conekta::setApiKey('key_gnBMn9YCV9qZJs1rYFMGSg');
+        
+        \Conekta\Conekta::setApiKey('key_SN2vakDK6CrWATiRWCyoZw');
         \Conekta\Conekta::setPlugin('Prestashop');
         \Conekta\Conekta::setApiVersion('2.0.0');
 
@@ -643,150 +640,90 @@ class Conekta_Prestashop extends PaymentModule
         $customer         = new Customer((int) $cart->id_customer);
         $address_delivery = new Address((int) $cart->id_address_delivery);
         $address_fiscal   = new Address((int) $cart->id_address_invoice);
+        $state            = State::getNameById($address_delivery->id_state);
+        $country          = Country::getIsoById($address_delivery->id_country);
 
         // get shipping info
-
         $carrier          = new Carrier((int)$cart->id_carrier);
-        $shipping_price   = $cart->getTotalShippingCost() * 100;
-        $shipping_carrier = "other";
-        $shipping_service = "other";
+        $shp_price   = intval( strval($cart->getTotalShippingCost()) * 100);
+        $shp_carrier = "other";
+        $shp_service = "other";
+        $discounts   = $cart->getDiscounts();
+        $items       = $cart->getProducts();
 
         if (isset($carrier)) {
-            $shipping_carrier = $carrier->name;
-            $shipping_service = implode(",", $carrier->delay);
+            $shp_carrier = $carrier->name;
+            $shp_service = implode(",", $carrier->delay);
         }
 
-        // build line items
-
-        $items      = $cart->getProducts();
-        $line_items = array();
-        foreach ($items as $item) {
-            $line_items = array_merge($line_items, array(
-                array(
-                    'name'        => $item['name'],
-                    'unit_price'  => intval((float)$item['price'] * 100),
-                    'quantity'    => intval($item['cart_quantity']),
-                    'tags'        => ["prestashop"]
-                    )
-                ));
-            if(strlen($item['reference']) > 0){
-                array_merge($line_items, array(
-                    array(
-                        'sku' => $item['reference']
-                        )
-                ));
-            }
-            if(strlen($item['description_short']) > 2){
-                array_merge($line_items, array(
-                    array(
-                        'description' => $item['reference']
-                        )
-                ));
-            }
-        }
-
-        $tax_lines = array();
-        foreach ($items as $item) {
-            $tax = intval(((float)$item['total_wt'] - (float)$item['total']) * 100);
-            if (!empty($item['tax_name'])) {
-                $tax_lines = array_merge($tax_lines, array(
-                    array(
-                        'description' => $item['tax_name'],
-                        'amount'      => $tax
-                    )
-                ));
-            }
-        }
-
-        $discount_lines = array();
-        $discounts      = $cart->getDiscounts();
-
-        if(!empty($discounts)){
-            foreach ($discounts as $discount) {
-                $discount_lines = array_merge($discount_lines, array(
-                    array(
-                        'code'   => $discount['code'],
-                        'amount' => (int)$discount['value_real'] * 100,
-                        'type'   => 'coupon'
-                    )
-                ));
-            }
-        }
-
-        if (!empty($shipping_carrier)) {
-            $shipping_lines = array(
-                array(
-                    "amount"          => $shipping_price,
-                    "tracking_number" => $shipping_service,
-                    "carrier"         => $shipping_carrier,
-                    "method"          => $shipping_service
-                )
-            );
-        }
-
-        $shipping_contact = array(
-            "receiver" => $customer->firstname . " " . $customer->lastname,
-            "phone"    => $address_delivery->phone,
-            "address"  => array(
-                "street1"     => $address_delivery->address1,
-                "city"        => $address_delivery->city,
-                "state"       => State::getNameById($address_delivery->id_state),
-                "country"     => Country::getIsoById($address_delivery->id_country),
-                "postal_code" => $address_delivery->postcode
-            ),
-            "metadata" => array("soft_validations" => true)
+        $order_details = [];
+        $order_details['currency']       = $this->context->currency->iso_code;
+        $order_details['line_items']     = Config::getLineItems($items);
+        $order_details['tax_lines']      = Config::getTaxLines($items);
+        $order_details['discount_lines'] = Config::getDiscountLines($discounts);
+        $order_details['customer_info']  = Config::getCustomerInfo($customer, $address_delivery);
+        $order_details['shipping_lines'] = Config::getShippingLines(
+            $shp_carrier, $shp_price, $shp_service
+        );
+        $order_details['shipping_contact'] = Config::getShippingContact(
+            $customer, $address_delivery, $state, $country
         );
 
-        $customer_info = array(
-            "name"     => $customer->firstname . " " . $customer->lastname,
-            "phone"    => $address_delivery->phone,
-            "email"    => $customer->email,
-            "metadata" => array("soft_validations" => true)
-        );
-
-        $order_details = array(
-            "currency"         => $this->context->currency->iso_code,
-            "line_items"       => $line_items,
-            "shipping_contact" => $shipping_contact,
-            "customer_info"    => $customer_info,
-            "metadata"         => array("soft_validations" => true, 'reference_id' => (int)$this->context->cart->id, 'version' => 'conekta-prestashop v'.$this->version)
-        );
-
-        if (!empty($tax_lines)) {
-            $order_details =
-                array_merge($order_details, array('tax_lines' => $tax_lines));
+        if (class_exists('Logger')) {
+            Logger::addLog(json_encode($order_details), 2, null, null, null, true);
         }
 
-        if (!empty($discount_lines)) {
-            $order_details =
-                array_merge($order_details, array('discount_lines' => $discount_lines));
-        }
+       
+        // $customer_info = array(
+        //     "name"     => $customer->firstname . " " . $customer->lastname,
+        //     "phone"    => $address_delivery->phone,
+        //     "email"    => $customer->email,
+        //     "metadata" => array("soft_validations" => true)
+        // );
 
-        if (isset($shipping_lines)) {
-            $order_details =
-                array_merge($order_details, array('shipping_lines' => $shipping_lines));
-        }
+        // $order_details = array(
+        //     "currency"         => $this->context->currency->iso_code,
+        //     "line_items"       => $line_items,
+        //     "shipping_contact" => $shipping_contact,
+        //     "customer_info"    => $customer_info,
+        //     "metadata"         => array("soft_validations" => true, 'reference_id' => (int)$this->context->cart->id, 'version' => 'conekta-prestashop v'.$this->version)
+        // );
+
+        // if (!empty($tax_lines)) {
+        //     $order_details =
+        //         array_merge($order_details, array('tax_lines' => $tax_lines));
+        // }
+
+        // if (!empty($discount_lines)) {
+        //     $order_details =
+        //         array_merge($order_details, array('discount_lines' => $discount_lines));
+        // }
+
+        // if (isset($shipping_lines)) {
+        //     $order_details =
+        //         array_merge($order_details, array('shipping_lines' => $shipping_lines));
+        // }
 
         $amount = 0;
 
-        foreach ($line_items as $item) {
+        foreach ($order_details['line_items'] as $item) {
             $amount = $amount + ($item['quantity'] * $item['unit_price']);
         }
 
-        if (isset($tax_lines)) {
-            foreach ($tax_lines as $tax) {
+        if (isset($order_details['tax_lines'])) {
+            foreach ($order_details['tax_lines'] as $tax) {
                 $amount = $amount + $tax['amount'];
             }
         }
 
-        if (isset($shipping_lines)) {
-            foreach ($shipping_lines as $shipping) {
+        if (isset($order_details['shipping_lines'])) {
+            foreach ($order_details['shipping_lines'] as $shipping) {
                 $amount = $amount + $shipping['amount'];
             }
         }
 
-        if (isset($discount_lines)) {
-            foreach ($discount_lines as $discount) {
+        if (isset($order_details['discount_lines'])) {
+            foreach ($order_details['discount_lines'] as $discount) {
                 $amount = $amount - $discount['amount'];
             }
         }
@@ -831,7 +768,8 @@ class Conekta_Prestashop extends PaymentModule
                     array(
                         'payment_method' => array(
                             'type'     => 'card',
-                            'token_id' => $token
+                           // 'token_id' => $token
+                            'token_id' =>  'tok_test_visa_4242'
                           ),
                          'amount' => $amount
                      );
