@@ -50,7 +50,7 @@ class Conekta_PrestashopValidationModuleFrontController extends ModuleFrontContr
             Tools::redirect('index.php?controller=order&step=1');
         
         $type = $_GET['type'];
-         if (class_exists('Logger')) {
+        if (class_exists('Logger')) {
             Logger::addLog(json_encode($type), 1, null, null, null, true);
         }
         $conekta = new Conekta_Prestashop();
