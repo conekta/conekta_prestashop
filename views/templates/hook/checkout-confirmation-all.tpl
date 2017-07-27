@@ -41,11 +41,11 @@
 
 {if $card }
 {if $conekta_order.valid == 1 }
-		<div class="conf confirmation">{l s='Pago Exitoso, el pago ha sido aprobado y el pedido se ha guardado con la referencia ' mod='conekta_prestashop'} <b>{$conekta_order.reference|escape:'htmlall':'UTF-8'}</b>.</div>
+                <div class="conf confirmation">{l s='Pago Exitoso, el pago ha sido aprobado y el pedido se ha guardado con la referencia ' mod='conekta_prestashop'} <b>{$conekta_order.reference|escape:'htmlall':'UTF-8'}</b>.</div>
 {else}
-		<div class="error">{l s='Sorry, unfortunately an error occurred during the transaction.' mod='conekta_prestashop'}<br /><br />
-		{l s='Please double-check your credit card details and try again or feel free to contact us to resolve this issue.' mod='conekta_prestashop'}<br /><br />
-		({l s='Your Order\'s Reference:' mod='conekta_prestashop'} <b>{$conekta_order.reference|escape:'htmlall':'UTF-8'}</b>)</div>
+                <div class="error">{l s='Sorry, unfortunately an error occurred during the transaction.' mod='conekta_prestashop'}<br /><br />
+                {l s='Please double-check your credit card details and try again or feel free to contact us to resolve this issue.' mod='conekta_prestashop'}<br /><br />
+                ({l s='Your Order\'s Reference:' mod='conekta_prestashop'} <b>{$conekta_order.reference|escape:'htmlall':'UTF-8'}</b>)</div>
 {/if}
 {/if}
 
