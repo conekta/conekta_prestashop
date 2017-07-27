@@ -70,6 +70,7 @@ class Database
             ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8 AUTO_INCREMENT=1'));
     }
 
+
     public function insertSpeiPayment($order, $charge_response, $reference, $currentOrder, $cartId)
     {
         return Db::getInstance()->Execute('INSERT INTO ' . _DB_PREFIX_ . 'conekta_transaction(

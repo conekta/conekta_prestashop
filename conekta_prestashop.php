@@ -345,7 +345,7 @@ class Conekta_Prestashop extends PaymentModule
         if (!$this->checkCurrency($params['cart'])) {
             return;
         }
-
+      
         $this->smarty->assign(array(
             'test_private_key' => Configuration::get('TEST_PRIVATE_KEY'),
             ));
@@ -413,6 +413,7 @@ class Conekta_Prestashop extends PaymentModule
     {
         $embeddedOption = new PaymentOption();
         $embeddedOption->setModuleName($this->name)
+
         ->setCallToActionText($this->l('Pago por medio de '))
         ->setAction($this->context->link->getModuleLink($this->name, 'validation', 
             array(), true))
@@ -614,14 +615,14 @@ class Conekta_Prestashop extends PaymentModule
                         ),
                     ),
                 ),
-    'submit' => array(
-        'title' => $this->trans('Save', array(), 'Admin.Actions'),
-    )
-),
-);
+        'submit' => array(
+          'title' => $this->trans('Save', array(), 'Admin.Actions'),
+        )
+      ),
+    );
 
-return $fields_form;
-}
+    return $fields_form;
+  }
 
     public function renderForm()
     {
@@ -631,7 +632,8 @@ return $fields_form;
         $helper->id = (int)Tools::getValue('id_carrier');
         $helper->identifier = $this->identifier;
         $helper->submit_action = 'btnSubmit';
-        $helper->currentIndex = $this->context->link->getAdminLink('AdminModules', false).'&configure='.$this->name.'&tab_module='.$this->tab.'&module_name='.$this->name;
+        $helper->currentIndex = $this->context->link->getAdminLink('AdminModules', false)
+          .'&configure='.$this->name.'&tab_module='.$this->tab.'&module_name='.$this->name;
         $helper->token = Tools::getAdminTokenLite('AdminModules');
         $helper->tpl_vars = array('fields_value' => $this->getConfigFieldsValues());
 
@@ -654,7 +656,9 @@ return $fields_form;
         if (Configuration::get('CONEKTA_MODE')) {
             $tests['ssl'] = array(
                 'name' => $this->l('SSL must be enabled on your store (before entering Live mode)') ,
-                'result' => (integer) Configuration::get('PS_SSL_ENABLED') || (!empty($_SERVER['HTTPS']) && Tools::strtolower($_SERVER['HTTPS']) != 'off')
+                'result' => (integer) Configuration::get('PS_SSL_ENABLED') 
+                            || (!empty($_SERVER['HTTPS']) 
+                            && Tools::strtolower($_SERVER['HTTPS']) != 'off')
                 );
         }
 
@@ -802,14 +806,13 @@ return $fields_form;
             'months' => $months,
             'years' => $years,
             'test_private_key' => Configuration::get('TEST_PRIVATE_KEY')
-            ));
+        ));
 
         return $this->context->smarty->fetch('module:conekta_prestashop/views/templates/front/payment_form.tpl');
     }
 
     public function processPayment($type,$token)
     {
-
         \Conekta\Conekta::setApiKey(Configuration::get('MODE') ? Configuration::get('LIVE_PRIVATE_KEY') : Configuration::get('TEST_PRIVATE_KEY'));
         \Conekta\Conekta::setPlugin('Prestashop');
         \Conekta\Conekta::setApiVersion('2.0.0');
@@ -820,7 +823,6 @@ return $fields_form;
         $address_fiscal   = new Address((int) $cart->id_address_invoice);
         $state            = State::getNameById($address_delivery->id_state);
         $country          = Country::getIsoById($address_delivery->id_country);
-
         $carrier     = new Carrier((int)$cart->id_carrier);
         $shp_price   = intval( strval($cart->getTotalShippingCost()) * 100);
         $shp_carrier = "other";
@@ -925,7 +927,7 @@ return $fields_form;
                         'type'       => 'card',
                         'token_id'   => $token
                         ),
-                    'amount'        => $amount
+                    'amount'         => $amount
                     );
 
                 $monthly_installments = (int) $monthly_installments;
@@ -983,7 +985,7 @@ return $fields_form;
                 'id_cart'   => (int) $this->context->cart->id,
                 'key'       => $this->context->customer->secure_key,
                 'id_module' => (int) $this->id
-                ));
+            ));
             Tools::redirect($redirect);
 
         } catch (\Conekta\ErrorList $e) {
