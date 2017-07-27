@@ -27,5 +27,6 @@
 	<h3 class="conekta_title">{l s='Pago por medio de SPEI' mod='conekta_prestashop'}</h3>
 	{* Classic Credit card form *}
 	<div id="conekta-ajax-loader">
-		<img src="{$module_dir|escape:'htmlall':'UTF-8'}views/img/ajax-loader.gif" alt="" /> {l s='Transaction in progress, please wait.' mod='conekta_prestashop'}
+		<img src="{$module_dir|escape:'htmlall':'UTF-8'}views/img/ajax-loader.gif"/> {l s='Transaction in progress, please wait.' mod='conekta_prestashop'}
 	</div>
+</div>

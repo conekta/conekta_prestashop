@@ -24,9 +24,7 @@
 *}
 
 <form action="{$action}" id="conekta-payment-form">
-
 {if isset($smarty.get.conekta_error)}<a id="conekta_error" name="conekta_error"></a><div class="conekta-payment-errors">{l s='There was a problem processing your credit card, please double check your data and try again.' mod='conekta_prestashop'}</div>{/if}
-
   <p>
     <label>{l s='Nombre del Tarjetahabiente'}</label>
     <input type="text" autocomplete="off" class="conekta-card-name" data-conekta="card[name]">

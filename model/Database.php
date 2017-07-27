@@ -18,7 +18,7 @@
 */
 class Database
 {
-	public function getOrderConekta($order_id)
+    public function getOrderConekta($order_id)
     {
         return Db::getInstance()->getValue(
             'SELECT module FROM ' . _DB_PREFIX_ . 'orders '
