@@ -24,6 +24,7 @@
 *  International Registered Trademark & Property of PrestaShop SA
 */
 
+
 if ( $.mobile ) {
    //jq mobile loaded
 	$(document).on('pageinit', function() {
@@ -39,35 +40,28 @@ if ( $.mobile ) {
 	});
 } 
 
-
-
 function conektaSetup()
 {
-	if ($('#conekta_setup_complete').val()==1)
+	if (!$('#conekta-payment-form').length){
 		return false;
-
-	if (!$('#conekta-payment-form').length)
-		return false;
+    }
 
 	/* Set Conekta public key */
-	Conekta.setPublishableKey(conekta_public_key);
-
+    Conekta.setPublishableKey(conekta_public_key);
 	//since we are using smarty html_select_date custom function
-	$('#conekta-card-expiry-month').removeAttr('name');
-	$('#conekta-card-expiry-year').removeAttr('name');
+	$('#card-expiry-month').removeAttr('name');
+	$('#card-expiry-year').removeAttr('name');
 
 	$('#conekta-payment-form').submit(function(event) {
         var $form = $('#conekta-payment-form');
-    	$form.find("button").prop("disabled", true);
       	if( $form.find('[name=conektaToken]').length) {
-        	return true;
+            return true;
         } else {
      	  Conekta.token.create($form, conektaSuccessResponseHandler, conektaErrorResponseHandler);
 		  return false; 
         }
 	});
 }
-
 
 var conektaSuccessResponseHandler = function(response) {
     var $form = $('#conekta-payment-form');
@@ -76,10 +70,8 @@ var conektaSuccessResponseHandler = function(response) {
     
 };
 
-
 var conektaErrorResponseHandler = function(response) {
     var $form = $('#conekta-payment-form');
-    //$form.unblock();
     
     if ($('.conekta-payment-errors').length)
         $('.conekta-payment-errors').fadeIn(1000);
@@ -88,8 +80,5 @@ var conektaErrorResponseHandler = function(response) {
         $('#conekta-payment-form').prepend('<div class="conekta-payment-errors">' + response.message +'</div>');
         $('.conekta-payment-errors').fadeIn(1000);
     }
-    
-    $('#conekta-submit-button').removeAttr('disabled');
-    $('#conekta-payment-form').show();
-    $('#conekta-ajax-loader').hide();
+
 };

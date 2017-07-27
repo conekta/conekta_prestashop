@@ -49,12 +49,11 @@ class Conekta_PrestashopValidationModuleFrontController extends ModuleFrontContr
         if (!Validate::isLoadedObject($customer))
             Tools::redirect('index.php?controller=order&step=1');
         
-        $type = $_GET['type'];
-        if (class_exists('Logger')) {
-            Logger::addLog(json_encode($type), 1, null, null, null, true);
-        }
+        $type = pSQL(Tools::getValue('type'));
+        $conektaToken = Tools::getValue('conektaToken');
+
         $conekta = new Conekta_Prestashop();
-        $conekta->processPayment($type);  
+        $conekta->processPayment($type,$conektaToken);  
         
         $this->setTemplate('module:conekta_prestashop/views/templates/front/payment_return.tpl');
     }
