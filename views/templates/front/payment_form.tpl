@@ -42,13 +42,13 @@
 
   <p>
     <label>{l s='Expiration (MM/AAAA)'}</label>
-    <select id="month" class="conekta-card-expiry-month" id="conekta-card-expiry-month" data-conekta="card[exp_month]" data-encrypted-name="month">
+    <select class="conekta-card-expiry-month" id="conekta-card-expiry-month" data-conekta="card[exp_month]" data-encrypted-name="month">
       {foreach from=$months item=month}
         <option value="{$month}">{$month}</option>
       {/foreach}
     </select>
     <span> / </span>
-    <select id="year" class="conekta-card-expiry-year" id="conekta-card-expiry-year" data-conekta="card[exp_year]" data-encrypted-name="year">
+    <select class="conekta-card-expiry-year" id="conekta-card-expiry-year" data-conekta="card[exp_year]" data-encrypted-name="year">
       {foreach from=$years item=year}
         <option value="{$year}">{$year}</option>
       {/foreach}

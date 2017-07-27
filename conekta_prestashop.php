@@ -618,8 +618,7 @@ class Conekta_Prestashop extends PaymentModule
         'submit' => array(
           'title' => $this->trans('Save', array(), 'Admin.Actions'),
         )
-      ),
-    );
+      );
 
     return $fields_form;
   }

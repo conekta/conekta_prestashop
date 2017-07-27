@@ -24,7 +24,6 @@
 *  International Registered Trademark & Property of PrestaShop SA
 */
 
-
 if ( $.mobile ) {
    //jq mobile loaded
 	$(document).on('pageinit', function() {
@@ -49,8 +48,8 @@ function conektaSetup()
 	/* Set Conekta public key */
     Conekta.setPublishableKey(conekta_public_key);
 	//since we are using smarty html_select_date custom function
-	$('#card-expiry-month').removeAttr('name');
-	$('#card-expiry-year').removeAttr('name');
+	$('#conekta-card-expiry-month').removeAttr('name');
+	$('#conekta-card-expiry-year').removeAttr('name');
 
 	$('#conekta-payment-form').submit(function(event) {
         var $form = $('#conekta-payment-form');

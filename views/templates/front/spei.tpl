@@ -23,10 +23,6 @@
 *  @license http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 *}
 
-<div class="payment_module conekta-payment-module spei-option" >
-	<h3 class="conekta_title">{l s='Pago por medio de SPEI' mod='conekta_prestashop'}</h3>
-	{* Classic Credit card form *}
-	<div id="conekta-ajax-loader">
-		<img src="{$module_dir|escape:'htmlall':'UTF-8'}views/img/ajax-loader.gif"/> {l s='Transaction in progress, please wait.' mod='conekta_prestashop'}
-	</div>
-</div>
+<section>
+  <p>{l s='Add some details about the payment option' mod='conekta_prestashop'}</p>
+</section>
