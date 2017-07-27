@@ -1,12 +1,12 @@
 {*
-* 20012 - 2016 Conekta
+* 2007-2017 PrestaShop
 *
 * NOTICE OF LICENSE
 *
-* This source file is subject to the Open Software License (OSL 3.0)
+* This source file is subject to the Academic Free License (AFL 3.0)
 * that is bundled with this package in the file LICENSE.txt.
 * It is also available through the world-wide-web at this URL:
-* http://opensource.org/licenses/osl-3.0.php
+* http://opensource.org/licenses/afl-3.0.php
 * If you did not receive a copy of the license and are unable to
 * obtain it through the world-wide-web, please send an email
 * to license@prestashop.com so we can send you a copy immediately.
@@ -18,8 +18,12 @@
 * needs please refer to http://www.prestashop.com for more information.
 *
 *  @author Conekta <support@conekta.io>
-*  @copyright  2012-2016 PrestaShop SA
-*  @version  v2.0.0
-*  @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+*  @copyright 2007-2017 PrestaShop SA
+*  @version v1.0.0
+*  @license http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 *}
-<div class="error"><p>{$error_message|escape:'htmlall':'UTF-8'}<br />{l s='You can download the requirements needed here: http://addons.prestashop.com/en/modules-prestashop/6222-backwardcompatibility.html' mod='mypaymentmodule'}</p></div>
+<div class="error">
+	<p>{$error_message|escape:'htmlall':'UTF-8'}<br/>
+	{l s='You can download the requirements needed here: http://addons.prestashop.com/en/modules-prestashop/6222-backwardcompatibility.html' mod='conekta_prestashop'}
+	</p>
+</div>

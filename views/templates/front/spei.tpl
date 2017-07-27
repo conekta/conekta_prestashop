@@ -1,5 +1,5 @@
 {*
-* 2007-2015 PrestaShop
+* 2007-2017 PrestaShop
 *
 * NOTICE OF LICENSE
 *
@@ -17,17 +17,16 @@
 * versions in the future. If you wish to customize PrestaShop for your
 * needs please refer to http://www.prestashop.com for more information.
 *
-*  @author PrestaShop SA <contact@prestashop.com>
-*  @copyright  2007-2015 PrestaShop SA
-*  @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
-*  International Registered Trademark & Property of PrestaShop SA
+*  @author Conekta <support@conekta.io>
+*  @copyright 2007-2017 PrestaShop SA
+*  @version v1.0.0
+*  @license http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 *}
 
 <div class="payment_module conekta-payment-module spei-option" >
-
-<h3 class="conekta_title">{l s='Pago por medio de SPEI' mod='mypaymentmodule'}</h3>
-
-{* Classic Credit card form *}
-<div id="conekta-ajax-loader"><img src="{$module_dir|escape:'htmlall':'UTF-8'}views/img/ajax-loader.gif" alt="" /> {l s='Transaction in progress, please wait.' mod='mypaymentmodule'}</div>
-
+	<h3 class="conekta_title">{l s='Pago por medio de SPEI' mod='conekta_prestashop'}</h3>
+	{* Classic Credit card form *}
+	<div id="conekta-ajax-loader">
+		<img src="{$module_dir|escape:'htmlall':'UTF-8'}views/img/ajax-loader.gif" alt="" /> {l s='Transaction in progress, please wait.' mod='conekta_prestashop'}
+	</div>
 </div>
