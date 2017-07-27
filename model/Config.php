@@ -31,6 +31,7 @@ class Config
                     'tags'        => array("prestashop")
                     )
                 ));
+
             if(Tools::strlen($item['reference']) > 0) 
             {
                 array_merge($lineItems, array(
@@ -39,6 +40,7 @@ class Config
                         )
                     ));
             }
+
             if(Tools::strlen($item['description_short']) > 2)
             {
                 array_merge($lineItems, array(

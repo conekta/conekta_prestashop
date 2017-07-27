@@ -18,7 +18,7 @@
 */
 class Database
 {
-	public function getOrderConekta($order_id)
+    public function getOrderConekta($order_id)
     {
         return Db::getInstance()->getValue(
             'SELECT module FROM ' . _DB_PREFIX_ . 'orders '
@@ -69,6 +69,7 @@ class Database
             KEY `idx_transaction` (`type`,`id_order`,`status`))
             ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8 AUTO_INCREMENT=1'));
     }
+
 
     public function insertSpeiPayment($order, $charge_response, $reference, $currentOrder, $cartId)
     {
