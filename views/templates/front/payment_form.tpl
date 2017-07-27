@@ -23,31 +23,32 @@
 *  International Registered Trademark & Property of PrestaShop SA
 *}
 
-<form action="{$action}" id="payment-form">
+<form action="{$action}" id="conekta-payment-form">
+{if isset($smarty.get.conekta_error)}<a id="conekta_error" name="conekta_error"></a><div class="conekta-payment-errors">{l s='There was a problem processing your credit card, please double check your data and try again.' mod='conektaprestashop'}</div>{/if}
   <p>
     <label>{l s='Nombre del Tarjetahabiente'}</label>
-    <input type="text" autocomplete="off" name="firstname">
+    <input type="text" autocomplete="off" class="conekta-card-name" data-conekta="card[name]">
   </p>
 
   <p>
     <label>{l s='Número de Tarjeta'}</label>
-    <input type="text" size="20" autocomplete="off" name="card-number">
+    <input type="text" size="20" autocomplete="off" class="conekta-card-number" data-conekta="card[number]">
   </p>
 
   <p>
     <label>{l s='CVC'}</label>
-    <input type="text" size="4" autocomplete="off" name="card-cvc">
+    <input type="text" size="4" autocomplete="off" class="conekta-card-cvc" data-conekta="card[cvc]">
   </p>
 
   <p>
     <label>{l s='Expiration (MM/AAAA)'}</label>
-    <select id="month" name="card-expiry-month">
+    <select id="month" class="conekta-card-expiry-month" id="conekta-card-expiry-month" data-conekta="card[exp_month]" data-encrypted-name="month">
       {foreach from=$months item=month}
         <option value="{$month}">{$month}</option>
       {/foreach}
     </select>
     <span> / </span>
-    <select id="year" name="card-expiry-year">
+    <select id="year" class="conekta-card-expiry-year" id="conekta-card-expiry-year" data-conekta="card[exp_year]" data-encrypted-name="year">
       {foreach from=$years item=year}
         <option value="{$year}">{$year}</option>
       {/foreach}

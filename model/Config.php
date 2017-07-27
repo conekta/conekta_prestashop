@@ -13,17 +13,17 @@ class Config
                     'name'        => $item['name'],
                     'unit_price'  => intval((float)$item['price'] * 100),
                     'quantity'    => intval($item['cart_quantity']),
-                    'tags'        => ["prestashop"]
+                    'tags'        => array("prestashop")
                     )
                 ));
-            if(strlen($item['reference']) > 0){
+            if(Tools::strlen($item['reference']) > 0){
                 array_merge($lineItems, array(
                     array(
                         'sku' => $item['reference']
                         )
                 ));
             }
-            if(strlen($item['description_short']) > 2){
+            if(Tools::strlen($item['description_short']) > 2){
                 array_merge($lineItems, array(
                     array(
                         'description' => $item['reference']

@@ -37,7 +37,7 @@ class Conekta_Prestashop extends PaymentModule
     {
         $this->name = 'conekta_prestashop';
         $this->tab = 'payments_gateways';
-        $this->version = '2.0.8';
+        $this->version = '1.0.0';
         $this->ps_versions_compliancy = array('min' => '1.7', 'max' => _PS_VERSION_);
         $this->author = 'Conekta';
         $this->displayName = $this->l('Conekta Prestashop');
@@ -330,9 +330,9 @@ class Conekta_Prestashop extends PaymentModule
         $this->context->controller->addCSS($this->_path . 'views/css/conekta-prestashop.css');
 
         if (Configuration::get('MODE')) {
-            $this->smarty->assign("api_key", addslashes(Configuration::get('TEST_PUBLIC_KEY')));
+            $this->smarty->assign("api_key", addslashes(Configuration::get('LIVE_PUBLIC_KEY')));
         } else {
-            $this->smarty->assign("api_key", addslashes(Configuration::get('TEST_PRIVATE_KEY')));
+            $this->smarty->assign("api_key", addslashes(Configuration::get('TEST_PUBLIC_KEY')));
         }
 
         $this->smarty->assign("path", $this->_path);
@@ -357,15 +357,21 @@ class Conekta_Prestashop extends PaymentModule
             return;
         }
         
-       $this->smarty->assign( [
+        $this->smarty->assign(array(
             'test_private_key' => Configuration::get('TEST_PRIVATE_KEY'),
-        ]);
+        ));
 
-        $payment_options = [
-          $this->getCardPaymentOption(),
-          $this->getOxxoPaymentOption(),
-          $this->getSpeiPaymentOption(),
-        ];
+        $payment_options = array();
+
+        if (Configuration::get('PAYMENT_METHS_SPEI'))
+            array_push($payment_options,$this->getSpeiPaymentOption());
+
+        if (Configuration::get('PAYMENT_METHS_CASH'))
+            array_push($payment_options,$this->getOxxoPaymentOption());
+
+        if (Configuration::get('PAYMENT_METHS_CARD'))
+            array_push($payment_options,$this->getCardPaymentOption());
+
 
         return $payment_options;
     }
@@ -388,10 +394,10 @@ class Conekta_Prestashop extends PaymentModule
     public function getSpeiPaymentOption()
     {
         $offlineOption = new PaymentOption();
-        $offlineOption->setCallToActionText($this->l('Pago por medio de Spei'))
+        $offlineOption->setCallToActionText($this->l('Pago por medio de '))
                       ->setAction($this->context->link->getModuleLink($this->name, 'validation', array('type'=>'spei'), true))
                       ->setAdditionalInformation($this->context->smarty->fetch('module:conekta_prestashop/views/templates/front/spei.tpl'))
-                      ->setLogo(Media::getMediaPath(_PS_MODULE_DIR_.$this->name.'/payment.jpg'));
+                      ->setLogo(Media::getMediaPath(_PS_MODULE_DIR_.$this->name.'/views/img/spei.png'));
 
         return $offlineOption;
     }
@@ -399,10 +405,10 @@ class Conekta_Prestashop extends PaymentModule
     public function getOxxoPaymentOption()
     {
         $offlineOption = new PaymentOption();
-        $offlineOption->setCallToActionText($this->l('Pago en Efectivo con OxxoPay'))
+        $offlineOption->setCallToActionText($this->l('Pago en Efectivo con '))
                       ->setAction($this->context->link->getModuleLink($this->name, 'validation', array('type'=>'cash'), true))
                       ->setAdditionalInformation($this->context->smarty->fetch('module:conekta_prestashop/views/templates/front/payment_infos.tpl'))
-                      ->setLogo(Media::getMediaPath(_PS_MODULE_DIR_.$this->name.'/payment.jpg'));
+                      ->setLogo(Media::getMediaPath(_PS_MODULE_DIR_.$this->name.'/views/img/oxxo.png'));
 
         return $offlineOption;
     }
@@ -411,11 +417,11 @@ class Conekta_Prestashop extends PaymentModule
     {
         $embeddedOption = new PaymentOption();
         $embeddedOption->setModuleName($this->name)
-                       ->setCallToActionText($this->l($this->name))
+                       ->setCallToActionText($this->l('Pago por medio de '))
                        ->setAction($this->context->link->getModuleLink($this->name, 'validation', array(), true))
                        ->setForm($this->generateCardPaymentForm())
                        ->setAdditionalInformation($this->context->smarty->fetch('module:conekta_prestashop/views/templates/front/payment_infos.tpl'))
-                       ->setLogo(Media::getMediaPath(_PS_MODULE_DIR_.$this->name.'/payment.jpg'));
+                       ->setLogo(Media::getMediaPath(_PS_MODULE_DIR_.$this->name.'/views/img/cards2.png'));
 
         return $embeddedOption;
     }
@@ -584,7 +590,7 @@ class Conekta_Prestashop extends PaymentModule
                         ),                                           // for the text content of the <option> tag in each $options sub-array.
                         'expand' => array(                      // 1.6-specific: you can hide the checkboxes when there are too many.
                                                                    // A button appears with the number of options it hides.
-                          ['print_total'] => count($options),
+                          array('print_total') => count($options),
                           'default' => 'show',
                           'show' => array('text' => $this->l('show'), 'icon' => 'plus-sign-alt'),
                           'hide' => array('text' => $this->l('hide'), 'icon' => 'minus-sign-alt')
@@ -854,30 +860,29 @@ class Conekta_Prestashop extends PaymentModule
 
     protected function generateCardPaymentForm()
     {
-        $months = [];
+        $months = array();
         for ($i = 1; $i <= 12; $i++) {
             $months[] = sprintf("%02d", $i);
         }
 
-        $years = [];
+        $years = array();
         for ($i = 0; $i <= 10; $i++) {
             $years[] = date('Y', strtotime('+'.$i.' years'));
         }
 
-        $this->context->smarty->assign([
+        $this->context->smarty->assign(array(
             'action' => $this->context->link->getModuleLink($this->name, 'validation', array(), true),
             'months' => $months,
             'years' => $years,
             'test_private_key' => Configuration::get('TEST_PRIVATE_KEY')
-        ]);
+        ));
 
         return $this->context->smarty->fetch('module:conekta_prestashop/views/templates/front/payment_form.tpl');
     }
 
-    public function processPayment($type)
+    public function processPayment($type,$token)
     {
-        
-        \Conekta\Conekta::setApiKey('key_SN2vakDK6CrWATiRWCyoZw');
+        \Conekta\Conekta::setApiKey(Configuration::get('MODE') ? Configuration::get('LIVE_PRIVATE_KEY') : Configuration::get('TEST_PRIVATE_KEY'));
         \Conekta\Conekta::setPlugin('Prestashop');
         \Conekta\Conekta::setApiVersion('2.0.0');
 
@@ -889,7 +894,7 @@ class Conekta_Prestashop extends PaymentModule
         $country          = Country::getIsoById($address_delivery->id_country);
 
         // get shipping info
-        $carrier          = new Carrier((int)$cart->id_carrier);
+        $carrier     = new Carrier((int)$cart->id_carrier);
         $shp_price   = intval( strval($cart->getTotalShippingCost()) * 100);
         $shp_carrier = "other";
         $shp_service = "other";
@@ -901,7 +906,7 @@ class Conekta_Prestashop extends PaymentModule
             $shp_service = implode(",", $carrier->delay);
         }
 
-        $order_details = [];
+        $order_details = array();
         $order_details['currency']       = $this->context->currency->iso_code;
         $order_details['line_items']     = Config::getLineItems($items);
         $order_details['tax_lines']      = Config::getTaxLines($items);
@@ -988,13 +993,11 @@ class Conekta_Prestashop extends PaymentModule
                 );
 
             } else {
-
                 $charge_params =
                     array(
                         'payment_method' => array(
-                            'type'     => 'card',
-                           // 'token_id' => $token
-                            'token_id' =>  'tok_test_visa_4242'
+                            'type'       => 'card',
+                            'token_id'   => $token
                           ),
                          'amount'        => $amount
                      );
@@ -1040,7 +1043,7 @@ class Conekta_Prestashop extends PaymentModule
             } elseif (isset($charge_response->id) && $type == "spei") {
                 Database::insertSpeiPayment($order,$charge_response,$reference,$this->currentOrder, $this->context->cart->id);
             } elseif (isset($charge_response->id)) {
-                Database::insertCardPayment($order,$charge_response,$reference,$this->currentOrder, $this->context->cart->id);
+                Database::insertCardPayment($order,$charge_response,$this->currentOrder, $this->context->cart->id);
             }
 
             $redirect = $this->context->link->getPageLink('order-confirmation', true, null, array(
@@ -1049,19 +1052,22 @@ class Conekta_Prestashop extends PaymentModule
                 'key'       => $this->context->customer->secure_key,
                 'id_module' => (int) $this->id
             ));
-
             Tools::redirect($redirect);
+
         } catch (\Conekta\ErrorList $e) {
             $message = "";
             if (class_exists('Logger')) {
                 foreach($e->details as $single_error){
                     $log_message .= $single_error->message . ' ';
-                    Logger::addLog($this->l('Payment transaction failed') . ' ' . $log_message, 2, null, 'Cart', (int)$this->context->cart->id, true);
+                    Logger::addLog($this->l('Payment transaction failed') . ' ' 
+                    . $log_message, 2, null, 'Cart', (int)$this->context->cart->id, true);
                 }
             }
 
             $controller = Configuration::get('PS_ORDER_PROCESS_TYPE') ? 'order-opc.php' : 'order.php';
-            $location = $this->context->link->getPageLink($controller, true) . (strpos($controller, '?') !== false ? '&' : '?') . 'step=3&conekta_error=1&message=' . $message . '#conekta_error';
+            $location = $this->context->link->getPageLink($controller, true) 
+            . (strpos($controller, '?') !== false ? '&' : '?') 
+            . 'step=3&conekta_error=1&message=' . $message . '#conekta_error';
             Tools::redirectLink($location);
         }
     }

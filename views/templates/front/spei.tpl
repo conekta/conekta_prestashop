@@ -23,6 +23,11 @@
 *  International Registered Trademark & Property of PrestaShop SA
 *}
 
-<section>
-  <p>{l s='Add some details about the payment option SPEI' mod='mypaymentmodule'}</p>
-</section>
+<div class="payment_module conekta-payment-module spei-option" >
+
+<h3 class="conekta_title">{l s='Pago por medio de SPEI' mod='mypaymentmodule'}</h3>
+
+{* Classic Credit card form *}
+<div id="conekta-ajax-loader"><img src="{$module_dir|escape:'htmlall':'UTF-8'}views/img/ajax-loader.gif" alt="" /> {l s='Transaction in progress, please wait.' mod='mypaymentmodule'}</div>
+
+</div>
