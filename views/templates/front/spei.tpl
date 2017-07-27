@@ -29,4 +29,7 @@
 	<div id="conekta-ajax-loader">
 		<img src="{$module_dir|escape:'htmlall':'UTF-8'}views/img/ajax-loader.gif"/> {l s='Transaction in progress, please wait.' mod='conekta_prestashop'}
 	</div>
+<<<<<<< HEAD
 </div>
+=======
+>>>>>>> 13b901c489cac54fc337c8f0a52f3ff0d4223fdb
