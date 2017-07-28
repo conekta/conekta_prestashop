@@ -640,6 +640,22 @@ class Conekta_Prestashop extends PaymentModule
 
         return $helper->generateForm(array($fields_form));
     }
+    public function checkSettings($mode = 'global')
+    {
+        if ($mode === 'global') {
+            $mode = Configuration::get('CONEKTA_MODE');
+        }
+
+        $valid = false;
+
+        if ($mode) {
+            $valid = Configuration::get('CONEKTA_PUBLIC_KEY_LIVE') != '' && Configuration::get('CONEKTA_PRIVATE_KEY_LIVE') != '';
+        } else {
+            $valid = Configuration::get('CONEKTA_PUBLIC_KEY_TEST') != '' && Configuration::get('CONEKTA_PRIVATE_KEY_TEST') != '';
+        }
+
+        return $valid;
+    }
 
     public function checkRequirements()
     {
@@ -690,6 +706,60 @@ class Conekta_Prestashop extends PaymentModule
 
     public function getContent()
     {
+        //CODE FOR WEBHOOK VALIDATION UNTESTED DONT ERASE
+            
+        $this->smarty->assign("base_uri", __PS_BASE_URI__);
+        $this->smarty->assign("mode", Configuration::get('MODE'));
+        $url = Configuration::get('WEB_HOOK');
+
+
+        if (empty($url)) {
+            $url = _PS_BASE_URL_ . __PS_BASE_URI__ . "modules/conektaprestashop/webhook/notification.php";
+        }
+
+        if (Tools::isSubmit('btnSubmit')) {
+            $configuration_values = array(
+                'CONEKTA_MODE'               => Tools::getValue('MODE') ,
+                'CONEKTA_PUBLIC_KEY_TEST'    => rtrim(Tools::getValue('TEST_PUBLIC_KEY')) ,
+                'CONEKTA_PUBLIC_KEY_LIVE'    => rtrim(Tools::getValue('LIVE_PUBLIC_KEY')) ,
+                'CONEKTA_PRIVATE_KEY_TEST'   => rtrim(Tools::getValue('TEST_PRIVATE_KEY')) ,
+                'CONEKTA_PRIVATE_KEY_LIVE'   => rtrim(Tools::getValue('LIVE_PRIVATE_KEY')) ,
+                'CONEKTA_CARDS'              => rtrim(Tools::getValue('PAYMENT_METHS_CARD')) ,
+                'CONEKTA_MSI'                => rtrim(Tools::getValue('PAYMENT_METHS_INSTALLMET')) ,
+                'CONEKTA_CASH'               => rtrim(Tools::getValue('PAYMENT_METHS_CASH')) ,
+                'CONEKTA_SPEI'               => rtrim(Tools::getValue('PAYMENT_METHS_SPEI'))
+                // 'CONEKTA_SIGNATURE_KEY_TEST' => rtrim(Tools::getValue('conekta_signature_key_test')),
+                // 'CONEKTA_SIGNATURE_KEY_LIVE' => rtrim(Tools::getValue('conekta_signature_key_live'))
+                );
+
+            foreach ($configuration_values as $configuration_key => $configuration_value) {
+                //echo $configuration_key."\t=>   ".$configuration_value.'<br>';
+                Configuration::updateValue($configuration_key, $configuration_value);
+            }
+
+            $this->_createWebhook($url);
+            
+            $webhook_message = Configuration::get('CONEKTA_WEBHOOK_ERROR_MESSAGE');
+            
+            if (empty($webhook_message)) {
+                $webhook_message = false;
+            }
+
+            $this->smarty->assign("error_webhook_message", Configuration::get('CONEKTA_WEBHOOK_ERROR_MESSAGE'));
+        } else {
+            $this->smarty->assign("error_webhook_message", false);
+        }
+        
+         $requirements = $this->checkRequirements();
+         $this->smarty->assign("_path", $this->_path);
+         $this->smarty->assign("requirements", $requirements);
+         $this->smarty->assign("config_check", $requirements['result']);
+          if ($requirements['result']) {
+             $this->smarty->assign("msg_show", $this->l('All the checks were successfully performed. You can now start using your module.'));
+         } else {
+             $this->smarty->assign("msg_show", $this->l('Please resolve the following errors:'));
+         }
+
         $this->_html = '';
 
         if (Tools::isSubmit('btnSubmit')) {
@@ -709,14 +779,17 @@ class Conekta_Prestashop extends PaymentModule
         return $this->_html;
     }
 
-    private function _createWebhook()
+    private function _createWebhook($url)
     {
-        require_once(dirname(__FILE__) . '/lib/conekta-php/lib/Conekta.php');
+        $key = Configuration::get('CONEKTA_MODE') ? 
+               Configuration::get('CONEKTA_PRIVATE_KEY_LIVE') :
+               Configuration::get('CONEKTA_PRIVATE_KEY_TEST');
+        $iso_code = $this->context->language->iso_code;
 
-        \Conekta\Conekta::setApiKey(Configuration::get('CONEKTA_MODE') ? Configuration::get('CONEKTA_PRIVATE_KEY_LIVE') : Configuration::get('CONEKTA_PRIVATE_KEY_TEST'));
+        \Conekta\Conekta::setApiKey($key);
         \Conekta\Conekta::setPlugin("Prestashop");
         \Conekta\Conekta::setApiVersion("2.0.0");
-        \Conekta\Conekta::setLocale('en');
+        \Conekta\Conekta::setLocale($iso_code);
 
         $events = array(
             "events" => array(
@@ -724,16 +797,27 @@ class Conekta_Prestashop extends PaymentModule
                 )
             );
 
+        // Reset error message
+
         Configuration::deleteByName('CONEKTA_WEBHOOK_ERROR_MESSAGE');
 
-        $url = Tools::safeOutput(Tools::getValue('conekta_webhook'));
+        // Obtain stored value
 
         $config_url = Tools::safeOutput(Configuration::get('CONEKTA_WEBHOOK'));
         $is_valid_url = !empty($url) && !filter_var($url, FILTER_VALIDATE_URL) === false;
         $failed_attempts = (integer) Configuration::get('CONEKTA_WEBHOOK_FAILED_ATTEMPTS');
 
+        // If input is valid, has not been stored and has not failed more than 5 times
+        echo $is_valid_url."<-valid <br>";
+        echo ($config_url != $url)."<-config<br>" ;
+        echo ($failed_attempts < 5 )."<-failed<br>";
+        echo $url."<--URL<br>";
+        echo Configuration::get('CONEKTA_WEBHOOK_FAILED_URL')."<----FAILED_RUL<br>";
+        die();
+        
         if ($is_valid_url && ($config_url != $url) && ($failed_attempts < 5 && $url != Configuration::get('CONEKTA_WEBHOOK_FAILED_URL'))) {
             try {
+                $different = true;
                 $webhooks = \Conekta\Webhook::where();
 
                 $urls = array();
@@ -741,9 +825,8 @@ class Conekta_Prestashop extends PaymentModule
                 foreach ($webhooks as $webhook) {
                     array_push($urls, $webhook->webhook_url);
                 }
-
-                if (!in_array($url, $urls)) {
-                    if (Configuration::get('CONEKTA_MODE')) {
+                if (!in_array($url, $urls)){
+                      if (Configuration::get('CONEKTA_MODE')) {
                         $mode = array(
                             "production_enabled" => 1
                             );
@@ -753,18 +836,19 @@ class Conekta_Prestashop extends PaymentModule
                             );
                     }
 
-                    $webhook = \Conekta\Webhook::create(array_merge(array(
+                    $webhook = \Conekta\Webhook::create(array_merge(array( 
                         "url" => $url
                         ), $mode, $events));
                     Configuration::updateValue('CONEKTA_WEBHOOK', $url);
+
+                    // delete error variables
+
                     Configuration::deleteByName('CONEKTA_WEBHOOK_FAILED_ATTEMPTS');
                     Configuration::deleteByName('CONEKTA_WEBHOOK_FAILED_URL');
                     Configuration::deleteByName('CONEKTA_WEBHOOK_ERROR_MESSAGE');
                 }
-            } catch (\Conekta\ErrorList $e) {
-                foreach ($e->details as $single_error) {
-                    Configuration::updateValue('CONEKTA_WEBHOOK_ERROR_MESSAGE', $single_error->message);
-                }
+            } catch (\Exception $e) {
+                Configuration::updateValue('CONEKTA_WEBHOOK_ERROR_MESSAGE', $e->getMessage());
             }
         } else {
             if ($url == Configuration::get('CONEKTA_WEBHOOK_FAILED_URL')) {
@@ -811,9 +895,15 @@ class Conekta_Prestashop extends PaymentModule
 
     public function processPayment($type,$token)
     {
-        \Conekta\Conekta::setApiKey(Configuration::get('MODE') ? Configuration::get('LIVE_PRIVATE_KEY') : Configuration::get('TEST_PRIVATE_KEY'));
-        \Conekta\Conekta::setPlugin('Prestashop');
-        \Conekta\Conekta::setApiVersion('2.0.0');
+        $key = Configuration::get('CONEKTA_MODE') ? 
+               Configuration::get('CONEKTA_PRIVATE_KEY_LIVE') :
+               Configuration::get('CONEKTA_PRIVATE_KEY_TEST');
+        $iso_code = $this->context->language->iso_code;
+
+        \Conekta\Conekta::setApiKey($key);
+        \Conekta\Conekta::setPlugin("Prestashop");
+        \Conekta\Conekta::setApiVersion("2.0.0");
+        \Conekta\Conekta::setLocale($iso_code);
 
         $cart             = $this->context->cart;
         $customer         = new Customer((int) $cart->id_customer);
