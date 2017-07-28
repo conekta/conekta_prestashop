@@ -812,7 +812,6 @@ class Conekta_Prestashop extends PaymentModule
         // If input is valid, has not been stored and has not failed more than 5 times
         if ($is_valid_url && ($config_url != $url) && ($failed_attempts < 5 && $url != Configuration::get('CONEKTA_WEBHOOK_FAILED_URL'))) {
             try {
-                $different = true;
                 $webhooks = \Conekta\Webhook::where();
 
                 $urls = array();
