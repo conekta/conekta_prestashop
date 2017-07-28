@@ -28,7 +28,7 @@
    	<span aria-hidden="true">&times;</span>
   </button>
   <img src="../modules/conekta_prestashop/views/img/conektalogo.png" style="float:left; margin-right:15px;" width="86" height="49">
-  <p><strong>{l s="This module allows you to accept payments by check." d='Modules.Checkpayment.Admin' }</strong></p>
+  <p><strong>{l s='This module allows you to accept payments by check.'' d='Modules.Checkpayment.Admin' }</strong></p>
   <p>{l s="If the client chooses this payment method, the order status will change to 'Waiting for payment'." d='Modules.Checkpayment.Admin'}</p>
   <p>{l s="You will need to manually confirm the order as soon as you receive a check." d='Modules.Checkpayment.Admin'}</p>
 </div>
@@ -41,7 +41,7 @@
 	</div>
 {/if}
 {if $is_submit_config}
-	<div class="alert alert-success">{l s='Settings successfully saved' mod='conekta_prestashop'}</div>
+	<div class="alert alert-success">{l s='Settings successfully saved' }</div>
 {/if}
 {if $config_check}
 	<div class="alert alert-success"><strong>{$msg_show|escape:'htmlall':'UTF-8'}</strong></div>
