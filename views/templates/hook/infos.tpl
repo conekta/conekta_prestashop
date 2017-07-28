@@ -24,8 +24,38 @@
 *}
 
 <div class="alert alert-info">
-  <img src="../modules/conekta_prestashop/logo.png" style="float:left; margin-right:15px;" width="86" height="49">
-  <p><strong>{l s='This module allows you to accept payments by check.' d='Modules.Conekta_Prestashop.Admin' mod='conekta_prestashop'}</strong></p>
-  <p>{l s='If the client chooses this payment method, the order status will change to "Waiting for payment".' d='Modules.Conekta_Prestashop.Admin' mod='conekta_prestashop'}</p>
-  <p>{l s='You will need to manually confirm the order as soon as you receive a check.' d='Modules.Conekta_Prestashop.Admin' mod='conekta_prestashop'}</p>
+  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+   	<span aria-hidden="true">&times;</span>
+  </button>
+  <img src="../modules/conekta_prestashop/views/img/conektalogo.png" style="float:left; margin-right:15px;" width="86" height="49">
+  <p><strong>{l s="This module allows you to accept payments by check." d='Modules.Checkpayment.Admin' }</strong></p>
+  <p>{l s="If the client chooses this payment method, the order status will change to 'Waiting for payment'." d='Modules.Checkpayment.Admin'}</p>
+  <p>{l s="You will need to manually confirm the order as soon as you receive a check." d='Modules.Checkpayment.Admin'}</p>
 </div>
+{if $error_webhook_message}
+	<div class="alert alert-warning">
+		<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+		  <span aria-hidden="true">&times;</span>
+		 </button>
+		<p>{$error_webhook_message|escape:'htmlall':'UTF-8'}</p>
+	</div>
+{/if}
+{if $is_submit_config}
+	<div class="alert alert-success">{l s='Settings successfully saved' mod='conekta_prestashop'}</div>
+{/if}
+{if $config_check}
+	<div class="alert alert-success"><strong>{$msg_show|escape:'htmlall':'UTF-8'}</strong></div>
+{else}
+	<div class="alert alert-danger">
+		<strong>{$msg_show|escape:'htmlall':'UTF-8'}</strong>
+		<ul style="margin-top: 10px;">
+			{foreach key=key item=item from=$requirements}
+				{if $key != 'result'}
+					{if $item.result == 0}
+						<li>{$item.name|escape:'htmlall':'UTF-8'}</li>
+					{/if}
+				{/if}
+			{/foreach}
+		</ul>
+	</div>
+{/if}
