@@ -23,7 +23,7 @@
 *  @license http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 *}
 
-<form action="{$action}" id="conekta-payment-form">
+<form action="{$action|escape:'htmlall':'UTF-8'}" id="conekta-payment-form">
 {if isset($smarty.get.conekta_error)}<a id="conekta_error" name="conekta_error"></a><div class="conekta-payment-errors">{l s='There was a problem processing your credit card, please double check your data and try again.' mod='conekta_prestashop'}</div>{/if}
   <p>
     <label>{l s='Nombre del Tarjetahabiente' mod='conekta_prestashop'}</label>
@@ -44,13 +44,13 @@
     <label>{l s='Expiration (MM/AAAA)' mod='conekta_prestashop'}</label>
     <select class="conekta-card-expiry-month" id="conekta-card-expiry-month" data-conekta="card[exp_month]" data-encrypted-name="month">
       {foreach from=$months item=month}
-        <option value="{$month}">{$month}</option>
+        <option value="{$month|escape:'htmlall':'UTF-8'}">{$month|escape:'htmlall':'UTF-8'}</option>
       {/foreach}
     </select>
     <span> / </span>
     <select class="conekta-card-expiry-year" id="conekta-card-expiry-year" data-conekta="card[exp_year]" data-encrypted-name="year">
       {foreach from=$years item=year}
-        <option value="{$year}">{$year}</option>
+        <option value="{$year|escape:'htmlall':'UTF-8'}">{$year|escape:'htmlall':'UTF-8'}</option>
       {/foreach}
     </select>
   </p>
