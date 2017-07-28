@@ -37,7 +37,7 @@ if ( $.mobile ) {
 	$(document).ready(function() {
 		conektaSetup();
 	});
-} 
+}
 
 function conektaSetup()
 {
@@ -57,7 +57,7 @@ function conektaSetup()
             return true;
         } else {
      	  Conekta.token.create($form, conektaSuccessResponseHandler, conektaErrorResponseHandler);
-		  return false; 
+		  return false;
         }
 	});
 }
@@ -66,12 +66,12 @@ var conektaSuccessResponseHandler = function(response) {
     var $form = $('#conekta-payment-form');
     $form.append($('<input type="hidden" name="conektaToken" />').val(response.id));
     $form.get(0).submit();
-    
+
 };
 
 var conektaErrorResponseHandler = function(response) {
     var $form = $('#conekta-payment-form');
-    
+
     if ($('.conekta-payment-errors').length)
         $('.conekta-payment-errors').fadeIn(1000);
     else

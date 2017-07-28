@@ -9,8 +9,8 @@
 *
 *  @author Conekta <support@conekta.io>
 *  @copyright 2012-2017 Conekta
-*  @version v1.0.0
 *  @license http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+*  @version v1.0.0
 */
 
 /**
@@ -21,18 +21,18 @@ class Config
     public function getLineItems($items = '')
     {
         $lineItems = array();
-        foreach ($items as $item) 
+        foreach ($items as $item)
         {
             $lineItems = array_merge($lineItems, array(
                 array(
                     'name'        => $item['name'],
-                    'unit_price'  => intval((float)$item['price'] * 100),
-                    'quantity'    => intval($item['cart_quantity']),
+                    'unit_price'  => (int)((float)$item['price'] * 100),
+                    'quantity'    => (int)$item['cart_quantity'],
                     'tags'        => array("prestashop")
                     )
                 ));
 
-            if(Tools::strlen($item['reference']) > 0) 
+            if (Tools::strlen($item['reference']) > 0)
             {
                 array_merge($lineItems, array(
                     array(
@@ -41,7 +41,7 @@ class Config
                     ));
             }
 
-            if(Tools::strlen($item['description_short']) > 2)
+            if (Tools::strlen($item['description_short']) > 2)
             {
                 array_merge($lineItems, array(
                     array(
@@ -58,7 +58,7 @@ class Config
     {
         $tax_lines = array();
         foreach ($items as $item) {
-            $tax = intval(((float)$item['total_wt'] - (float)$item['total']) * 100);
+            $tax = (int)round(((float)$item['total_wt'] - (float)$item['total']) * 100);
             if (!empty($item['tax_name'])) {
                 $tax_lines = array_merge($tax_lines, array(
                     array(
@@ -75,7 +75,7 @@ class Config
     public function getDiscountLines($discounts = '')
     {
         $discount_lines = array();
-        if(!empty($discounts))
+        if (!empty($discounts))
         {
             foreach ($discounts as $discount) {
                 $discount_lines = array_merge($discount_lines, array(
@@ -131,7 +131,7 @@ class Config
             "email"    => $customer->email,
             "metadata" => array("soft_validations" => true)
             );
-        
+
         return $customer_info;
     }
 }
