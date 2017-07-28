@@ -737,7 +737,7 @@ class Conekta_Prestashop extends PaymentModule
                 Configuration::updateValue($configuration_key, $configuration_value);
             }
 
-            $this->_createWebhook($url);
+            $this->_createWebhook();
             
             $webhook_message = Configuration::get('CONEKTA_WEBHOOK_ERROR_MESSAGE');
             
@@ -779,7 +779,7 @@ class Conekta_Prestashop extends PaymentModule
         return $this->_html;
     }
 
-    private function _createWebhook($url)
+    private function _createWebhook()
     {
         $key = Configuration::get('CONEKTA_MODE') ? 
                Configuration::get('CONEKTA_PRIVATE_KEY_LIVE') :
@@ -797,24 +797,19 @@ class Conekta_Prestashop extends PaymentModule
                 )
             );
 
-        // Reset error message
+
+        $url = Tools::safeOutput(Tools::getValue('WEB_HOOK'));
 
         Configuration::deleteByName('CONEKTA_WEBHOOK_ERROR_MESSAGE');
 
         // Obtain stored value
-
         $config_url = Tools::safeOutput(Configuration::get('CONEKTA_WEBHOOK'));
         $is_valid_url = !empty($url) && !filter_var($url, FILTER_VALIDATE_URL) === false;
         $failed_attempts = (integer) Configuration::get('CONEKTA_WEBHOOK_FAILED_ATTEMPTS');
 
+       
+
         // If input is valid, has not been stored and has not failed more than 5 times
-        echo $is_valid_url."<-valid <br>";
-        echo ($config_url != $url)."<-config<br>" ;
-        echo ($failed_attempts < 5 )."<-failed<br>";
-        echo $url."<--URL<br>";
-        echo Configuration::get('CONEKTA_WEBHOOK_FAILED_URL')."<----FAILED_RUL<br>";
-        die();
-        
         if ($is_valid_url && ($config_url != $url) && ($failed_attempts < 5 && $url != Configuration::get('CONEKTA_WEBHOOK_FAILED_URL'))) {
             try {
                 $different = true;
@@ -839,6 +834,7 @@ class Conekta_Prestashop extends PaymentModule
                     $webhook = \Conekta\Webhook::create(array_merge(array( 
                         "url" => $url
                         ), $mode, $events));
+
                     Configuration::updateValue('CONEKTA_WEBHOOK', $url);
 
                     // delete error variables
@@ -863,7 +859,6 @@ class Conekta_Prestashop extends PaymentModule
                 Configuration::updateValue('CONEKTA_WEBHOOK_ERROR_MESSAGE', "Webhook was already registered in your shop!");
             }
         }
-
         if (!empty(Configuration::get('CONEKTA_WEBHOOK_ERROR_MESSAGE'))) {
             $failed_attempts = $failed_attempts + 1;
             Configuration::updateValue('CONEKTA_WEBHOOK_FAILED_ATTEMPTS', $failed_attempts);
