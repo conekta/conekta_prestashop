@@ -32,7 +32,7 @@
     <p>{l s='Here are the params:' mod='conekta_prestashop'}</p>
     <ul>
       {foreach from=$params key=name item=value}
-        <li>{$name}: {$value}</li>
+        <li>{$name|escape:'htmlall':'UTF-8'}: {$value|escape:'htmlall':'UTF-8'}</li>
       {/foreach}
     </ul>
     <p>{l s='Now, you just need to proceed the payment and do what you need to do.' mod='conekta_prestashop'}</p>

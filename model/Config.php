@@ -13,6 +13,8 @@
 *  @version v1.0.0
 */
 
+use Cart;
+
 /**
 * Class Config
 */
@@ -72,7 +74,7 @@ class Config
         return $tax_lines;
     }
 
-    public function getDiscountLines($discounts = '')
+    public function getDiscountLines($discounts = '', $cart)
     {
         $discount_lines = array();
         if (!empty($discounts))
@@ -81,7 +83,7 @@ class Config
                 $discount_lines = array_merge($discount_lines, array(
                     array(
                         'code'   => $discount['code'],
-                        'amount' => (int)$discount['value_real'] * 100,
+                        'amount' => (string) $cart->getOrderTotal(true, Cart::ONLY_DISCOUNTS) * 100,
                         'type'   => 'coupon'
                         )
                     ));

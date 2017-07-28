@@ -54,8 +54,8 @@ class Conekta_Prestashop extends PaymentModule
             'WEB_HOOK',
             'PAYMENT_METHS_CARD',
             'PAYMENT_METHS_INSTALLMET',
-            'PAYMENT_METHS_CASH',
-            'PAYMENT_METHS_SPEI',
+            'CONEKTA_CASH',
+            'CONEKTA_SPEI',
             'TEST_PRIVATE_KEY',
             'TEST_PUBLIC_KEY',
             'LIVE_PRIVATE_KEY',
@@ -83,12 +83,12 @@ class Conekta_Prestashop extends PaymentModule
             $this->payment_method_installment = $config['PAYMENT_METHS_INSTALLMET'];
         }
 
-        if (isset($config['PAYMENT_METHS_CASH'])) {
-            $this->payment_method_cash = $config['PAYMENT_METHS_CASH'];
+        if (isset($config['CONEKTA_CASH'])) {
+            $this->payment_method_cash = $config['CONEKTA_CASH'];
         }
 
-        if (isset($config['PAYMENT_METHS_SPEI'])) {
-            $this->payment_method_spei = $config['PAYMENT_METHS_SPEI'];
+        if (isset($config['CONEKTA_SPEI'])) {
+            $this->payment_method_spei = $config['CONEKTA_SPEI'];
         }
 
         if (isset($config['TEST_PRIVATE_KEY'])) {
@@ -151,8 +151,8 @@ class Conekta_Prestashop extends PaymentModule
             ||!$this->registerHook('adminOrder')
             && Configuration::updateValue('PAYMENT_METHS_CARD', 1)
             && Configuration::updateValue('PAYMENT_METHS_INSTALLMET', 1)
-            && Configuration::updateValue('PAYMENT_METHS_CASH', 1)
-            && Configuration::updateValue('PAYMENT_METHS_SPEI', 1)
+            && Configuration::updateValue('CONEKTA_CASH', 1)
+            && Configuration::updateValue('CONEKTA_SPEI', 1)
             && Configuration::updateValue('MODE', 0)
             ||!Database::installDb())
         {
@@ -352,11 +352,11 @@ class Conekta_Prestashop extends PaymentModule
 
         $payment_options = array();
 
-        if (Configuration::get('PAYMENT_METHS_SPEI')) {
+        if (Configuration::get('CONEKTA_SPEI')) {
             array_push($payment_options,$this->getSpeiPaymentOption());
         }
 
-        if (Configuration::get('PAYMENT_METHS_CASH')) {
+        if (Configuration::get('CONEKTA_CASH')) {
             array_push($payment_options,$this->getOxxoPaymentOption());
         }
 
@@ -465,9 +465,9 @@ class Conekta_Prestashop extends PaymentModule
             Configuration::updateValue('WEB_HOOK', Tools::getValue('WEB_HOOK'));
             Configuration::updateValue('PAYMENT_METHS_CARD', Tools::getValue('PAYMENT_METHS_CARD'));
             Configuration::updateValue('PAYMENT_METHS_INSTALLMET', Tools::getValue('PAYMENT_METHS_INSTALLMET'));
-            Configuration::updateValue('PAYMENT_METHS_CASH', Tools::getValue('PAYMENT_METHS_CASH'));
+            Configuration::updateValue('CONEKTA_CASH', Tools::getValue('CONEKTA_CASH'));
             Configuration::updateValue('PAYMENT_METHS_BANORTE', Tools::getValue('PAYMENT_METHS_BANORTE'));
-            Configuration::updateValue('PAYMENT_METHS_SPEI', Tools::getValue('PAYMENT_METHS_SPEI'));
+            Configuration::updateValue('CONEKTA_SPEI', Tools::getValue('CONEKTA_SPEI'));
             Configuration::updateValue('TEST_PRIVATE_KEY', Tools::getValue('TEST_PRIVATE_KEY'));
             Configuration::updateValue('TEST_PUBLIC_KEY', Tools::getValue('TEST_PUBLIC_KEY'));
             Configuration::updateValue('LIVE_PRIVATE_KEY', Tools::getValue('LIVE_PRIVATE_KEY'));
@@ -492,9 +492,9 @@ class Conekta_Prestashop extends PaymentModule
             'WEB_HOOK'                 => Tools::getValue('WEB_HOOK', Configuration::get('WEB_HOOK')),
             'PAYMENT_METHS_CARD'       => Tools::getValue('PAYMENT_METHS_CARD', Configuration::get('PAYMENT_METHS_CARD')),
             'PAYMENT_METHS_INSTALLMET' => Tools::getValue('PAYMENT_METHS_INSTALLMET', Configuration::get('PAYMENT_METHS_INSTALLMET')),
-            'PAYMENT_METHS_CASH'       => Tools::getValue('PAYMENT_METHS_CASH', Configuration::get('PAYMENT_METHS_CASH')),
+            'CONEKTA_CASH'       => Tools::getValue('CONEKTA_CASH', Configuration::get('CONEKTA_CASH')),
             'PAYMENT_METHS_BANORTE'    => Tools::getValue('PAYMENT_METHS_BANORTE', Configuration::get('PAYMENT_METHS_BANORTE')),
-            'PAYMENT_METHS_SPEI'       => Tools::getValue('PAYMENT_METHS_SPEI', Configuration::get('PAYMENT_METHS_SPEI')),
+            'CONEKTA_SPEI'       => Tools::getValue('CONEKTA_SPEI', Configuration::get('CONEKTA_SPEI')),
             'TEST_PRIVATE_KEY'         => Tools::getValue('TEST_PRIVATE_KEY', Configuration::get('TEST_PRIVATE_KEY')),
             'TEST_PUBLIC_KEY'          => Tools::getValue('TEST_PUBLIC_KEY', Configuration::get('TEST_PUBLIC_KEY')),
             'LIVE_PRIVATE_KEY'         => Tools::getValue('LIVE_PRIVATE_KEY', Configuration::get('LIVE_PRIVATE_KEY')),
@@ -836,7 +836,7 @@ class Conekta_Prestashop extends PaymentModule
         $order_details['currency']       = $this->context->currency->iso_code;
         $order_details['line_items']     = Config::getLineItems($items);
         $order_details['tax_lines']      = Config::getTaxLines($items);
-        $order_details['discount_lines'] = Config::getDiscountLines($discounts);
+        $order_details['discount_lines'] = Config::getDiscountLines($discounts, $cart);
         $order_details['customer_info']  = Config::getCustomerInfo($customer, $address_delivery);
         $order_details['shipping_lines'] = Config::getShippingLines(
             $shp_service, $shp_carrier, $shp_price
