@@ -583,7 +583,7 @@ class Conekta_Prestashop extends PaymentModule
                             'name'  => 'name'
                             ),
                         'expand' => array(
-                            array('print_total') => 4,
+                            'print_total' => 4,
                             'default' => 'show',
                             'show' => array('text' => $this->l('show'), 'icon' => 'plus-sign-alt'),
                             'hide' => array('text' => $this->l('hide'), 'icon' => 'minus-sign-alt')
