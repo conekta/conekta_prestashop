@@ -885,7 +885,7 @@ class Conekta_Prestashop extends PaymentModule
         return $this->context->smarty->fetch('module:conekta_prestashop/views/templates/front/payment_form.tpl');
     }
 
-    public function processPayment($type,$token)
+    public function processPayment($type,$token,$msi)
     {
         $key = Configuration::get('CONEKTA_MODE') ? 
                Configuration::get('CONEKTA_PRIVATE_KEY_LIVE') :
@@ -1008,11 +1008,14 @@ class Conekta_Prestashop extends PaymentModule
                         ),
                     'amount'         => $amount
                     );
+                if(class_exists('logger')){
+                    Logger::addLog($msi, 2, null, null, null, null);
+                }
 
-                $monthly_installments = (int) $monthly_installments;
+                 $monthly_installments = (int) $msi;
 
-                if($monthly_installments > 1)
-                    $charge_params['payment_method'] = array_merge($charge_params['payment_method'], array('monthly_installments'=> $monthly_installments));
+                 if($monthly_installments > 1)
+                     $charge_params['payment_method'] = array_merge($charge_params['payment_method'], array('monthly_installments'=> $monthly_installments));
 
                 $charge_response = $order->createCharge($charge_params);
                 $order_status    = (int)Configuration::get('PS_OS_PAYMENT');
@@ -1077,11 +1080,8 @@ class Conekta_Prestashop extends PaymentModule
                 }
             }
 
-            $controller = Configuration::get('PS_ORDER_PROCESS_TYPE') ? 'order-opc.php' : 'order.php';
-            $location = $this->context->link->getPageLink($controller, true)
-            . (strpos($controller, '?') !== false ? '&' : '?')
-            . 'step=3&conekta_error=1&message=' . $message . '#conekta_error';
-            Tools::redirectLink($location);
+            
+
         }
     }
 
