@@ -18,14 +18,14 @@
 */
 class Database
 {
-    public function getOrderConekta($order_id)
+    public static function getOrderConekta($order_id)
     {
         return Db::getInstance()->getValue(
             'SELECT module FROM ' . _DB_PREFIX_ . 'orders '
             .'WHERE id_order = ' . pSQL((int) $order_id));
     }
 
-    public function getConektaTransaction($order_id)
+    public static function getConektaTransaction($order_id)
     {
         return Db::getInstance()->getRow(
             'SELECT * FROM ' . _DB_PREFIX_ . 'conekta_transaction '
