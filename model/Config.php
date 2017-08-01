@@ -13,8 +13,6 @@
 *  @version v1.0.0
 */
 
-use prestashop\classes\Cart;
-
 /**
 * Class Config
 */
