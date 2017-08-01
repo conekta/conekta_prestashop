@@ -36,7 +36,7 @@ class Conekta_PrestashopValidationModuleFrontController extends ModuleFrontContr
         if (!$authorized)
         {
             die($this->module->getTranslator()
-                ->trans('This payment method is not available.',array(), 'Modules.Conekta_Prestashop.Shop'));
+                ->trans('This payment method is not available.', array(), 'Modules.Conekta_Prestashop.Shop'));
         }
 
         if (!Validate::isLoadedObject($customer))
@@ -48,7 +48,7 @@ class Conekta_PrestashopValidationModuleFrontController extends ModuleFrontContr
         $msi = pSQL(Tools::getValue('monthly_installments'));
         $conektaToken = pSQL(Tools::getValue('conektaToken'));
 
-        $conekta->processPayment($type, $conektaToken,$msi);
+        $conekta->processPayment($type, $conektaToken, $msi);
 
         $this->setTemplate('module:conekta_prestashop/views/templates/front/payment_return.tpl');
     }
