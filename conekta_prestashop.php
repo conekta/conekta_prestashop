@@ -707,7 +707,7 @@ class Conekta_Prestashop extends PaymentModule
     public function getContent()
     {
         //CODE FOR WEBHOOK VALIDATION UNTESTED DONT ERASE
-            
+
         $this->smarty->assign("base_uri", __PS_BASE_URI__);
         $this->smarty->assign("mode", Configuration::get('MODE'));
         $url = Configuration::get('WEB_HOOK');
@@ -738,9 +738,9 @@ class Conekta_Prestashop extends PaymentModule
             }
 
             $this->_createWebhook();
-            
+
             $webhook_message = Configuration::get('CONEKTA_WEBHOOK_ERROR_MESSAGE');
-            
+
             if (empty($webhook_message)) {
                 $webhook_message = false;
             }
@@ -749,7 +749,7 @@ class Conekta_Prestashop extends PaymentModule
         } else {
             $this->smarty->assign("error_webhook_message", false);
         }
-        
+
          $requirements = $this->checkRequirements();
          $this->smarty->assign("_path", $this->_path);
          $this->smarty->assign("requirements", $requirements);
@@ -781,7 +781,7 @@ class Conekta_Prestashop extends PaymentModule
 
     private function _createWebhook()
     {
-        $key = Configuration::get('CONEKTA_MODE') ? 
+        $key = Configuration::get('CONEKTA_MODE') ?
                Configuration::get('CONEKTA_PRIVATE_KEY_LIVE') :
                Configuration::get('CONEKTA_PRIVATE_KEY_TEST');
         $iso_code = $this->context->language->iso_code;
@@ -807,7 +807,7 @@ class Conekta_Prestashop extends PaymentModule
         $is_valid_url = !empty($url) && !filter_var($url, FILTER_VALIDATE_URL) === false;
         $failed_attempts = (integer) Configuration::get('CONEKTA_WEBHOOK_FAILED_ATTEMPTS');
 
-       
+
 
         // If input is valid, has not been stored and has not failed more than 5 times
         if ($is_valid_url && ($config_url != $url) && ($failed_attempts < 5 && $url != Configuration::get('CONEKTA_WEBHOOK_FAILED_URL'))) {
@@ -830,7 +830,7 @@ class Conekta_Prestashop extends PaymentModule
                             );
                     }
 
-                    $webhook = \Conekta\Webhook::create(array_merge(array( 
+                    $webhook = \Conekta\Webhook::create(array_merge(array(
                         "url" => $url
                         ), $mode, $events));
 
@@ -889,7 +889,7 @@ class Conekta_Prestashop extends PaymentModule
 
     public function processPayment($type,$token)
     {
-        $key = Configuration::get('CONEKTA_MODE') ? 
+        $key = Configuration::get('CONEKTA_MODE') ?
                Configuration::get('CONEKTA_PRIVATE_KEY_LIVE') :
                Configuration::get('CONEKTA_PRIVATE_KEY_TEST');
         $iso_code = $this->context->language->iso_code;
@@ -1071,6 +1071,7 @@ class Conekta_Prestashop extends PaymentModule
 
         } catch (\Conekta\ErrorList $e) {
             $message = "";
+            $log_message = "";
             if (class_exists('Logger')) {
                 foreach($e->details as $single_error) {
                     $log_message = $single_error->message . ' ';
@@ -1079,10 +1080,13 @@ class Conekta_Prestashop extends PaymentModule
                 }
             }
 
+            foreach($e->details as $single_error){
+                $message .= $single_error->message . ' ';
+            }
+
             $controller = Configuration::get('PS_ORDER_PROCESS_TYPE') ? 'order-opc.php' : 'order.php';
-            $location = $this->context->link->getPageLink($controller, true)
-            . (strpos($controller, '?') !== false ? '&' : '?')
-            . 'step=3&conekta_error=1&message=' . $message . '#conekta_error';
+            $location = $this->context->link->getPageLink($controller, true) . (strpos($controller, '?') !== false ? '&' : '?') . 'step=3&conekta_error=1&message=' . $message . '#conekta_error';
+
             Tools::redirectLink($location);
         }
     }
