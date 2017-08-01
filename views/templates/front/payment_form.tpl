@@ -22,10 +22,11 @@
 *  @version v1.0.0
 *  @license http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 *}
-<div class="conekta-payment-errors" style="display:block;">{$smarty.get.message|escape:'htmlall':'UTF-8'}</div>
 
 <form action="{$action|escape:'htmlall':'UTF-8'}" id="conekta-payment-form">
-{if isset($smarty.get.conekta_error)}<a id="conekta_error" name="conekta_error"></a><div class="conekta-payment-errors">{l s='There was a problem processing your credit card, please double check your data and try again.' mod='conekta_prestashop'}</div>{/if}
+  {if isset($smarty.get.message)}
+    <div class="conekta-payment-error" style="display:block;color:red">{$smarty.get.message|escape:'htmlall':'UTF-8'}</div>
+  {/if}
   <p>
     <label>{l s='Nombre del Tarjetahabiente' mod='conekta_prestashop'}</label>
     <input type="text" autocomplete="off" class="conekta-card-name" data-conekta="card[name]">
@@ -55,12 +56,14 @@
       {/foreach}
     </select>
   </p>
-  <p>
-  <label>{l s='Monthly Installments' mod='conekta_prestashop'}</label>
-  <select class="conekta-card-msi" id="conekta-card-msi" name="monthly_installments">
-      {foreach from=[1,3,6,9,12] item=msi}
-        <option value="{$msi|escape:'htmlall':'UTF-8'}">{$msi|escape:'htmlall':'UTF-8'}</option>
-      {/foreach}
-    </select>
-  </p>
+  {if $msi == 1}
+    <p>
+    <label>{l s='Monthly Installments' mod='conekta_prestashop'}</label>
+    <select class="conekta-card-msi" id="conekta-card-msi" name="monthly_installments">
+        {foreach from=$msi_jumps item=msi}
+          <option value="{$msi|escape:'htmlall':'UTF-8'}">{$msi|escape:'htmlall':'UTF-8'}</option>
+        {/foreach}
+      </select>
+    </p>
+  {/if}
 </form>
