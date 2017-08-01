@@ -1072,6 +1072,7 @@ class Conekta_Prestashop extends PaymentModule
 
         } catch (\Conekta\ErrorList $e) {
             $message = "";
+            $log_message = "";
             if (class_exists('Logger')) {
                 foreach($e->details as $single_error) {
                     $log_message = $single_error->message . ' ';
@@ -1080,8 +1081,14 @@ class Conekta_Prestashop extends PaymentModule
                 }
             }
 
-            
+            foreach($e->details as $single_error){
+                $message .= $single_error->message . ' ';
+            }
 
+            $controller = Configuration::get('PS_ORDER_PROCESS_TYPE') ? 'order-opc.php' : 'order.php';
+            $location = $this->context->link->getPageLink($controller, true) . (strpos($controller, '?') !== false ? '&' : '?') . 'step=3&conekta_error=1&message=' . $message . '#conekta_error';
+
+            Tools::redirectLink($location);
         }
     }
 
