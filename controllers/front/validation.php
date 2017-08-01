@@ -45,9 +45,10 @@ class Conekta_PrestashopValidationModuleFrontController extends ModuleFrontContr
         }
 
         $type = pSQL(Tools::getValue('type'));
+        $msi = pSQL(Tools::getValue('monthly_installments'));
         $conektaToken = pSQL(Tools::getValue('conektaToken'));
 
-        $conekta->processPayment($type, $conektaToken);
+        $conekta->processPayment($type, $conektaToken,$msi);
 
         $this->setTemplate('module:conekta_prestashop/views/templates/front/payment_return.tpl');
     }
