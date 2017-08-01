@@ -33,7 +33,7 @@ class Database
             ' AND type = \'payment\'');
     }
 
-    public function insertOxxoPayment($order, $charge_response, $reference, $currentOrder, $cartId)
+    public static function insertOxxoPayment($order, $charge_response, $reference, $currentOrder, $cartId)
     {
       return Db::getInstance()->Execute('INSERT INTO ' . _DB_PREFIX_ . 'conekta_transaction (
         type, id_cart, id_order, id_conekta_order, id_transaction, amount,
@@ -98,7 +98,7 @@ class Database
             . ($charge_response->livemode == 'true' ? 'live' : 'test') . '\', NOW(), \'1\')');
     }
 
-    public function getOrderById($id_order)
+    public static function getOrderById($id_order)
     {
         return Db::getInstance()->getRow(
             'SELECT * FROM ' . _DB_PREFIX_ . 'conekta_transaction '

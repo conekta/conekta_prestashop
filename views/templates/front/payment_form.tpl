@@ -58,12 +58,14 @@
       {/foreach}
     </select>
   </p>
-  <p>
-  <label>{l s='Monthly Installments' mod='conekta_prestashop'}</label>
-  <select class="conekta-card-msi" id="conekta-card-msi" name="monthly_installments">
-      {foreach from=[1,3,6,9,12] item=msi}
-        <option value="{$msi|escape:'htmlall':'UTF-8'}">{$msi|escape:'htmlall':'UTF-8'}</option>
-      {/foreach}
-    </select>
-  </p>
+  {if $msi == 1}
+    <p>
+    <label>{l s='Monthly Installments' mod='conekta_prestashop'}</label>
+    <select class="conekta-card-msi" id="conekta-card-msi" name="monthly_installments">
+        {foreach from=$msi_jumps item=msi}
+          <option value="{$msi|escape:'htmlall':'UTF-8'}">{$msi|escape:'htmlall':'UTF-8'}</option>
+        {/foreach}
+      </select>
+    </p>
+  {/if}
 </form>

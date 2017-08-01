@@ -862,9 +862,32 @@ class Conekta_Prestashop extends PaymentModule
             Configuration::updateValue('CONEKTA_WEBHOOK_FAILED_URL', $url);
         }
     }
+    public function getJumps($total, $jumps)
+    {
+            if($total >= 300 && $total < 600){
+                $jumps[0] = array(1,3);
+            }else if($total >= 600 && $total < 900){
+                $jumps[0] = array(1,3,6);
+            }else if($total >= 900 && $total < 1200){
+                $jumps[0] = array(1,3,6,9);
+            }else if($total >= 1200){
+                $jumps[0] = array(1,3,6,9,12);
+            }
+        return $jumps;
+    }
 
     protected function generateCardPaymentForm()
     {
+
+        //value by default
+        $msi   = 0;
+        $jumps = array(1);
+        if(Configuration::get('PAYMENT_METHS_INSTALLMET')){
+            $msi = 1;
+            $total = $this->context->cart->getOrderTotal();
+            $jumps = $this->getJumps($total,$jumps);
+
+        }
         $months = array();
         for ($i = 1; $i <= 12; $i++) {
             $months[] = sprintf("%02d", $i);
@@ -879,6 +902,9 @@ class Conekta_Prestashop extends PaymentModule
             'action' => $this->context->link->getModuleLink($this->name, 'validation', array(), true),
             'months' => $months,
             'years' => $years,
+            'msi'   => $msi,
+            'total'   => $total,
+            'msi_jumps' => $jumps[0],
             'test_private_key' => Configuration::get('TEST_PRIVATE_KEY')
         ));
 
@@ -1008,9 +1034,6 @@ class Conekta_Prestashop extends PaymentModule
                         ),
                     'amount'         => $amount
                     );
-                if(class_exists('logger')){
-                    Logger::addLog($msi, 2, null, null, null, null);
-                }
 
                  $monthly_installments = (int) $msi;
 
@@ -1072,6 +1095,7 @@ class Conekta_Prestashop extends PaymentModule
 
         } catch (\Conekta\ErrorList $e) {
             $message = "";
+            $log_message = "";
             if (class_exists('Logger')) {
                 foreach($e->details as $single_error) {
                     $log_message = $single_error->message . ' ';
