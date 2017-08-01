@@ -13,7 +13,7 @@
 *  @version v1.0.0
 */
 
-//use Cart;
+
 
 /**
 * Class Config
@@ -74,7 +74,7 @@ class Config
         return $tax_lines;
     }
 
-    public function getDiscountLines($discounts = '', $cart)
+    public function getDiscountLines($cart, $discounts = '')
     {
         $discount_lines = array();
         if (!empty($discounts))

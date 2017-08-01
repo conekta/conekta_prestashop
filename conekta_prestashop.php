@@ -944,7 +944,7 @@ class Conekta_Prestashop extends PaymentModule
         $order_details['currency']       = $this->context->currency->iso_code;
         $order_details['line_items']     = Config::getLineItems($items);
         $order_details['tax_lines']      = Config::getTaxLines($items);
-        $order_details['discount_lines'] = Config::getDiscountLines($discounts, $cart);
+        $order_details['discount_lines'] = Config::getDiscountLines($cart, $discounts);
         $order_details['customer_info']  = Config::getCustomerInfo($customer, $address_delivery);
         $order_details['shipping_lines'] = Config::getShippingLines(
             $shp_service, $shp_carrier, $shp_price

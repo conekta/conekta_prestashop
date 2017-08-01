@@ -23,10 +23,12 @@
 *  @license http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 *}
 
+{if isset($smarty.get.message)}
+<div class="conekta-payment-errors" style="display:block;">{$smarty.get.message|escape:'htmlall':'UTF-8'}</div>
+{/if}
+
 <form action="{$action|escape:'htmlall':'UTF-8'}" id="conekta-payment-form">
-  {if isset($smarty.get.message)}
-    <div class="conekta-payment-error" style="display:block;color:red">{$smarty.get.message|escape:'htmlall':'UTF-8'}</div>
-  {/if}
+{if isset($smarty.get.conekta_error)}<div class="conekta-payment-errors">{l s='There was a problem processing your credit card, please double check your data and try again.' mod='conekta_prestashop'}</div>{/if}
   <p>
     <label>{l s='Nombre del Tarjetahabiente' mod='conekta_prestashop'}</label>
     <input type="text" autocomplete="off" class="conekta-card-name" data-conekta="card[name]">
