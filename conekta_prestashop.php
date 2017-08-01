@@ -865,13 +865,13 @@ class Conekta_Prestashop extends PaymentModule
     public function getJumps($total, $jumps)
     {
             if($total >= 300 && $total < 600){
-                $jumps[0] = [1,3];
+                $jumps[0] = array(1,3);
             }else if($total >= 600 && $total < 900){
-                $jumps[0] = [1,3,6];
+                $jumps[0] = array(1,3,6);
             }else if($total >= 900 && $total < 1200){
-                $jumps[0] = [1,3,6,9];
+                $jumps[0] = array(1,3,6,9);
             }else if($total >= 1200){
-                $jumps[0] = [1,3,6,9,12];
+                $jumps[0] = array(1,3,6,9,12);
             }
         return $jumps;
     }
