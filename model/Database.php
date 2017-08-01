@@ -104,5 +104,4 @@ class Database
             'SELECT * FROM ' . _DB_PREFIX_ . 'conekta_transaction '
             .'WHERE id_order = ' . pSQL((int) $id_order) . ';');
     }
-
 }

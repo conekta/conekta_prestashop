@@ -28,9 +28,9 @@
    	<span aria-hidden="true">&times;</span>
   </button>
   <img src="../modules/conekta_prestashop/views/img/conektalogo.png" style="float:left; margin-right:15px;" width="86" height="49">
-  <p><strong>{l s='This module allows you to accept payments by check.' d='Modules.Checkpayment.Admin' }</strong></p>
-  <p>{l s='If the client chooses this payment method, the order status will change to Waiting for payment.'  d='Modules.Checkpayment.Admin'}</p>
-  <p>{l s='You will need to manually confirm the order as soon as you receive a check.'  d='Modules.Checkpayment.Admin'}</p>
+  <p><strong>{l s='This module allows you to accept payments by check.' d='Modules.Checkpayment.Admin' mod='conekta_prestashop'}</strong></p>
+  <p>{l s='If the client chooses this payment method, the order status will change to Waiting for payment.'  d='Modules.Checkpayment.Admin' mod='conekta_prestashop'}</p>
+  <p>{l s='You will need to manually confirm the order as soon as you receive a check.'  d='Modules.Checkpayment.Admin' mod='conekta_prestashop'}</p>
 </div>
 {if $error_webhook_message}
 	<div class="alert alert-warning">
