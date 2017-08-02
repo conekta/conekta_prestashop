@@ -784,8 +784,9 @@ class Conekta_Prestashop extends PaymentModule
         $iso_code = $this->context->language->iso_code;
 
         \Conekta\Conekta::setApiKey($key);
-        \Conekta\Conekta::setPlugin("Prestashop");
+        \Conekta\Conekta::setPlugin("Prestashop1.7");
         \Conekta\Conekta::setApiVersion("2.0.0");
+        \Conekta\Conekta::setPluginVersion($this->version);
         \Conekta\Conekta::setLocale($iso_code);
 
         $events = array(
@@ -918,8 +919,9 @@ class Conekta_Prestashop extends PaymentModule
         $iso_code = $this->context->language->iso_code;
 
         \Conekta\Conekta::setApiKey($key);
-        \Conekta\Conekta::setPlugin("Prestashop");
+        \Conekta\Conekta::setPlugin("Prestashop1.7");
         \Conekta\Conekta::setApiVersion("2.0.0");
+        \Conekta\Conekta::setPluginVersion($this->version);
         \Conekta\Conekta::setLocale($iso_code);
 
         $cart             = $this->context->cart;
