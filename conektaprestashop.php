@@ -95,10 +95,10 @@ class ConektaPrestashop extends PaymentModule
           `id_conekta_transaction` int(11) NOT NULL AUTO_INCREMENT,
           `type` enum(\'payment\',\'refund\') NOT NULL,
           `id_cart` int(10) unsigned NOT NULL,
-          `id_order` int(10) unsigned NOT NULL, 
-          `id_conekta_order` int(10) unsigned NOT NULL, 
-          `id_transaction` varchar(32) NOT NULL, 
-          `amount` decimal(10,2) NOT NULL, 
+          `id_order` int(10) unsigned NOT NULL,
+          `id_conekta_order` int(10) unsigned NOT NULL,
+          `id_transaction` varchar(32) NOT NULL,
+          `amount` decimal(10,2) NOT NULL,
           `status` enum(\'paid\',\'unpaid\') NOT NULL,
           `currency` varchar(3) NOT NULL,
           `mode` enum(\'live\',\'test\') NOT NULL,
@@ -116,7 +116,7 @@ class ConektaPrestashop extends PaymentModule
         $state = new OrderState();
         $languages = Language::getLanguages();
         $names = array();
-        
+
         foreach ($languages as $lang) {
             $names[$lang['id_lang']] = 'En espera de pago';
         }
@@ -126,9 +126,9 @@ class ConektaPrestashop extends PaymentModule
         $state->send_email = true;
         $state->module_name = 'conektaprestashop';
         $templ = array();
-        
+
         foreach ($languages as $lang) {
-            $templ[$lang['id_lang']] = 'conektaprestashop';
+            $templ[$lang['id_lang']] = 'conektaspei';
         }
 
         $state->template = $templ;
@@ -156,7 +156,7 @@ class ConektaPrestashop extends PaymentModule
         $state = new OrderState();
         $languages = Language::getLanguages();
         $names = array();
-        
+
         foreach ($languages as $lang) {
             $names[$lang['id_lang']] = 'En espera de pago';
         }
@@ -166,9 +166,9 @@ class ConektaPrestashop extends PaymentModule
         $state->send_email = true;
         $state->module_name = 'conektaprestashop';
         $templ = array();
-        
+
         foreach ($languages as $lang) {
-            $templ[$lang['id_lang']] = 'conektaprestashop';
+            $templ[$lang['id_lang']] = 'conektaefectivo';
         }
 
         $state->template = $templ;
@@ -269,7 +269,7 @@ class ConektaPrestashop extends PaymentModule
         $id_order = intval($params['id_order']);
         $status = $this->getTransactionStatus($id_order);
 
-        return $status;    
+        return $status;
     }
 
     /**
@@ -288,11 +288,11 @@ class ConektaPrestashop extends PaymentModule
         if (!Tools::getIsset('vieworder') || !Tools::getIsset('id_order')) {
             return;
         }
-        
+
         $id_order = intval($params['id_order']);
         $status = $this->getTransactionStatus($id_order);
 
-        return $status; 
+        return $status;
     }
 
     /**
@@ -755,9 +755,9 @@ class ConektaPrestashop extends PaymentModule
             }
 
             $this->_createWebhook();
-            
+
             $webhook_message = Configuration::get('CONEKTA_WEBHOOK_ERROR_MESSAGE');
-            
+
             if (empty($webhook_message)) {
                 $webhook_message = false;
             }
@@ -952,9 +952,9 @@ class ConektaPrestashop extends PaymentModule
                 $this->smarty->assign("color_mode", "#CC0000");
                 $this->smarty->assign("txt_mode", $this->l('Test (No payment has been processed and you will need to enable the &quot;Live&quot; mode)'));
             }
-            
+
             return $this->fetchTemplate("admin-order.tpl");
-        } 
+        }
     }
 
     public function getOrderConekta($order_id)
@@ -968,7 +968,7 @@ class ConektaPrestashop extends PaymentModule
     {
         return Db::getInstance()->getRow(
                 'SELECT * FROM ' . _DB_PREFIX_ . 'conekta_transaction '
-                .'WHERE id_order = ' . pSQL((int) $order_id) . 
+                .'WHERE id_order = ' . pSQL((int) $order_id) .
                 ' AND type = \'payment\'');
     }
 }
