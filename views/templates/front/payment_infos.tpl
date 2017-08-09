@@ -1,5 +1,5 @@
 {*
-* 2007-2017 PrestaShop
+* 2007-2015 PrestaShop
 *
 * NOTICE OF LICENSE
 *
@@ -17,12 +17,12 @@
 * versions in the future. If you wish to customize PrestaShop for your
 * needs please refer to http://www.prestashop.com for more information.
 *
-*  @author Conekta <support@conekta.io>
-*  @copyright 2007-2017 PrestaShop SA
-*  @version v1.0.0
-*  @license http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+*  @author PrestaShop SA <contact@prestashop.com>
+*  @copyright  2007-2015 PrestaShop SA
+*  @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+*  International Registered Trademark & Property of PrestaShop SA
 *}
 
 <section>
-  <p>{l s='Add some details about the payment option' mod='conekta_prestashop'}</p>
+  <p>{l s='Add some details about the payment option' mod='mypaymentmodule'}</p>
 </section>
