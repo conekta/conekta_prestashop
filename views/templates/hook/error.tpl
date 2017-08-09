@@ -22,7 +22,7 @@
 *  @version v1.0.0
 *  @license http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 *}
-
-<section>
-  <p>{l s='Add some details about the payment option' mod='conekta_prestashop'}</p>
-</section>
+<div class="error">
+	<p>{$error_message|escape:'htmlall':'UTF-8'}<br/> {l s='You can download the requirements needed here: http://addons.prestashop.com/en/modules-prestashop/6222-backwardcompatibility.html' mod='conekta_prestashop'}
+	</p>
+</div>
