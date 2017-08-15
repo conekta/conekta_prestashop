@@ -22,7 +22,8 @@ class Database
     {
         return Db::getInstance()->getValue(
             'SELECT module FROM ' . _DB_PREFIX_ . 'orders '
-            .'WHERE id_order = ' . pSQL((int) $order_id));
+            .'WHERE id_order = ' . pSQL((int) $order_id)
+        );
     }
 
     public static function getConektaTransaction($order_id)
@@ -30,12 +31,13 @@ class Database
         return Db::getInstance()->getRow(
             'SELECT * FROM ' . _DB_PREFIX_ . 'conekta_transaction '
             .'WHERE id_order = ' . pSQL((int) $order_id) .
-            ' AND type = \'payment\'');
+            ' AND type = \'payment\''
+        );
     }
 
     public static function insertOxxoPayment($order, $charge_response, $reference, $currentOrder, $cartId)
     {
-      return Db::getInstance()->Execute('INSERT INTO ' . _DB_PREFIX_ . 'conekta_transaction (
+        return Db::getInstance()->Execute('INSERT INTO ' . _DB_PREFIX_ . 'conekta_transaction (
         type, id_cart, id_order, id_conekta_order, id_transaction, amount,
         status, currency, mode, date_add, reference, barcode, captured)
         VALUES (\'payment\', ' . pSQL((int) $cartId) . ', ' . pSQL((int) $currentOrder) . ', \''
@@ -74,34 +76,35 @@ class Database
     public function insertSpeiPayment($order, $charge_response, $reference, $currentOrder, $cartId)
     {
         return Db::getInstance()->Execute('INSERT INTO ' . _DB_PREFIX_ . 'conekta_transaction(
-            type, id_cart, id_order, id_conekta_order, id_transaction, amount,
-            status, currency, mode, date_add, reference, captured)
-            VALUES (\'payment\', ' . (int) $cartId . ', ' . (int) $currentOrder . ', \''
-            . pSQL($order->id) . '\', \'' . pSQL($charge_response->id) . '\', \''
-            . ($charge_response->amount * 0.01) . '\', \''
-            . ($charge_response->status == 'paid' ? 'paid' : 'unpaid') . '\', \''
-            . pSQL($charge_response->currency) . '\', \''
-            . ($charge_response->livemode == 'true' ? 'live' : 'test') . '\', NOW(),\''
-            . $reference . '\', \'' . ($charge_response->livemode == 'true' ? '1' : '0') . '\' )');
+        type, id_cart, id_order, id_conekta_order, id_transaction, amount,
+        status, currency, mode, date_add, reference, captured)
+        VALUES (\'payment\', ' . (int) $cartId . ', ' . (int) $currentOrder . ', \''
+        . pSQL($order->id) . '\', \'' . pSQL($charge_response->id) . '\', \''
+        . ($charge_response->amount * 0.01) . '\', \''
+        . ($charge_response->status == 'paid' ? 'paid' : 'unpaid') . '\', \''
+        . pSQL($charge_response->currency) . '\', \''
+        . ($charge_response->livemode == 'true' ? 'live' : 'test') . '\', NOW(),\''
+        . $reference . '\', \'' . ($charge_response->livemode == 'true' ? '1' : '0') . '\' )');
     }
 
     public function insertCardPayment($order, $charge_response, $currentOrder, $cartId)
     {
         return Db::getInstance()->Execute('INSERT INTO ' . _DB_PREFIX_ . 'conekta_transaction (
-            type, id_cart, id_order, id_conekta_order, id_transaction,
-            amount, status, currency, mode, date_add, captured)
-            VALUES (\'payment\', ' . (int) $cartId . ', ' . (int) $currentOrder . ', \''
-            . pSQL($order->id) . '\', \'' . pSQL($charge_response->id) . '\',\''
-            . ($charge_response->amount * 0.01) . '\', \''
-            . ($charge_response->status == 'paid' ? 'paid' : 'unpaid') . '\', \''
-            . pSQL($charge_response->currency) . '\', \''
-            . ($charge_response->livemode == 'true' ? 'live' : 'test') . '\', NOW(), \'1\')');
+        type, id_cart, id_order, id_conekta_order, id_transaction,
+        amount, status, currency, mode, date_add, captured)
+        VALUES (\'payment\', ' . (int) $cartId . ', ' . (int) $currentOrder . ', \''
+        . pSQL($order->id) . '\', \'' . pSQL($charge_response->id) . '\',\''
+        . ($charge_response->amount * 0.01) . '\', \''
+        . ($charge_response->status == 'paid' ? 'paid' : 'unpaid') . '\', \''
+        . pSQL($charge_response->currency) . '\', \''
+        . ($charge_response->livemode == 'true' ? 'live' : 'test') . '\', NOW(), \'1\')');
     }
 
     public static function getOrderById($id_order)
     {
         return Db::getInstance()->getRow(
             'SELECT * FROM ' . _DB_PREFIX_ . 'conekta_transaction '
-            .'WHERE id_order = ' . pSQL((int) $id_order) . ';');
+            .'WHERE id_order = ' . pSQL((int) $id_order) . ';'
+        );
     }
 }
