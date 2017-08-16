@@ -6,8 +6,8 @@
  *
  *  @author Conekta <support@conekta.io>
  *  @copyright  2012-2016 Conekta
- *  @version  v2.0.0
  *  @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ *  @version  v2.0.0
  */
 
 include(dirname(__FILE__) . '/../../config/config.inc.php');
@@ -34,8 +34,8 @@ if ($event_json->type == 'order.paid' && isset($event_json->data)) {
     $total_order_amount = $order->getOrdersTotalPaid();
     $str_total_order_amount = (string) $total_order_amount * 100;
 
-    if ($currency_payment[0]['iso_code'] === $conekta_order->currency) {  
-        if ($str_total_order_amount == $conekta_order->amount) {  
+    if ($currency_payment[0]['iso_code'] === $conekta_order->currency) {
+        if ($str_total_order_amount == $conekta_order->amount) {
             $orderHistory = new OrderHistory();
             $orderHistory->id_order = (int) $order->id;
             $orderHistory->changeIdOrderState((int) Configuration::get('PS_OS_PAYMENT'), (int)$order->id);
