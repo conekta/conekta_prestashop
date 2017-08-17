@@ -17,7 +17,7 @@ Current version features:
 Installation
 -----------
 
-  Clone the module using git clone --recursive git@github.com:conekta/conekta_prestashop.git
+  Clone the module using git clone --recursive git@github.com:conekta/conekta-prestashop.git
 
 There is no custom installation for this plugin, just the default:
 
