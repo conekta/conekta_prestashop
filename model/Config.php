@@ -21,8 +21,7 @@ class Config
     public function getLineItems($items = '')
     {
         $lineItems = array();
-        foreach ($items as $item)
-        {
+        foreach ($items as $item) {
             $lineItems = array_merge($lineItems, array(
                 array(
                     'name'        => $item['name'],
@@ -32,8 +31,7 @@ class Config
                     )
                 ));
 
-            if (Tools::strlen($item['reference']) > 0)
-            {
+            if (Tools::strlen($item['reference']) > 0) {
                 array_merge($lineItems, array(
                     array(
                         'sku' => $item['reference']
@@ -41,8 +39,7 @@ class Config
                     ));
             }
 
-            if (Tools::strlen($item['description_short']) > 2)
-            {
+            if (Tools::strlen($item['description_short']) > 2) {
                 array_merge($lineItems, array(
                     array(
                         'description' => $item['reference']
@@ -75,8 +72,7 @@ class Config
     public function getDiscountLines($cart, $discounts = '')
     {
         $discount_lines = array();
-        if (!empty($discounts))
-        {
+        if (!empty($discounts)) {
             foreach ($discounts as $discount) {
                 $discount_lines = array_merge($discount_lines, array(
                     array(

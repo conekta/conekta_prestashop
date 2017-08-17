@@ -5,8 +5,8 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
 		<title>Message from {shop_name}</title>
 
-
-		<style>	@media only screen and (max-width: 300px){
+		<style>
+			@media only screen and (max-width: 300px){
 				body {
 					width:218px !important;
 					margin:auto !important;
@@ -24,7 +24,7 @@
 				.address{display: block !important;margin-bottom: 10px !important;}
 				.space_address{display: none !important;}
 			}
-	@media only screen and (min-width: 301px) and (max-width: 500px) {
+			@media only screen and (min-width: 301px) and (max-width: 500px) {
 				body {width:308px!important;margin:auto!important;}
 				.table {width:285px!important;margin:auto!important;}
 				.logo, .titleblock, .linkbelow, .box, .footer, .space_footer{width:auto!important;display: block!important;}
@@ -35,12 +35,12 @@
 				.table-recap tr td, .conf_body td{text-align:center !important;}
 
 			}
-	@media only screen and (min-width: 501px) and (max-width: 768px) {
+			@media only screen and (min-width: 501px) and (max-width: 768px) {
 				body {width:478px!important;margin:auto!important;}
 				.table {width:450px!important;margin:auto!important;}
 				.logo, .titleblock, .linkbelow, .box, .footer, .space_footer{width:auto!important;display: block!important;}
 			}
-	@media only screen and (max-device-width: 480px) {
+			@media only screen and (max-device-width: 480px) {
 				body {width:308px!important;margin:auto!important;}
 				.table {width:285px;margin:auto!important;}
 				.logo, .titleblock, .linkbelow, .box, .footer, .space_footer{width:auto!important;display: block!important;}
@@ -50,8 +50,7 @@
 				.address{display: block !important;margin-bottom: 10px !important;}
 				.space_address{display: none !important;}
 			}
-</style>
-
+		</style>
 	</head>
 	<body style="-webkit-text-size-adjust:none;background-color:#fff;width:650px;font-family:Open-sans, sans-serif;color:#555454;font-size:13px;line-height:18px;margin:auto">
 		<table class="table table-mail" style="width:100%;margin-top:10px;-moz-box-shadow:0 0 5px #afafaf;-webkit-box-shadow:0 0 5px #afafaf;-o-box-shadow:0 0 5px #afafaf;box-shadow:0 0 5px #afafaf;filter:progid:DXImageTransform.Microsoft.Shadow(color=#afafaf,Direction=134,Strength=5)">
@@ -66,65 +65,61 @@
 								</a>
 							</td>
 						</tr>
-
-<tr>
-	<td align="center" class="titleblock" style="padding:7px 0">
-		<font size="2" face="Open-sans, sans-serif" color="#555454">
-			<span class="title" style="font-weight:500;font-size:28px;text-transform:uppercase;line-height:33px">Hola {firstname} {lastname},</span><br/>
-			<span class="subtitle" style="font-weight:500;font-size:16px;text-transform:uppercase;line-height:25px">Gracias por tu compra {shop_name}!</span>
-		</font>
-	</td>
-</tr>
-<tr>
-	<td class="space_footer" style="padding:0!important">&nbsp;</td>
-</tr>
-<tr>
-	<td class="box" style="border:1px solid #D6D4D4;background-color:#f8f8f8;padding:7px 0">
-		<table class="table" style="width:100%">
-			<tr>
-				<td width="10" style="padding:7px 0">&nbsp;</td>
-				<td style="padding:7px 0">
-					<font size="2" face="Open-sans, sans-serif" color="#555454">
-						<p data-html-only="1" style="border-bottom:1px solid #D6D4D4;margin:3px 0 7px;text-transform:uppercase;font-weight:500;font-size:18px;padding-bottom:10px">
-							Pedido {order_name}&nbsp;-&nbsp; Pendiente de Pago</p>
-						<span style="color:#777">
-							 <span style="color:#333"> Tu pedido {order_name} ha sido creado  </span>  </span>
-					</font>
-				</td>
-				<td width="10" style="padding:7px 0">&nbsp;</td>
-			</tr>
-		</table>
-	</td>
-</tr>
-<tr>
-	<td class="space_footer" style="padding:0!important">&nbsp;</td>
-</tr>
-<tr>
-	<td class="box" style="border:1px solid #D6D4D4;background-color:#f8f8f8;padding:7px 0">
-		<table class="table" style="width:100%">
-			<tr>
-				<td width="10" style="padding:7px 0">&nbsp;</td>
-				<td style="padding:7px 0">
-					<font size="2" face="Open-sans, sans-serif" color="#555454">
-
-						<span style="color:#777">
-							Por favor de realizar el pago con los siguientes detalles:<br />
-							<span style="color:#333"><strong>Monto:</strong></span> {total_paid}<br />
-                                <span style="color:#333"><strong>Referencia: {barcode}</strong></span>
-						</span>
-					</font>
-				</td>
-				<td width="10" style="padding:7px 0">&nbsp;</td>
-			</tr>
-		</table>
-	</td>
-</tr>
-<tr>
-	<td class="space_footer" style="padding:0!important">&nbsp;</td>
-</tr>
-
-
-
+						<tr>
+							<td align="center" class="titleblock" style="padding:7px 0">
+								<font size="2" face="Open-sans, sans-serif" color="#555454">
+									<span class="title" style="font-weight:500;font-size:28px;text-transform:uppercase;line-height:33px">Hola {firstname} {lastname},</span><br/>
+									<span class="subtitle" style="font-weight:500;font-size:16px;text-transform:uppercase;line-height:25px">Gracias por tu compra {shop_name}!</span>
+								</font>
+							</td>
+						</tr>
+						<tr>
+							<td class="space_footer" style="padding:0!important">&nbsp;</td>
+						</tr>
+						<tr>
+							<td class="box" style="border:1px solid #D6D4D4;background-color:#f8f8f8;padding:7px 0">
+								<table class="table" style="width:100%">
+									<tr>
+										<td width="10" style="padding:7px 0">&nbsp;</td>
+										<td style="padding:7px 0">
+											<font size="2" face="Open-sans, sans-serif" color="#555454">
+												<p data-html-only="1" style="border-bottom:1px solid #D6D4D4;margin:3px 0 7px;text-transform:uppercase;font-weight:500;font-size:18px;padding-bottom:10px">
+													Pedido {order_name}&nbsp;-&nbsp; Pendiente de Pago</p>
+												<span style="color:#777">
+													<span style="color:#333"> Tu pedido {order_name} ha sido creado  </span>
+												</span>
+											</font>
+										</td>
+										<td width="10" style="padding:7px 0">&nbsp;</td>
+									</tr>
+								</table>
+							</td>
+						</tr>
+						<tr>
+							<td class="space_footer" style="padding:0!important">&nbsp;</td>
+						</tr>
+						<tr>
+							<td class="box" style="border:1px solid #D6D4D4;background-color:#f8f8f8;padding:7px 0">
+								<table class="table" style="width:100%">
+									<tr>
+										<td width="10" style="padding:7px 0">&nbsp;</td>
+										<td style="padding:7px 0">
+											<font size="2" face="Open-sans, sans-serif" color="#555454">
+												<span style="color:#777">
+													Por favor de realizar el pago con los siguientes detalles:<br />
+													<span style="color:#333"><strong>Monto:</strong></span> {total_paid}<br/>
+						                            <span style="color:#333"><strong>Referencia: {barcode}</strong></span>
+												</span>
+											</font>
+										</td>
+										<td width="10" style="padding:7px 0">&nbsp;</td>
+									</tr>
+								</table>
+							</td>
+						</tr>
+						<tr>
+							<td class="space_footer" style="padding:0!important">&nbsp;</td>
+						</tr>
 						<tr>
 							<td class="space_footer" style="padding:0!important">&nbsp;</td>
 						</tr>
