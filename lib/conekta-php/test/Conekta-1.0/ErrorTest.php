@@ -1,96 +1,121 @@
 <?php
 
-class ErrorTest extends UnitTestCase
-{
-    public function testNoIdError()
-    {
-        setApiKey();
-        setApiVersion('1.0.0');
-        try {
-            $charge = \Conekta\Charge::find('0');
-        } catch (Exception $e) {
-            $this->assertTrue(strpos($e->getMessage(), 'Could not get the id of Resource instance.') !== false);
-        }
-    }
+use PHPUnit\Framework\TestCase;
 
-    public function testNoConnectionError()
-    {
-        setApiVersion('1.0.0');
-        $apiUrl = \Conekta\Conekta::$apiBase;
-        \Conekta\Conekta::$apiBase = 'http://localhost:3001';
-        try {
-            $customer = \Conekta\Customer::create(array('cards' => array('tok_test_visa_4242')));
-        } catch (Exception $e) {
-            $this->assertTrue(strpos(get_class($e), 'NoConnectionError') !== false);
-        }
-        \Conekta\Conekta::$apiBase = $apiUrl;
-    }
+require_once dirname(__FILE__).'/../../lib/Conekta.php';
 
-    public function testApiError()
-    {
-        setApiKey();
-        setApiVersion('1.0.0');
-        try {
-            $customer = \Conekta\Customer::create(array(
-                'cards' => array('tok_test_visa_4243'),
-                'name' => 'Test Name',
-                'email' => 'test@conekta.io'
-            ));
-        } catch (Exception $e) {
-            $this->assertTrue(strpos(get_class($e), 'ParameterValidationError') !== false);
-        }
-    }
+class ErrorTest extends TestCase
+{   
 
-    public function testAuthenticationError()
-    {
-        unsetApiKey();
-        setApiVersion('1.0.0');
-        try {
-            $customer = \Conekta\Customer::create(array('cards' => array('tok_test_visa_4242')));
-        } catch (Exception $e) {
-            $this->assertTrue(strpos(get_class($e), 'AuthenticationError') !== false);
-        }
-        setApiKey();
+  function setApiKey()
+  {
+    $apiEnvKey = getenv('CONEKTA_API');
+    if (!$apiEnvKey) {
+      $apiEnvKey = '1tv5yJp3xnVZ7eK67m4h';
     }
+    \Conekta\Conekta::setApiKey($apiEnvKey);
+  }
 
-    public function testParameterValidationError()
-    {
-        setApiKey();
-        setApiVersion('1.0.0');
-        try {
-            $plan = \Conekta\Plan::create(array('id' => 'gold-plan'));
-        } catch (Exception $e) {
-            $this->assertTrue(strpos(get_class($e), 'ParameterValidationError') !== false);
-        }
+  function unsetApiKey()
+  {
+    if (isset($env) == false) {
+      $env = \Conekta\Conekta::setApiKey('');
     }
+  }
+  public static $validOrder = array(
+    'line_items' => array(
+      array(
+        'name' => 'Box of Cohiba S1s',
+        'description' => 'Imported From Mex.',
+        'unit_price' => 20000,
+        'quantity' => 1,
+        'sku' => 'cohb_s1',
+        'category' => 'food',
+        'tags' => array('food', 'mexican food')
+        )
+      ),
+    'currency'    => 'mxn',
+    'metadata'    => array('test' => 'extra info')
+    );
+  public static $otherParams = array(
+    'currency' => 'mxn',
+    'customer_info' => array(
+      'name' => 'John Constantine',
+      'phone' => '+5213353319758',
+      'email' => 'hola@hola.com'
+      )
+    );
+  public static $invalidCustomer =
+  array('email' => 'hola@hola.com',
+    'cards' => array('tok_test_visa_4241')
+    );
 
-    public function testProcessingError()
-    {
-		setApiVersion('1.0.0');
-        $charges = \Conekta\Charge::where();
-        foreach ($charges as $charge) {
-            if (strpos($charge->status, 'pre_authorized') !== false) {
-                $ok = true;
-                continue;
-            }
-        }
-        try {
-            if (isset($ok)) {
-                $charge->capture();
-            }
-        } catch (Exception $e) {
-            $this->assertTrue(strpos(get_class($e), 'ProcessingError') !== false);
-        }
+  public function testNoIdError()
+  {
+    $this->setApiKey();
+    try {
+      $customer = \Conekta\Customer::find('0');
+    } catch (Exception $e) {
+      $this->assertTrue(strpos(get_class($e), 'ParameterValidationError') == true);
     }
+  }
 
-    public function testResourceNotFoundError()
-    {
-        setApiKey();
-        setApiVersion('1.0.0');
-        try {
-            $charge = \Conekta\Charge::find('1');
-        } catch (Exception $e) {
-            $this->assertTrue(strpos(get_class($e), 'ResourceNotFoundError') !== false);
-        }
+  public function testNoConnectionError()
+  {
+    $this->setApiKey();
+    $apiUrl = \Conekta\Conekta::$apiBase;
+    \Conekta\Conekta::$apiBase = 'http://localhost:3001';
+    try {
+      $customer = \Conekta\Customer::create(array('cards' => array('tok_test_visa_4241')));
+    } catch (Exception $e) {
+      $this->assertTrue(strpos(get_class($e), 'NoConnectionError') == true);
     }
+    \Conekta\Conekta::$apiBase = $apiUrl;
+  }
+
+  public function testParameterValidationError(){
+    $this->setApiKey();
+    try {
+      $customer = \Conekta\Customer::create(self::$invalidCustomer);
+    } catch (Exception $e) {
+      $this->assertTrue(strpos(get_class($e), 'ParameterValidationError') == true);
+    }
+  }
+
+  public function testResourceNotFoundError()
+  {
+    $this->setApiKey();
+    try {
+      $customer = \Conekta\Customer::find('2');
+    } catch (Exception $e) {
+      $this->assertTrue(strpos(get_class($e), 'ResourceNotFoundError') == true);
+    }
+  }
+  public function testAuthenticationError()
+  {
+    $this->unsetApiKey();
+    try {
+      $customer = \Conekta\Customer::create();
+    } catch (Exception $e){
+      $this->assertTrue(strpos(get_class($e), 'AuthenticationError') == true);
+    }
+    $this->setApiKey();
+  }
+  public function testUnknowApiRequest()
+  {
+    $this->setApiKey();
+    $validVisaCard =array(
+      'payment_method' => array(
+        'type' => 'card',
+        'token_id' => 'tok_test_insufficient_funds')
+      );
+
+    try {
+      $orderParams = array_merge(self::$validOrder, self::$otherParams);
+      $order  = \Conekta\Order::create($orderParams);
+      $charge = $order->createCharge($validVisaCard);
+    } catch (Exception $e){
+      $this->assertTrue(strpos(get_class($e), 'ResourceNotFoundError') == true);
+    }
+  }
 }
