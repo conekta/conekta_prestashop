@@ -452,7 +452,7 @@ class Conekta_Prestashop extends PaymentModule
 
     private function postProcess()
     {
-        if (Tools::isSubmit('btnSubmit')) {
+        if (Tools::isSubmit('btnSubmit') && Tools::getValue('TEST_PUBLIC_KEY') && Tools::getValue('TEST_PRIVATE_KEY')) {
             Configuration::updateValue('PAYEE_NAME', Tools::getValue('PAYEE_NAME'));
             Configuration::updateValue('PAYEE_ADDRESS', Tools::getValue('PAYEE_ADDRESS'));
             Configuration::updateValue('MODE', Tools::getValue('MODE'));
@@ -710,7 +710,7 @@ class Conekta_Prestashop extends PaymentModule
             $url = _PS_BASE_URL_ . __PS_BASE_URI__ . "modules/conekta_prestashop/webhook/notification.php";
         }
 
-        if (Tools::isSubmit('btnSubmit')) {
+        if (Tools::isSubmit('btnSubmit') && Tools::getValue('TEST_PUBLIC_KEY') && Tools::getValue('TEST_PRIVATE_KEY')) {
             $configuration_values = array(
                 'CONEKTA_MODE'               => Tools::getValue('MODE') ,
                 'CONEKTA_PUBLIC_KEY_TEST'    => rtrim(Tools::getValue('TEST_PUBLIC_KEY')) ,
@@ -727,7 +727,6 @@ class Conekta_Prestashop extends PaymentModule
                 //echo $configuration_key."\t=>   ".$configuration_value.'<br>';
                 Configuration::updateValue($configuration_key, $configuration_value);
             }
-
             $this->createWebhook();
 
             $webhook_message = Configuration::get('CONEKTA_WEBHOOK_ERROR_MESSAGE');
