@@ -1049,10 +1049,11 @@ class Conekta_Prestashop extends PaymentModule
                 . $this->l('Mode:') . ' ' . ($charge_response->livemode == 'true' ? $this->l('Live') : $this->l('Test')) . "\n";
             }
 
+
             $this->validateOrder(
                 (int)$this->context->cart->id,
                 (int) $order_status,
-                $order->amount,
+                $order->amount / 100,
                 $this->displayName,
                 $message,
                 array(),
