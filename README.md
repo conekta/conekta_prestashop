@@ -17,14 +17,14 @@ Current version features:
 Installation
 -----------
 
-  Clone the module using git clone --recursive git@github.com:conekta/conekta-prestashop.git
+  Clone the module using git clone --recursive git@github.com:conekta/conekta_prestashop.git
 
 There is no custom installation for this plugin, just the default:
 
-  * Compress the folder conektaprestashop.
+  * Compress the folder conekta_prestashop.
   * Go to the modules section and clic on 'Add a new module'.
   * Select the compressed folder.
-  * Search for conektaprestashop in the modules list.
+  * Search for conekta_prestashop in the modules list.
   * Clic on 'install'.
   * Add your API keys.
   * Modify if necessary your webhook url.
