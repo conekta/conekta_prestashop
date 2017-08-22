@@ -50,7 +50,7 @@ class Database
         . ($charge_response->livemode == 'true' ? '1' : '0') . '\' )');
     }
 
-    public function installDb()
+    public static function installDb()
     {
         return (Db::getInstance()->Execute('CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'conekta_transaction` (
             `id_conekta_transaction` int(11) NOT NULL AUTO_INCREMENT,
@@ -73,7 +73,7 @@ class Database
     }
 
 
-    public function insertSpeiPayment($order, $charge_response, $reference, $currentOrder, $cartId)
+    public static function insertSpeiPayment($order, $charge_response, $reference, $currentOrder, $cartId)
     {
         return Db::getInstance()->Execute('INSERT INTO ' . _DB_PREFIX_ . 'conekta_transaction(
         type, id_cart, id_order, id_conekta_order, id_transaction, amount,
@@ -87,7 +87,7 @@ class Database
         . $reference . '\', \'' . ($charge_response->livemode == 'true' ? '1' : '0') . '\' )');
     }
 
-    public function insertCardPayment($order, $charge_response, $currentOrder, $cartId)
+    public static function insertCardPayment($order, $charge_response, $currentOrder, $cartId)
     {
         return Db::getInstance()->Execute('INSERT INTO ' . _DB_PREFIX_ . 'conekta_transaction (
         type, id_cart, id_order, id_conekta_order, id_transaction,

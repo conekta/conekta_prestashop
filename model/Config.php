@@ -18,7 +18,7 @@
 */
 class Config
 {
-    public function getLineItems($items = '')
+    public static function getLineItems($items = '')
     {
         $lineItems = array();
         foreach ($items as $item) {
@@ -51,7 +51,7 @@ class Config
         return $lineItems;
     }
 
-    public function getTaxLines($items = '')
+    public static function getTaxLines($items = '')
     {
         $tax_lines = array();
         foreach ($items as $item) {
@@ -69,7 +69,7 @@ class Config
         return $tax_lines;
     }
 
-    public function getDiscountLines($cart, $discounts = '')
+    public static function getDiscountLines($cart, $discounts = '')
     {
         $discount_lines = array();
         if (!empty($discounts)) {
@@ -87,7 +87,7 @@ class Config
         return $discount_lines;
     }
 
-    public function getShippingLines($shipping_service, $shipping_carrier = '', $shipping_price = '')
+    public static function getShippingLines($shipping_service, $shipping_carrier = '', $shipping_price = '')
     {
         $shipping_lines = array(
             array(
@@ -101,7 +101,7 @@ class Config
         return $shipping_lines;
     }
 
-    public function getShippingContact($customer = '', $address_delivery = '', $state = '', $country = '')
+    public static function getShippingContact($customer = '', $address_delivery = '', $state = '', $country = '')
     {
         $shipping_contact = array(
             "receiver" => $customer->firstname . " " . $customer->lastname,
@@ -119,7 +119,7 @@ class Config
         return $shipping_contact;
     }
 
-    public function getCustomerInfo($customer = '', $address_delivery = '')
+    public static function getCustomerInfo($customer = '', $address_delivery = '')
     {
         $customer_info = array(
             "name"     => $customer->firstname . " " . $customer->lastname,
