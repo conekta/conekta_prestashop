@@ -16,3 +16,7 @@
 * lost mail template fix
 === 2.0.8 2017-06-20
 * Fix OxxoPay transaction status error
+=== 2.0.9 2017-08-16
+* Update PHP Library
+=== 2.1.0 2017-08-23
+* Certificates update with public CA
