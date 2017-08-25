@@ -46,7 +46,7 @@ function conektaSetup()
     }
 
 	/* Set Conekta public key */
-    Conekta.setPublishableKey(conekta_public_key);
+    Conekta.setPublicKey(conekta_public_key);
 	//since we are using smarty html_select_date custom function
 	$('#conekta-card-expiry-month').removeAttr('name');
 	$('#conekta-card-expiry-year').removeAttr('name');
