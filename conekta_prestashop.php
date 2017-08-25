@@ -876,6 +876,7 @@ class Conekta_Prestashop extends PaymentModule
         //value by default
         $msi   = 0;
         $jumps = array(1);
+
         if (Configuration::get('PAYMENT_METHS_INSTALLMET')) {
             $msi = 1;
             $total = $this->context->cart->getOrderTotal();
@@ -896,7 +897,6 @@ class Conekta_Prestashop extends PaymentModule
             'months' => $months,
             'years' => $years,
             'msi'   => $msi,
-            'total'   => $total,
             'msi_jumps' => $jumps[0],
             'test_private_key' => Configuration::get('TEST_PRIVATE_KEY')
         ));
@@ -1104,20 +1104,14 @@ class Conekta_Prestashop extends PaymentModule
                 'id_module' => (int) $this->id
             ));
             Tools::redirect($redirect);
-        } catch (\Conekta\ErrorList $e) {
-            $message = "";
-            $log_message = "";
+        } catch (\Exception $e) {
+            $log_message = $e->getMessage() . ' ';
             if (class_exists('Logger')) {
-                foreach ($e->details as $single_error) {
-                    $log_message = $single_error->message . ' ';
-                    Logger::addLog($this->l('Payment transaction failed') . ' '
-                        . $log_message, 2, null, 'Cart', (int)$this->context->cart->id, true);
-                }
+                Logger::addLog($this->l('Payment transaction failed') . ' '
+                    . $log_message, 2, null, 'Cart', (int)$this->context->cart->id, true);
             }
 
-            foreach ($e->details as $single_error) {
-                $message .= $single_error->message . ' ';
-            }
+            $message = $e->getMessage() . ' ';
 
             $controller = Configuration::get('PS_ORDER_PROCESS_TYPE') ? 'order-opc.php' : 'order.php';
             $location = $this->context->link->getPageLink($controller, true) . (strpos($controller, '?') !== false ? '&' : '?') . 'step=3&conekta_error=1&message=' . $message . '#conekta_error';
