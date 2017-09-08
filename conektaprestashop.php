@@ -22,7 +22,7 @@ class ConektaPrestashop extends PaymentModule
     {
         $this->name = 'conektaprestashop';
         $this->tab = 'payments_gateways';
-        $this->version = '2.0.8';
+        $this->version = '2.1.0';
         $this->author = 'Conekta';
         $this->bootstrap = true;
         $this->module_key = 'f9fff7b3952e3ecb51bb737ab7a05003';
