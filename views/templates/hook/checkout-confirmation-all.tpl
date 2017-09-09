@@ -23,7 +23,7 @@
 *  @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 *}
 
-{if $cash }
+{if isset($cash) }
 <p> {l s='Informacion para realizar el pago:' mod='conektaprestashop'} <p>
                 <br><br><b>{l s='Monto:' mod='conektaprestashop'}</b> $ {$conekta_order.amount|escape:'htmlall':'UTF-8' } 
                 {$conekta_order.currency|escape:'htmlall':'UTF-8' }
@@ -39,7 +39,7 @@
 <div class="conf confirmation">{l s='Por favor de imprimir la ficha de pago y realizar el pago en el OXXO más cercano.' mod='conektaprestashop'}</div>
 {/if}
 
-{if $card }
+{if isset($card) }
 {if $conekta_order.valid == 1 }
 		<div class="conf confirmation">{l s='Pago Exitoso, el pago ha sido aprobado y el pedido se ha guardado con la referencia ' mod='conektaprestashop'} <b>{$conekta_order.reference|escape:'htmlall':'UTF-8'}</b>.</div>
 {else}
@@ -49,7 +49,7 @@
 {/if}
 {/if}
 
-{if $spei }
+{if isset($spei) }
 <p> {l s='Informacion para realizar el pago por medio de SPEI:' mod='conektaprestashop'} <p>
                 <br><br><b>{l s='Monto:' mod='conektaprestashop'}</b> $ {$conekta_order.amount|escape:'htmlall':'UTF-8' } {$conekta_order.currency|escape:'htmlall':'UTF-8' }
                 <br><br><b>{l s='CLABE:' mod='conektaprestashop'}</b>

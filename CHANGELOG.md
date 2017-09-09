@@ -1,6 +1,9 @@
+## [2.1.0](https://github.com/conekta/conektaprestashop/releases/tag/v2.1.0) - 2017-09-08
+### Changed
+- Change DigiCert to Public CA Bungle Cert
+
 ## [2.0.9](https://github.com/conekta/conektaprestashop/releases/tag/v2.0.9) - 2017-08-16
-### Update
-- Merge pull request #71 from conekta/dev
+### Changed
 - Update PHP Library
 
 ## [2.0.8](https://github.com/conekta/conektaprestashop/releases/tag/v2.0.8) - 2017-06-20

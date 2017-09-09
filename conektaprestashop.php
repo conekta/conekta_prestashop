@@ -7,7 +7,7 @@
  *  @author Conekta <support@conekta.io>
  *  @copyright  2012-2016 Conekta
  *  @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
- *  @version  v2.0.8
+ *  @version  v2.1.0
  */
 
 if (!defined('_PS_VERSION_')) {
