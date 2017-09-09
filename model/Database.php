@@ -42,11 +42,11 @@ class Database
         status, currency, mode, date_add, reference, barcode, captured)
         VALUES (\'payment\', ' . pSQL((int) $cartId) . ', ' . pSQL((int) $currentOrder) . ', \''
         . pSQL($order->id) . '\', \'' . pSQL($charge_response->id) . '\',\''
-        . ($order->amount * 0.01) . '\', \''
+        . (float) ($order->amount * 0.01) . '\', \''
         . ($charge_response->status == 'paid' ? 'paid' : 'unpaid') . '\', \''
         . pSQL($charge_response->currency) . '\', \''
         . ($charge_response->livemode == 'true' ? 'live' : 'test') . '\', NOW(),\''
-        . $reference . '\',\'' . $reference . '\',\''
+        . pSQL($reference) . '\',\'' . pSQL($reference) . '\',\''
         . ($charge_response->livemode == 'true' ? '1' : '0') . '\' )');
     }
 
@@ -80,11 +80,11 @@ class Database
         status, currency, mode, date_add, reference, captured)
         VALUES (\'payment\', ' . (int) $cartId . ', ' . (int) $currentOrder . ', \''
         . pSQL($order->id) . '\', \'' . pSQL($charge_response->id) . '\', \''
-        . ($charge_response->amount * 0.01) . '\', \''
+        . (float)($charge_response->amount * 0.01) . '\', \''
         . ($charge_response->status == 'paid' ? 'paid' : 'unpaid') . '\', \''
         . pSQL($charge_response->currency) . '\', \''
         . ($charge_response->livemode == 'true' ? 'live' : 'test') . '\', NOW(),\''
-        . $reference . '\', \'' . ($charge_response->livemode == 'true' ? '1' : '0') . '\' )');
+        . pSQL($reference) . '\', \'' . ($charge_response->livemode == 'true' ? '1' : '0') . '\' )');
     }
 
     public static function insertCardPayment($order, $charge_response, $currentOrder, $cartId)
@@ -94,7 +94,7 @@ class Database
         amount, status, currency, mode, date_add, captured)
         VALUES (\'payment\', ' . (int) $cartId . ', ' . (int) $currentOrder . ', \''
         . pSQL($order->id) . '\', \'' . pSQL($charge_response->id) . '\',\''
-        . ($charge_response->amount * 0.01) . '\', \''
+        . (float)($charge_response->amount * 0.01) . '\', \''
         . ($charge_response->status == 'paid' ? 'paid' : 'unpaid') . '\', \''
         . pSQL($charge_response->currency) . '\', \''
         . ($charge_response->livemode == 'true' ? 'live' : 'test') . '\', NOW(), \'1\')');
