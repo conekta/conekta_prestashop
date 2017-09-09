@@ -2,7 +2,7 @@
 <module>
 	<name>conekta_prestashop</name>
 	<displayName><![CDATA[Conekta Prestashop]]></displayName>
-	<version><![CDATA[1.0.0]]></version>
+	<version><![CDATA[1.1.0]]></version>
 	<description><![CDATA[Accept payments by Credit and Debit Card with Conekta (Visa, Mastercard, Amex)]]></description>
 	<author><![CDATA[Conekta]]></author>
 	<tab><![CDATA[payments_gateways]]></tab>

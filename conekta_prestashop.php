@@ -10,7 +10,7 @@
 *  @author Conekta <support@conekta.io>
 *  @copyright 2012-2017 Conekta
 *  @license http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
-*  @version v1.0.0
+*  @version v1.1.0
 */
 
 use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
@@ -37,7 +37,7 @@ class Conekta_Prestashop extends PaymentModule
     {
         $this->name = 'conekta_prestashop';
         $this->tab = 'payments_gateways';
-        $this->version = '1.0.0';
+        $this->version = '1.1.0';
         $this->ps_versions_compliancy = array('min' => '1.7', 'max' => _PS_VERSION_);
         $this->author = 'Conekta';
         $this->module_key = 'f9fff7b3952e3ecb51bb737ab7a05003';
@@ -248,13 +248,26 @@ class Conekta_Prestashop extends PaymentModule
 
         if ($state->save()) {
             Configuration::updateValue('waiting_cash_payment', $state->id);
-            $directory = _PS_MODULE_DIR_ . $this->name . '/mails/';
-            $directoryPS = _PS_MAIL_DIR_;
+            $directory = _PS_MAIL_DIR_;
             if ($dhvalue = opendir($directory)) {
                 while (($file = readdir($dhvalue)) !== false) {
-                    if (is_dir($directory . $file) && $file[0] != '.') {
-                        copy($directory . $file . '/conektaefectivo.html', $directoryPS . $file . '/conektaefectivo.html');
-                        copy($directory . $file . '/conektaefectivo.txt', $directoryPS . $file . '/conektaefectivo.txt');
+                    if (is_dir($directory.$file) && $file[0] != '.') {
+
+                    $new_html_file = _PS_MODULE_DIR_.$this->name.'/mails/'.$file.'/conektaefectivo.html';
+                    $new_txt_file = _PS_MODULE_DIR_.$this->name.'/mails/'.$file.'/conektaefectivo.txt';
+
+                        $html_folder = $directory.$file.'/conektaefectivo.html';
+                        $txt_folder = $directory.$file.'/conektaefectivo.txt';
+
+                        try {
+                            Tools::copy($new_html_file, $html_folder);
+                            Tools::copy($new_txt_file, $txt_folder);
+                        } catch (\Exception $e) {
+                            $error_copy = $e->getMessage() . ' ';
+                            if (class_exists('Logger')) {
+                                Logger::addLog(json_encode($error_copy), 1, null, null, null, true);
+                            }
+                        }
                     }
                 }
                 closedir($dhvalue);
@@ -289,16 +302,28 @@ class Conekta_Prestashop extends PaymentModule
         $state->template = $templ;
         if ($state->save()) {
             Configuration::updateValue('waiting_spei_payment', $state->id);
-            $directory = _PS_MODULE_DIR_ . $this->name . '/mails/';
-            $directoryPS = _PS_MAIL_DIR_;
+            $directory = _PS_MAIL_DIR_;
             if ($dhvalue = opendir($directory)) {
                 while (($file = readdir($dhvalue)) !== false) {
-                    if (is_dir($directory . $file) && $file[0] != '.') {
-                        copy($directory . $file . '/conektaspei.html', $directoryPS . $file . '/conektaspei.html');
-                        copy($directory . $file . '/conektaspei.txt', $directoryPS . $file . '/conektaspei.txt');
+                    if (is_dir($directory.$file) && $file[0] != '.') {
+
+                    $new_html_file = _PS_MODULE_DIR_.$this->name.'/mails/'.$file.'/conektaspei.html';
+                    $new_txt_file = _PS_MODULE_DIR_.$this->name.'/mails/'.$file.'/conektaspei.txt';
+
+                        $html_folder = $directory.$file.'/conektaspei.html';
+                        $txt_folder = $directory.$file.'/conektaspei.txt';
+
+                        try {
+                            Tools::copy($new_html_file, $html_folder);
+                            Tools::copy($new_txt_file, $txt_folder);
+                        } catch (\Exception $e) {
+                            $error_copy = $e->getMessage() . ' ';
+                            if (class_exists('Logger')) {
+                                Logger::addLog(json_encode($error_copy), 1, null, null, null, true);
+                            }
+                        }
                     }
                 }
-
                 closedir($dhvalue);
             }
         } else {
