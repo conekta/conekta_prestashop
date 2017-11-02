@@ -713,7 +713,7 @@ class Conekta_Prestashop extends PaymentModule
 
 
         if (empty($url)) {
-            $url = _PS_BASE_URL_ . __PS_BASE_URI__ . "modules/conekta_prestashop/webhook/notification.php";
+            $url = _PS_BASE_URL_ . __PS_BASE_URI__ . "modules/conekta_prestashop/notification.php";
         }
 
         if (Tools::isSubmit('btnSubmit')) {
