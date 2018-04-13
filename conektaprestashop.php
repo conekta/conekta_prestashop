@@ -521,7 +521,7 @@ class ConektaPrestashop extends PaymentModule
             foreach ($discounts as $discount) {
                 $discount_lines = array_merge($discount_lines, array(
                     array(
-                        'code'   => $discount['code'],
+                        'code'   => $discount['code'] ? $discount['code'] : 'NO-CODE',
                         'amount' => round((string)$discount['value_real'] * 100),
                         'type'   => 'coupon'
                     )
