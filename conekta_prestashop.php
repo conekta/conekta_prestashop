@@ -809,7 +809,7 @@ class Conekta_Prestashop extends PaymentModule
 
         $events = array(
             "events" => array(
-                "charge.paid"
+                "order.paid"
                 )
             );
 
@@ -976,6 +976,7 @@ class Conekta_Prestashop extends PaymentModule
             $state,
             $country
         );
+        $order_details['metadata'] = array("reference_id" => $this->context->cart->id);
 
         $amount = 0;
 
