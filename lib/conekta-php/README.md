@@ -1,7 +1,6 @@
+![README Cover Image](readme_cover.png)
 
-![alt tag](https://raw.github.com/conekta/conekta-php/master/readme_files/cover.png)
-
-# Conekta PHP v.3.3.0
+# Conekta PHP v.4.0.2
 
 This is a php library that allows interaction with https://api.conekta.io API.
 
@@ -17,7 +16,7 @@ To get started, add the following to your PHP script:
 
 You can also install this library with composer:
 
-  require: "conekta/conekta-php": "3.3.0"
+  require: "conekta/conekta-php": "4.0.2"
 
 ## Usage
 
@@ -40,7 +39,7 @@ $valid_order =
           'metadata'    => array('test' => 'extra info'),
           'charges'     => array(
               array(
-                  'payment_source' => array(
+                  'payment_method' => array(
                       'type'       => 'oxxo_cash',
                       'expires_at' => strtotime(date("Y-m-d H:i:s")) + "36000"
                    ),
@@ -68,7 +67,7 @@ try {
 
 ## Documentation
 
-Please see https://www.conekta.io/docs/api for up-to-date documentation.
+Please see [developers.conekta.com/api](https://developers.conekta.com/api) for up-to-date documentation.
 
 ## Run Tests
 
@@ -110,12 +109,15 @@ phpunit test/Conekta-x.0
 _note:_ for this phpunit version (6.1.x) only php 7 is supported for older php versions see phpunit <a href="https://phpunit.de/"> documentation</a>
 
 
-License
--------
-Developed by [Conekta](https://www.conekta.io). Available with [MIT License](LICENSE).
+## License
 
-We are hiring
--------------
+Developed in Mexico by [Conekta](https://www.conekta.com). Available with [MIT License](LICENSE).
+
+***
+
+
+## We are always hiring!
 
 If you are a comfortable working with a range of backend languages (Java, Python, Ruby, PHP, etc) and frameworks, you have solid foundation in data structures, algorithms and software design with strong analytical and debugging skills.
 Send your CV, github to quieroser@conekta.io
+
