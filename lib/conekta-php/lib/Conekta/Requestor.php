@@ -8,7 +8,7 @@
 namespace Conekta;
 
 use \Conekta\Conekta;
-use \Conekta\Exceptions;
+use \Conekta\Handler;
 
 /**
   * @method string  apiUrl($urls string)
@@ -130,7 +130,7 @@ class Requestor
       $url = $this->buildSegmentParamsUrl($url, $params);
       break;
       default:
-      throw new Exception('Wrong method');
+      throw new \Exception('Wrong method');
     }
 
     $url = $this->apiUrl($url);
@@ -140,6 +140,7 @@ class Requestor
     $opts[CURLOPT_TIMEOUT] = 80;
     $opts[CURLOPT_RETURNTRANSFER] = true;
     $opts[CURLOPT_HTTPHEADER] = $headers;
+    $opts[CURLOPT_SSLVERSION] = 6;
     $opts[CURLOPT_CAINFO] = dirname(__FILE__).'/../ssl_data/ca_bundle.crt';
     curl_setopt_array($curl, $opts);
     $response = curl_exec($curl);
