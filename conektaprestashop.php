@@ -1029,7 +1029,7 @@ class ConektaPrestashop extends PaymentModule
 
         $events = array(
             'events' => array(
-                'charge.paid'
+                'order.paid'
                 )
             );
 
