@@ -2,17 +2,17 @@
 
 namespace Conekta;
 
-use \Conekta\Resource;
+use \Conekta\ConektaResource;
 
-class Address extends Resource
+class Address extends ConektaResource
 {
-	var $street1 = "";
-	var $street2 = "";
-	var $street3 = "";
-	var $city    = "";
-	var $state   = "";
-	var $zip     = "";
-	var $country = "";
+  var $street1 = "";
+  var $street2 = "";
+  var $street3 = "";
+  var $city    = "";
+  var $state   = "";
+  var $zip     = "";
+  var $country = "";
 
 	public function __get($property)
   {   
