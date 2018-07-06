@@ -31,28 +31,28 @@
 {if isset($smarty.get.conekta_error)}<div class="conekta-payment-errors">{l s='There was a problem processing your credit card, please double check your data and try again.' mod='conekta_prestashop'}</div>{/if}
   <p>
     <label>{l s='Nombre del Tarjetahabiente' mod='conekta_prestashop'}</label>
-    <input type="text" id="conekta-card-name" autocomplete="off" class="conekta-card-name" >
+    <input type="text" autocomplete="off" class="conekta-card-name" data-conekta="card[name]">
   </p>
 
-  <p>
+  <div>
     <label>{l s='Número de Tarjeta' mod='conekta_prestashop'}</label>
-    <div class="field" id="conekta-card-number" style="height: 40px; width: 180px!important"></div>
-  </p>
+    <div id="conekta-card-number" class="conekta-card-number" style="height: 50px;"></div>
+  </div>
 
-  <p>
+  <div>
     <label>{l s='CVC' mod='conekta_prestashop'}</label>
-    <div class="field" id="conekta-card-cvc" style="height: 40px; width: 180px!important"></div>
-  </p>
+    <div id="conekta-card-cvc" class="conekta-card-cvc" style="height: 50px;"></div>
+  </div>
 
   <p>
     <label>{l s='Expiration (MM/AAAA)' mod='conekta_prestashop'}</label>
-    <select class="conekta-card-expiry-month" id="conekta-card-expiry-month"  data-encrypted-name="month">
+    <select class="conekta-card-expiry-month" id="conekta-card-expiry-month" data-conekta="card[exp_month]" data-encrypted-name="month">
       {foreach from=$months item=month}
         <option value="{$month|escape:'htmlall':'UTF-8'}">{$month|escape:'htmlall':'UTF-8'}</option>
       {/foreach}
     </select>
     <span> / </span>
-    <select class="conekta-card-expiry-year" id="conekta-card-expiry-year"  data-encrypted-name="year">
+    <select class="conekta-card-expiry-year" id="conekta-card-expiry-year" data-conekta="card[exp_year]" data-encrypted-name="year">
       {foreach from=$years item=year}
         <option value="{$year|escape:'htmlall':'UTF-8'}">{$year|escape:'htmlall':'UTF-8'}</option>
       {/foreach}
