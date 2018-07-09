@@ -105,7 +105,6 @@ if ( $.mobile ) {
  };
  
  var conektaErrorResponseHandler = function(token) {
-	var $form = $('#conekta-payment-form');
 	if ($('.conekta-payment-errors').length)
 		$('.conekta-payment-errors').fadeIn(1000);
 	else
