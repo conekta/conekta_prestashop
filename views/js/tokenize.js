@@ -25,59 +25,92 @@
 */
 
 if ( $.mobile ) {
-   //jq mobile loaded
-	$(document).on('pageinit', function() {
-		conektaSetup();
-	});
-	$(document).ready(function() {
-		conektaSetup();
-	});
-} else {
-  // not jqm
-	$(document).ready(function() {
-		conektaSetup();
-	});
-}
+	//jq mobile loaded
+	 $(document).on('pageinit', function() {
+		 conektaSetup();
+	 });
+	 $(document).ready(function() {
+		 conektaSetup();
+	 });
+ } else {
+   // not jqm
+	 $(document).ready(function() {
+		 conektaSetup();
+	 });
+ }
 
-function conektaSetup()
-{
+ function callBack(token){
+	if(!token.id){
+		conektaErrorResponseHandler(token);
+	}else {
+		conektaSuccessResponseHandler(token);
+	}
+ }
+ 
+ function conektaSetup()
+ {
 	if (!$('#conekta-payment-form').length){
 		return false;
-    }
+	}
+	 
+	var cardComponent = {
+		idElement: 'conekta-card-number',
+		style: {
+			'width': '210px',
+			'padding': '5px 10px',
+			'font-size': '15px',
+			'border': '1px solid rgb(204, 204, 204)'
+		},
+		placeholder: ' '
+	};
 
-	/* Set Conekta public key */
-    Conekta.setPublicKey(conekta_public_key);
-	//since we are using smarty html_select_date custom function
-	$('#conekta-card-expiry-month').removeAttr('name');
-	$('#conekta-card-expiry-year').removeAttr('name');
+	var cvcComponent = {
+		idElement: 'conekta-card-cvc',
+		style: {
+			'padding': '5px 10px',
+			'font-size': '15px',
+			'border': '1px solid rgb(204, 204, 204)'
+		},
+		placeholder: ' '
+	};
 
-	$('#conekta-payment-form').submit(function(event) {
-        var $form = $('#conekta-payment-form');
-      	if( $form.find('[name=conektaToken]').length) {
-            return true;
-        } else {
-     	  Conekta.token.create($form, conektaSuccessResponseHandler, conektaErrorResponseHandler);
-		  return false;
-        }
-	});
-}
-
-var conektaSuccessResponseHandler = function(response) {
-    var $form = $('#conekta-payment-form');
-    $form.append($('<input type="hidden" name="conektaToken" />').val(response.id));
-    $form.get(0).submit();
-
-};
-
-var conektaErrorResponseHandler = function(response) {
-    var $form = $('#conekta-payment-form');
-
-    if ($('.conekta-payment-errors').length)
-        $('.conekta-payment-errors').fadeIn(1000);
-    else
-    {
-        $('#conekta-payment-form').prepend('<div class="conekta-payment-errors">' + response.message +'</div>');
-        $('.conekta-payment-errors').fadeIn(1000);
-    }
-
-};
+	renderComponents(conekta_public_key, cardComponent, cvcComponent);
+	 
+	 //since we are using smarty html_select_date custom function
+	 $('#conekta-card-expiry-month').removeAttr('name');
+	 $('#conekta-card-expiry-year').removeAttr('name');	
+ 
+	 $('#conekta-payment-form').submit(function(event) {
+		 var $form = $('#conekta-payment-form');
+		   if( $form.find('[name=conektaToken]').length) {
+			 return true;
+		 } else {
+			 var month = $('#conekta-card-expiry-month').val();
+			 var year = $('#conekta-card-expiry-year').val();
+			 var owner = $('.conekta-card-name').val();
+			createToken('conekta-card-number', callBack, {
+				name: owner,
+				expMonth: month,
+				expYear: year
+			});
+		   return false;
+		 }
+	 });
+ }
+ 
+ var conektaSuccessResponseHandler = function(response) {
+	 var $form = $('#conekta-payment-form');
+	 $form.append($('<input type="hidden" name="conektaToken" id="conektaToken" />').val(response.id));
+	 $form.get(0).submit();
+ };
+ 
+ var conektaErrorResponseHandler = function(token) {
+	if ($('.conekta-payment-errors').length)
+		$('.conekta-payment-errors').fadeIn(1000);
+	else
+	{
+		$('#conekta-payment-form').prepend('<div class="conekta-payment-errors">' + token +'</div>');
+		$('.conekta-payment-errors').fadeIn(1000);
+	}
+ };
+ 

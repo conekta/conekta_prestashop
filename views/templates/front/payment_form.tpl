@@ -34,15 +34,15 @@
     <input type="text" autocomplete="off" class="conekta-card-name" data-conekta="card[name]">
   </p>
 
-  <p>
+  <div>
     <label>{l s='Número de Tarjeta' mod='conekta_prestashop'}</label>
-    <input type="text" size="20" autocomplete="off" class="conekta-card-number" data-conekta="card[number]">
-  </p>
+    <div id="conekta-card-number" class="conekta-card-number" style="height: 50px;"></div>
+  </div>
 
-  <p>
+  <div>
     <label>{l s='CVC' mod='conekta_prestashop'}</label>
-    <input type="text" size="4" autocomplete="off" class="conekta-card-cvc" data-conekta="card[cvc]">
-  </p>
+    <div id="conekta-card-cvc" class="conekta-card-cvc" style="height: 50px;"></div>
+  </div>
 
   <p>
     <label>{l s='Expiration (MM/AAAA)' mod='conekta_prestashop'}</label>
