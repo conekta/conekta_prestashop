@@ -9,3 +9,4 @@ use \Exception;
 class ParameterValidationError extends Handler
 {
 }
+?>

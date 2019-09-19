@@ -65,3 +65,5 @@ class ShippingContactTest extends BaseTest
     }
   }
 }
+
+?>

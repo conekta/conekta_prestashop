@@ -13,3 +13,4 @@ class EventTest extends BaseTest
 		$this->assertTrue(strpos(get_class($events[0]), 'Event') !== false);
 	}
 }
+?>

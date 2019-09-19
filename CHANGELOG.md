@@ -21,4 +21,4 @@
 - Sandbox testing capability.
 - Client side validation for credit cards.
 - All card data is sent directly to Conekta's servers so you don't have to be PCI compliant.
-compatibility with prestashop 1.7
+compatibility with prestashop 1.7.6.0

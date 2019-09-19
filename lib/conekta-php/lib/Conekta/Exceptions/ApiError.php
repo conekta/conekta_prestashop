@@ -9,3 +9,4 @@ use \Exception;
 class ApiError extends Handler
 {
 }
+?>

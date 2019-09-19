@@ -41,3 +41,4 @@ class Event extends ConektaResource
       return parent::_scpWhere($class, $params);
     }
   }
+?>

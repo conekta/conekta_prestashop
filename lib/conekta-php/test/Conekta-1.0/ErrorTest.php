@@ -107,3 +107,4 @@ class ErrorTest extends BaseTest
     }
   }
 }
+?>

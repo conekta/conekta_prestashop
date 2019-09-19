@@ -69,21 +69,23 @@ class Config
         return $tax_lines;
     }
 
-    public static function getDiscountLines($cart, $discounts = '')
+    public static function getDiscountLines($discounts)
     {
         $discount_lines = array();
         if (!empty($discounts)) {
             foreach ($discounts as $discount) {
-                $discount_lines = array_merge($discount_lines, array(
+                $discount_lines = array_merge(
+                    $discount_lines,
                     array(
-                        'code'   => $discount['code'],
-                        'amount' => (string) $cart->getOrderTotal(true, Cart::ONLY_DISCOUNTS) * 100,
-                        'type'   => 'coupon'
+                        array(
+                            'code' => (string) $discount['name'],
+                            'amount' => (string) $discount['value_real'] * 100,
+                            'type'=>'coupon'
                         )
-                    ));
+                    )
+                );
             }
         }
-
         return $discount_lines;
     }
 

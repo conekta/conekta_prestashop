@@ -89,3 +89,4 @@ class ConektaObject extends ArrayObject
     return isset($this->_values[$offset]) ? $this->_values[$offset] : null;
   }
 }
+?>

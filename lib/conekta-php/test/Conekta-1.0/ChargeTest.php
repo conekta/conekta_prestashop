@@ -126,3 +126,4 @@ class ChargeTest extends BaseTest
         $this->assertTrue($cpm->status == 'paid');
     }
 }
+?>

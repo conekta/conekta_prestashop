@@ -89,3 +89,4 @@ class Charge extends ConektaResource
       return parent::_scpWhere($class, $params);
     }
   }
+?>
