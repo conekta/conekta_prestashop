@@ -1,5 +1,5 @@
 <?php
-//Applications/MAMP/htdocs/PHP/conekta_prestashop/lib/conekta-php/test/Conekta-2.0/WebhookTest.php
+//Applications/MAMP/htdocs/PHP/ConektaPaymentsPrestashop/lib/conekta-php/test/Conekta-2.0/WebhookTest.php
 namespace Conekta;
 
 class WebhookTest extends BaseTest

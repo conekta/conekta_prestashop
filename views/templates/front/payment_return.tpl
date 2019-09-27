@@ -30,13 +30,13 @@
 
 {block name="content"}
   <section>
-    <p>{l s='You have successfully submitted your payment form.' mod='conekta_prestashop'}</p>
-    <p>{l s='Here are the params:' mod='conekta_prestashop'}</p>
+    <p>{l s='You have successfully submitted your payment form.' mod='conektapaymentsprestashop'}</p>
+    <p>{l s='Here are the params:' mod='conektapaymentsprestashop'}</p>
     <ul>
       {foreach from=$params key=name item=value}
         <li>{$name|escape:'htmlall':'UTF-8'}: {$value|escape:'htmlall':'UTF-8'}</li>
       {/foreach}
     </ul>
-    <p>{l s='Now, you just need to proceed the payment and do what you need to do.' mod='conekta_prestashop'}</p>
+    <p>{l s='Now, you just need to proceed the payment and do what you need to do.' mod='conektapaymentsprestashop'}</p>
   </section>
 {/block}

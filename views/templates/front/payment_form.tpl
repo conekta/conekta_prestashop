@@ -29,24 +29,24 @@
 {/if}
 
 <form action="{$action|escape:'htmlall':'UTF-8'}" id="conekta-payment-form">
-{if isset($smarty.get.conekta_error)}<div class="conekta-payment-errors">{l s='There was a problem processing your credit card, please double check your data and try again.' mod='conekta_prestashop'}</div>{/if}
+{if isset($smarty.get.conekta_error)}<div class="conekta-payment-errors">{l s='There was a problem processing your credit card, please double check your data and try again.' mod='conektapaymentsprestashop'}</div>{/if}
   <p>
-    <label>{l s='Nombre del Tarjetahabiente' mod='conekta_prestashop'}</label>
+    <label>{l s='Nombre del Tarjetahabiente' mod='conektapaymentsprestashop'}</label>
     <input type="text" autocomplete="off" class="conekta-card-name" data-conekta="card[name]">
   </p>
 
   <div>
-    <label>{l s='Número de Tarjeta' mod='conekta_prestashop'}</label>
+    <label>{l s='Número de Tarjeta' mod='conektapaymentsprestashop'}</label>
     <div id="conekta-card-number" class="conekta-card-number" style="height: 50px;"></div>
   </div>
 
   <div>
-    <label>{l s='CVC' mod='conekta_prestashop'}</label>
+    <label>{l s='CVC' mod='conektapaymentsprestashop'}</label>
     <div id="conekta-card-cvc" class="conekta-card-cvc" style="height: 50px;"></div>
   </div>
 
   <p>
-    <label>{l s='Expiration (MM/AAAA)' mod='conekta_prestashop'}</label>
+    <label>{l s='Expiration (MM/AAAA)' mod='conektapaymentsprestashop'}</label>
     <select class="conekta-card-expiry-month" id="conekta-card-expiry-month" data-conekta="card[exp_month]" data-encrypted-name="month">
       {foreach from=$months item=month}
         <option value="{$month|escape:'htmlall':'UTF-8'}">{$month|escape:'htmlall':'UTF-8'}</option>
@@ -61,7 +61,7 @@
   </p>
   {if $msi == 1}
     <p>
-    <label>{l s='Monthly Installments' mod='conekta_prestashop'}</label>
+    <label>{l s='Monthly Installments' mod='conektapaymentsprestashop'}</label>
     <select class="conekta-card-msi" id="conekta-card-msi" name="monthly_installments">
         {foreach from=$msi_jumps item=msi}
           <option value="{$msi|escape:'htmlall':'UTF-8'}">{$msi|escape:'htmlall':'UTF-8'}</option>

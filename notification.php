@@ -30,7 +30,7 @@ if ($event_json->type == 'order.paid' && isset($event_json->data)) {
     $id_order               = Order::getOrderByCartId($reference_id);
     $order                  = new Order($id_order);
     $order_fields           = $order->getFields();
-    $currency_payment       = Currency::getPaymentCurrencies(Module::getModuleIdByName('conekta_prestashop'), $order_fields['id_shop']);
+    $currency_payment       = Currency::getPaymentCurrencies(Module::getModuleIdByName('conektapaymentsprestashop'), $order_fields['id_shop']);
     $total_order_amount     = $order->getOrdersTotalPaid();
     $str_total_order_amount = (string) $total_order_amount * 100;
     

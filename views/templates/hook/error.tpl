@@ -24,6 +24,6 @@
  * International Registered Trademark & Property of PrestaShop SA
  *}
 <div class="error">
-	<p>{$error_message|escape:'htmlall':'UTF-8'}<br/> {l s='You can download the requirements needed here: http://addons.prestashop.com/en/modules-prestashop/6222-backwardcompatibility.html' mod='conekta_prestashop'}
+	<p>{$error_message|escape:'htmlall':'UTF-8'}<br/> {l s='You can download the requirements needed here: http://addons.prestashop.com/en/modules-prestashop/6222-backwardcompatibility.html' mod='conektapaymentsprestashop'}
 	</p>
 </div>

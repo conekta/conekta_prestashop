@@ -13,25 +13,24 @@
 *
 */
 
-class Conekta_PrestashopValidationModuleFrontController extends ModuleFrontController
-//class ConektaPrestashopValidationModuleFrontController extends ModuleFrontController
+class ConektaPaymentsPrestashopValidationModuleFrontController extends ModuleFrontController
 {
     public function postProcess()
     {
         $cart = $this->context->cart;
         $authorized = false;
         $customer = new Customer($cart->id_customer);
-        $conekta = new Conekta_Prestashop();
+        $conekta = new ConektaPaymentsPrestashop();
 
         foreach (Module::getPaymentModules() as $module) {
-            if ($module['name'] == 'conekta_prestashop') {
+            if ($module['name'] == 'conektapaymentsprestashop') {
                 $authorized = true;
                 break;
             }
         }
         if (!$authorized) {
             die($this->module->getTranslator()
-                ->trans('This payment method is not available.', array(), 'Modules.Conekta_Prestashop.Shop'));
+                ->trans('This payment method is not available.', array(), 'Modules.ConektaPaymentsPrestashop.Shop'));
         }
 
         if (!Validate::isLoadedObject($customer)) {
@@ -44,6 +43,6 @@ class Conekta_PrestashopValidationModuleFrontController extends ModuleFrontContr
 
         $conekta->processPayment($type, $conektaToken, $msi);
 
-        $this->setTemplate('module:conekta_prestashop/views/templates/front/payment_return.tpl');
+        $this->setTemplate('module:conektapaymentsprestashop/views/templates/front/payment_return.tpl');
     }
 }

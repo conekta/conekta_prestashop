@@ -25,8 +25,8 @@
  *}
 
 {if isset($cash)}
-<p> {l s='Informacion para realizar el pago:' mod='conekta_prestashop'} <p>
-                <br><br><b>{l s='Monto:' mod='conekta_prestashop'}</b> $ {$conekta_order.amount|escape:'htmlall':'UTF-8' }
+<p> {l s='Informacion para realizar el pago:' mod='conektapaymentsprestashop'} <p>
+                <br><br><b>{l s='Monto:' mod='conektapaymentsprestashop'}</b> $ {$conekta_order.amount|escape:'htmlall':'UTF-8' }
                 {$conekta_order.currency|escape:'htmlall':'UTF-8' }
                 <br><b><p>OXXO cobrará una comisión adicional al momento de realizar el pago</p>
                 <br><h1>Referencia: {$conekta_order.barcode|escape:'htmlall':'UTF-8'}</h1>
@@ -37,24 +37,24 @@
                 <br><p>4.- Realiza el pago correspondiente con dinero en efectivo </p>
                 <br><p>5.- Al confirmar tu pago, el cajero te entregará un comprobante impreso. En él podrás verificar que se haya realizado correctamente. Conserva este comprobante de pago </p>
                 <br /><br /><span>
-<div class="conf confirmation">{l s='Por favor de imprimir la ficha de pago y realizar el pago en el OXXO más cercano.' mod='conekta_prestashop'}</div>
+<div class="conf confirmation">{l s='Por favor de imprimir la ficha de pago y realizar el pago en el OXXO más cercano.' mod='conektapaymentsprestashop'}</div>
 {/if}
 
 {if isset($card)}
 {if $conekta_order.valid == 1 }
-                <div class="conf confirmation">{l s='Pago Exitoso, el pago ha sido aprobado y el pedido se ha guardado con la referencia ' mod='conekta_prestashop'} <b>{$conekta_order.reference|escape:'htmlall':'UTF-8'}</b>.</div>
+                <div class="conf confirmation">{l s='Pago Exitoso, el pago ha sido aprobado y el pedido se ha guardado con la referencia ' mod='conektapaymentsprestashop'} <b>{$conekta_order.reference|escape:'htmlall':'UTF-8'}</b>.</div>
 {else}
-                <div class="error">{l s='Sorry, unfortunately an error occurred during the transaction.' mod='conekta_prestashop'}<br /><br />
-                {l s='Please double-check your credit card details and try again or feel free to contact us to resolve this issue.' mod='conekta_prestashop'}<br /><br />
-                ({l s='Your Order\'s Reference:' mod='conekta_prestashop'} <b>{$conekta_order.reference|escape:'htmlall':'UTF-8'}</b>)</div>
+                <div class="error">{l s='Sorry, unfortunately an error occurred during the transaction.' mod='conektapaymentsprestashop'}<br /><br />
+                {l s='Please double-check your credit card details and try again or feel free to contact us to resolve this issue.' mod='conektapaymentsprestashop'}<br /><br />
+                ({l s='Your Order\'s Reference:' mod='conektapaymentsprestashop'} <b>{$conekta_order.reference|escape:'htmlall':'UTF-8'}</b>)</div>
 {/if}
 {/if}
 
 {if isset($spei)}
-<p> {l s='Informacion para realizar el pago por medio de SPEI:' mod='conekta_prestashop'} <p>
-                <br><br><b>{l s='Monto:' mod='conekta_prestashop'}</b> $ {$conekta_order.amount|escape:'htmlall':'UTF-8' } {$conekta_order.currency|escape:'htmlall':'UTF-8' }
-                <br><br><b>{l s='CLABE:' mod='conekta_prestashop'}</b>
+<p> {l s='Informacion para realizar el pago por medio de SPEI:' mod='conektapaymentsprestashop'} <p>
+                <br><br><b>{l s='Monto:' mod='conektapaymentsprestashop'}</b> $ {$conekta_order.amount|escape:'htmlall':'UTF-8' } {$conekta_order.currency|escape:'htmlall':'UTF-8' }
+                <br><br><b>{l s='CLABE:' mod='conektapaymentsprestashop'}</b>
                 <br>{$conekta_order.receiving_account_number|escape:'htmlall':'UTF-8'}
                 <br /><br /><span>
-<div class="conf confirmation">{l s='Por favor de realizar el pago por medio de SPEI.' mod='conekta_prestashop'}</div>
+<div class="conf confirmation">{l s='Por favor de realizar el pago por medio de SPEI.' mod='conektapaymentsprestashop'}</div>
 {/if}
