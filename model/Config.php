@@ -91,6 +91,7 @@ class Config
 
     public static function getShippingLines($shipping_service, $shipping_carrier = '', $shipping_price = '')
     {
+        $shipping_price = str_replace(',','',number_format(($shipping_price * 100)));
         $shipping_lines = array(
             array(
                 "amount"          => $shipping_price,
