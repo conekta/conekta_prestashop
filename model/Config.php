@@ -79,7 +79,7 @@ class Config
                     array(
                         array(
                             'code' => (string) $discount['name'],
-                            'amount' => (string) $discount['value_real'] * 100,
+                            'amount' => str_replace(',','',number_format(($discount['value_real'] * 100))),
                             'type'=>'coupon'
                         )
                     )
