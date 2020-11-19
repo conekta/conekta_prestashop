@@ -1,0 +1,8 @@
+#!/bin/bash
+docker-compose exec phpfpm su -s /bin/bash www-data -c "composer coding-standard-fix"
+if [ $? != 0 ]; then
+  echo -e "\e[91mErrors where found and we were unable to fix them. Fix them before commit\e[0m"
+  sensible-browser ./var/log/mqt/full.txt
+else 
+  echo -e "\e[1m\e[32mGood. Code styles are clean.\e[0m"
+fi
