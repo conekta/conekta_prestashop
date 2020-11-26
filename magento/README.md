@@ -29,13 +29,13 @@ chmod +x ./commands/*
 
 ```
 #### Change this appropriately
-COMPOSE_PROJECT_NAME=linio
+COMPOSE_PROJECT_NAME=conekta
 
 ### Magento specific configuration
 
 ADMIN_EMAIL=info@serfe.com
 ADMIN_PASSWORD=s3rf3ntr4nd0
-ADMIN_URL_POSTFIX=admin_linio
+ADMIN_URL_POSTFIX=admin_conekta
 
 # Required for composer
 MAGENTO_COMPOSER_USER=
@@ -113,8 +113,8 @@ chmod 777 /sock/docker.sock
 
   * PhpMyAdmin: [http://localhost:8010/](http://localhost:8010/)
   * MailHog: [http://localhost:8025/](http://localhost:8025/)
-  * Frontend: [https://linio.magento.ws.serfe.com/](https://linio.magento.ws.serfe.com/)
-  * Backend: [https://linio.magento.ws.serfe.com/admin_linio](https://linio.magento.ws.serfe.com/admin_linio)
+  * Frontend: [https://conekta.magento.ws.serfe.com/](https://conekta.magento.ws.serfe.com/)
+  * Backend: [https://conekta.magento.ws.serfe.com/admin_conekta](https://conekta.magento.ws.serfe.com/admin_conekta)
     * Credentials:
       * **Username:** admin
       * **Password:** s3rf3ntr4nd0
