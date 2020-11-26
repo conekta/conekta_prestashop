@@ -1,0 +1,2 @@
+#!/bin/bash
+docker-compose exec --user app phpfpm ./vendor/bin/cache-clean.js --watch $@

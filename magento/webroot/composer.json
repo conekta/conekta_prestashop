@@ -1,0 +1,110 @@
+{
+    "name": "serfe/magento-2-linio-integration",
+    "description": "Magento 2 Linio Integration Develop Environment",
+    "type": "project",
+    "version": "0.0.1",
+    "license": [
+        "OSL-3.0",
+        "AFL-3.0"
+    ],
+    "require": {
+        "magento/product-community-edition": "2.3.5-p2",
+        "composer/composer": "@alpha",
+        "magento/module-bundle-sample-data": "100.3.*",
+        "magento/module-catalog-sample-data": "100.3.*",
+        "magento/module-customer-sample-data": "100.3.*",
+        "magento/module-cms-sample-data": "100.3.*",
+        "magento/module-theme-sample-data": "100.3.*",
+        "magento/module-widget-sample-data": "100.3.*",
+        "magento/module-catalog-rule-sample-data": "100.3.*",
+        "magento/module-sales-sample-data": "100.3.*",
+        "magento/module-sales-rule-sample-data": "100.3.*",
+        "magento/module-review-sample-data": "100.3.*",
+        "magento/module-tax-sample-data": "100.3.*",
+        "magento/module-downloadable-sample-data": "100.3.*",
+        "magento/module-msrp-sample-data": "100.3.*",
+        "magento/module-configurable-sample-data": "100.3.*",
+        "magento/module-product-links-sample-data": "100.3.*",
+        "magento/module-grouped-product-sample-data": "100.3.*",
+        "magento/module-wishlist-sample-data": "100.3.*",
+        "magento/module-offline-shipping-sample-data": "100.3.*",
+        "magento/module-swatches-sample-data": "100.3.*",
+        "magento/sample-data-media": "100.3.*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~9.0.0",
+        "squizlabs/php_codesniffer": "3.2.2",
+        "phpmd/phpmd": "@stable",
+        "pdepend/pdepend": "2.5.2",
+        "friendsofphp/php-cs-fixer": "~2.16",
+        "lusitanian/oauth": "~0.8.10",
+        "sebastian/phpcpd": "~5.0.2",
+        "linio/module-merchant-integration": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "Magento\\Framework\\": "lib/internal/Magento/Framework/",
+            "Magento\\Setup\\": "setup/src/Magento/Setup/",
+            "Magento\\": "app/code/Magento/",
+            "Zend\\Mvc\\Controller\\": "setup/src/Zend/Mvc/Controller/"
+        },
+        "psr-0": {
+            "": [
+                "app/code/",
+                "generated/code/"
+            ]
+        },
+        "files": [
+            "app/etc/NonComposerComponentRegistration.php"
+        ],
+        "exclude-from-classmap": [
+            "**/dev/**",
+            "**/update/**",
+            "**/Test/**"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Magento\\Sniffs\\": "dev/tests/static/framework/Magento/Sniffs/",
+            "Magento\\Tools\\": "dev/tools/Magento/Tools/",
+            "Magento\\Tools\\Sanity\\": "dev/build/publication/sanity/Magento/Tools/Sanity/",
+            "Magento\\TestFramework\\Inspection\\": "dev/tests/static/framework/Magento/TestFramework/Inspection/",
+            "Magento\\TestFramework\\Utility\\": "dev/tests/static/framework/Magento/TestFramework/Utility/"
+        }
+    },
+    "minimum-stability": "stable",
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://repo.magento.com/"
+        },
+        {
+          "type": "git",
+          "url": "https://github.com/LinioIT/seller-center-sdk.git"
+        },
+        {
+            "type": "path",
+            "url": "./dev/composer-dev/*",
+            "options": {
+                "symlink": true
+            }
+        }
+    ],
+    "extra": {
+        "magento-force": "override"
+    },
+    "scripts": {
+        "coding-standard": [
+          "./dev/magento-coding-standard/vendor/bin/phpcs"
+        ],
+        "coding-standard-fix": [
+          "./dev/magento-coding-standard/vendor/bin/phpcbf"
+        ],
+        "copy-peste-detector": [
+          "phpcpd dev/composer-dev > var/log/mqt/duplicated.txt"
+        ],
+        "mess-detector": [
+          "phpmd dev/composer-dev html phpmd.xml --reportfile var/log/mqt/mess.html"
+        ]
+    }
+}
