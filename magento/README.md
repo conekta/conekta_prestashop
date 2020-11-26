@@ -83,6 +83,8 @@ docker-compose up
  - Open other terminal and continue with the process
 
  - Update files permissions following the [Update docker user UID](#update-docker-user-uid) instructions
+ 
+ './run composer remove linio/module-merchant-integration'  And wait a few minutes
 
  - Install and configure Magento:
 
@@ -95,14 +97,6 @@ docker-compose up
  - Update SSL keys:
 
 `./commands/setup-ssl.sh linio.magento.ws.serfe.com`
-
- - Check if module is enabled:
-
-` ./run magento module:status Linio_MerchantIntegration`
-
- - If not, enable the module:
-
-`./run magento module:enable Linio_MerchantIntegration`
 
 #### Troubleshooting
 
