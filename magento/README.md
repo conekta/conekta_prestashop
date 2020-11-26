@@ -53,7 +53,7 @@ PUBLIC_URL=linio.magento.ws.serfe.com
 
 `cp webroot/auth.json.sample webroot/auth.json`
 
- - Update the webroot/auth.json file with the magento authentication keys are in => https://tracker.serfe.com/wiki/doku.php?id=tracker:linio:access#magento_marketplace_keys
+ - Update the webroot/auth.json file with the magento authentication keys are in => https://tracker.serfe.com/wiki/doku.php?id=tracker:conekta:credentials&#credenciales_para_repo_de_magento_updatear_en_webroot_authjson
 
  - Update etc/hosts file add:
 
