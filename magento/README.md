@@ -42,10 +42,10 @@ MAGENTO_COMPOSER_USER=
 MAGENTO_COMPOSER_PASSWORD=
 
 # Backend url
-ADMIN_URL_POSTFIX=admin_linio
+ADMIN_URL_POSTFIX=admin_conekta
 
 # Url to access the site - Cannot be locahost
-PUBLIC_URL=linio.magento.ws.serfe.com
+PUBLIC_URL=conekta.magento.ws.serfe.com
 ```
 
  - 
@@ -96,7 +96,7 @@ docker-compose up
 
  - Update SSL keys:
 
-`./commands/setup-ssl.sh linio.magento.ws.serfe.com`
+`./commands/setup-ssl.sh conekta.magento.ws.serfe.com`
 
 #### Troubleshooting
 
