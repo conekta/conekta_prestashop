@@ -1,4 +1,4 @@
-# Linio Magento 2.3.5-p2 development environment
+# Conekta Magento 2.3.5-p2 development environment
 
 The aim of this document is to express the steps to install the local environment.
 
