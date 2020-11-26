@@ -58,14 +58,14 @@ PUBLIC_URL=conekta.magento.ws.serfe.com
  - Update etc/hosts file add:
 
 ```
-127.0.0.1 linio.magento.ws.serfe.com
+127.0.0.1 conekta.magento.ws.serfe.com
 ```
 
  - Stop apache service
 
 `sudo service apache2 stop`
 
- - Initialize Linio Magento module as git submodule:
+ - Initialize Conekta Magento module as git submodule:
 
 `git submodule update --init`
 
