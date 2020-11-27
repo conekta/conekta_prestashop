@@ -82,9 +82,7 @@ docker-compose up
 
  - Open other terminal and continue with the process
 
- - Update files permissions following the [Update docker user UID](#update-docker-user-uid) instructions
- 
- './run composer remove linio/module-merchant-integration'  And wait a few minutes
+ - `echo $UID` : if your user is different of 1000 ==> Update files permissions following the [Update docker user UID](#update-docker-user-uid) instructions
 
  - Install and configure Magento:
 
@@ -98,16 +96,22 @@ docker-compose up
 
 `./commands/setup-ssl.sh conekta.magento.ws.serfe.com`
 
-#### Troubleshooting
-
-If you get the error that cannot read the /sock/docker.sock on phpfpm_1 whe starting the docker-compose command, do:
 ```
 docker-compose run --rm --user root phpfpm bash
 chmod 777 /sock
 touch /sock/docker.sock
 chown app:app /sock/docker.sock
 chmod 777 /sock/docker.sock
+cd 
+cd var
+chmod o+w . -R
+cd 
+chmod o+w . -R
 ```
+
+In conekta-environments folder:
+
+`git submodule add git@git.serfe.com:project/conekta-magento.git magento/webroot/dev/composer-dev/conekta-magento`
 
 ### Environment URLs
 
