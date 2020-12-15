@@ -78,3 +78,4 @@ class Payee extends ConektaResource
     return parent::_createMember('payout_methods', $params);
   }
 }
+?>

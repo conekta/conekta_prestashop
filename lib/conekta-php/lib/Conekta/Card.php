@@ -55,3 +55,4 @@ class Card extends ConektaResource
     return parent::_delete('customer', 'cards');
   }
 }
+?>

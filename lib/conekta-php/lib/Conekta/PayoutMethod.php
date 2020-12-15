@@ -32,3 +32,4 @@ class PayoutMethod extends ConektaResource
       return parent::_delete('payee', 'payout_methods');
   }
 }
+?>
