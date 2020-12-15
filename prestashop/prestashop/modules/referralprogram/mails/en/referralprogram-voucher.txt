@@ -1,0 +1,14 @@
+{shop_url}
+
+Hi {firstname} {lastname},
+
+Sponsorship Program
+
+We have created a voucher in your name for referring a friend.
+Here is the code of your voucher: {voucher_num}, with an amount of {voucher_num}
+
+Simply copy/paste this code during the payment process for your next order.
+
+[{shop_name}]({shop_url})
+
+Powered by [PrestaShop](https://www.prestashop.com/?utm_source=marchandprestashop&utm_medium=e-mail=utm_campaign=footer_1-7)

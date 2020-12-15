@@ -1,0 +1,15 @@
+{shop_url}
+
+Hola {firstname} {lastname},
+
+ID Pedido {order_name} - Código Cupón de descuento generado
+
+Nos complace informarle que hemos generado un cupón de descuento a su nombre tras haber realizado el pedido con la referencia {order_name}.
+
+CÓDIGO CUPÓN DE DESCUENTO: {voucher_num} por valor de {voucher_amount}
+
+Para utilizarlo, simplemente copie/pegue este código durante el proceso de pago.
+
+[{shop_name}]({shop_url})
+
+Powered by [PrestaShop](https://www.prestashop.com/?utm_source=marchandprestashop&utm_medium=e-mail=utm_campaign=footer_1-7)

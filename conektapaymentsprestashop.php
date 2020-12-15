@@ -843,6 +843,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
         $events = array(
             "events" => array(
                 "order.paid",
+                "order.expired",
             )
         );
 

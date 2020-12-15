@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<module>
+  <name>psaddonsconnect</name>
+  <displayName><![CDATA[Addons Connect]]></displayName>
+  <version><![CDATA[2.1.1]]></version>
+  <description><![CDATA[Allows users to connect to Addons Platform.]]></description>
+  <author><![CDATA[PrestaShop]]></author>
+  <tab><![CDATA[]]></tab>
+  <is_configurable>1</is_configurable>
+  <need_instance>0</need_instance>
+  <limited_countries></limited_countries>
+</module>

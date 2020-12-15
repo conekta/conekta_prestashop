@@ -1,0 +1,27 @@
+{shop_url}
+
+Hola {firstname} {lastname},
+
+Gracias por crear una cuenta de cliente en {shop_name}.
+
+Sus datos de inicio de sesión en {shop_name}
+
+Estos son sus datos de acceso:
+
+Dirección de correo electrónico: {email}
+
+Consejos Importantes de Seguridad:
+
+1. Mantenga los datos de su cuenta en un lugar seguro.
+
+2. No comparta sus datos de acceso con otras personas.
+
+3. Cambie su contraseña regularmente.
+
+4. Si sospecha que alguien está utilizando ilegalmente su cuenta, avísenos inmediatamente.
+
+Ahora puede realizar pedidos en nuestra tienda: [{shop_name}]({shop_url})
+
+[{shop_name}]({shop_url})
+
+Powered by [PrestaShop](https://www.prestashop.com/?utm_source=marchandprestashop&utm_medium=e-mail=utm_campaign=footer_1-7)

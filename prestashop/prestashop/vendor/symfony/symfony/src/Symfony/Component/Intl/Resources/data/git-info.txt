@@ -1,0 +1,7 @@
+Git information
+===============
+
+URL: https://github.com/unicode-org/icu.git
+Revision: 2f2aec5f91cffe49b7526d9b0d18a9acbdd0cc89
+Author: yumaoka
+Date: 2019-03-25T16:18:16-04:00

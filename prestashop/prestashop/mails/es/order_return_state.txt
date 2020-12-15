@@ -1,0 +1,13 @@
+{shop_url}
+
+Hola {firstname} {lastname},
+
+Devolución #{id_order_return} - Actualizada
+
+El estado de su devolución #{id_order_return} ha cambiado a: "{state_order_return}".
+
+Siga su pedido y descargue su factura en nuestra tienda, vaya a la sección [Mis pedidos y detalles]({history_url}) en su cuenta de cliente.
+
+[{shop_name}]({shop_url})
+
+Powered by [PrestaShop](https://www.prestashop.com/?utm_source=marchandprestashop&utm_medium=e-mail=utm_campaign=footer_1-7)

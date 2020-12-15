@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<module>
+    <name>ps_faviconnotificationbo</name>
+    <displayName><![CDATA[Order Notifications on the Favicon]]></displayName>
+    <version><![CDATA[2.1.0]]></version>
+    <description><![CDATA[Be notified of each new order, client or message directly in the browser tab of your back office, even when working on another page]]></description>
+    <author><![CDATA[PrestaShop]]></author>
+    <tab><![CDATA[administration]]></tab>
+    <is_configurable>1</is_configurable>
+    <need_instance>1</need_instance>
+	<limited_countries></limited_countries>
+</module>
