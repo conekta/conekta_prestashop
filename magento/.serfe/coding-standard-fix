@@ -1,7 +1,0 @@
-#!/bin/bash
-docker-compose exec --user app composer coding-standard-fix
-if [ $? != 0 ]; then
-  echo -e "\e[91mErrors where found. Fix them before commit\e[0m"
-  sensible-browser ./var/log/mqt/full.txt
-  exit $?
-fi

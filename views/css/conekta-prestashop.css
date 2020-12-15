@@ -1,0 +1,128 @@
+div.payment_module { padding-bottom: 20px; text-transform: none; }
+.conekta_title img { float: none; margin-right: 8px; margin-top: -2px; vertical-align: middle; }
+#conekta-payment-form {}
+#conekta-payment-form label { display: inline-block; margin-bottom: 4px; text-transform: uppercase; }
+#conekta-payment-form label.lowercase { text-transform: none; }
+#conekta-payment-form input[type="text"], #conekta-payment-form select { border: #CCCCCC solid 1px; margin-bottom: 15px; padding: 3px; }
+#conekta-payment-form input[type="checkbox"] { margin-bottom: 15px; }
+#conekta-payment-form input.conekta-card-number { width: 210px; }
+#conekta-payment-form input.conekta-card-cvc {  }
+#conekta-payment-form a { display: inline; position: relative; border: none; padding: 0;}
+a.conekta-card-cvc-info { font-style: italic; }
+a.conekta-card-cvc-info div.cvc-info {
+	background-color: #BDE5F8;
+	border: #00529B solid 1px;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
+	color: #00529B!important;
+	display: none;
+	font-style: normal;
+	padding: 8px;
+	position: absolute;
+	right: -320px; top: -10px;
+	text-decoration: none;
+	width: 300px;
+}
+a.conekta-card-cvc-info:hover div.cvc-info { display: block; }
+div.cvc-info:hover { cursor: default; }
+#conekta-payment-form img.cc-icon { border: #CCCCCC solid 1px; float: left; margin-right: 5px; }
+.block-left { display: inline-block; float: left; margin-right: 20px; }
+img.disable { opacity: 0.3; }
+img.enable { opacity: 1; }
+#conekta-payment-form-cc .conekta-submit-button-cc { margin-left: 5px; }
+#conekta-payment-form-cc a { display: inline; font-size: 11px; text-decoration: underline; }
+#conekta-payment-form .conekta-submit-button, #conekta-payment-form-cc .conekta-submit-button-cc {
+	position:relative;
+	display:inline-block;
+	padding:5px 7px;
+	border:1px solid #cc9900;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
+	font-weight:bold;
+	color:#000;
+	cursor: pointer;
+}
+#conekta-payment-form .conekta-submit-button:hover, #conekta-payment-form-cc .conekta-submit-button-cc:hover {
+	text-decoration:none;
+	background-position: left -50px
+}
+div.conekta-payment-errors {
+	margin: 0 0 10px 0;
+	padding: 10px;
+	border: 1px solid #900;
+	font-size: 13px;
+	background: #FCC;
+	display: none;
+}
+#conekta-translations, #conekta-ajax-loader { display: none; }
+#conekta_save_token { vertical-align: top; }
+#conekta-payment-form input, #conekta-payment-form select { margin-left: 0; }
+
+
+p.payment_module, div.payment_module{
+    margin-bottom: 10px;
+}
+
+p.payment_module a, div.payment_module a{
+    display: block;
+    border: 1px solid #d6d4d4;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    border-radius: 4px;
+    font-size: 17px;
+    line-height: 23px;
+    color: #333;
+    font-weight: bold;
+    padding: 33px 40px 34px 99px;
+    letter-spacing: -1px;
+    position: relative;
+    background: 15px 15px no-repeat #fbfbfb;
+    cursor:pointer;
+}
+
+div.payment_module a, p.payment_module a:after {
+    display: block;
+    content: "\f054";
+    position: absolute;
+    right: 15px;
+    margin-top: -11px;
+    top: 50%;
+    font-family: "FontAwesome";
+    font-size: 25px;
+    height: 22px;
+    width: 14px;
+    color: #777777;
+}
+
+.conekta-payment-form
+{
+display:none;
+}
+
+.conekta-payment-form.active {
+display:block;
+}
+
+
+p.conekta-payment-module.payment_module.cash-option a.conekta_title{
+background: url(../img/oxxo.png) 25px 38px no-repeat #fbfbfb;
+}
+
+p.conekta-payment-module.payment_module.card-option a.conekta_title{
+background: url(../img/cards.png) 25px 22px no-repeat #fbfbfb;
+}
+
+p.conekta-payment-module.payment_module.spei-option a.conekta_title{
+background: url(../img/spei.png) 20px 30px no-repeat #fbfbfb;
+}
+p.conekta-payment-module.payment_module.banorte-option a.conekta_title{
+background: url(../img/banorte.png) 20px 30px no-repeat #fbfbfb;
+}
+div.conekta-payment-module.payment_module.active a, p.conekta-payment-module.payment_module.active a:after {
+content:"\f078";
+padding-right: 20px;
+}
+
+

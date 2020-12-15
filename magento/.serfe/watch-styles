@@ -1,2 +1,0 @@
-#!/bin/bash
-docker-compose exec --user app -p 35729:35729 phpfpm bash -c "npm install --no-update-check && grunt exec:linio && grunt less:linio && grunt watch:linio -vv"

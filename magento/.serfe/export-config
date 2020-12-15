@@ -1,3 +1,0 @@
-#!/bin/bash
-echo 'Exports M2 configuration into app/etc/config.php';
-docker-compose exec --user app phpfpm ./vendor/bin/m2-ece-scd-dump
