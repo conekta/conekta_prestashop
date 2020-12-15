@@ -1,0 +1,15 @@
+{shop_url}
+
+Hola {firstname} {lastname},
+
+ID Pedido {order_name} - Pedido modificado
+
+Su pedido con número de referencia {order_name} de {shop_name} ha sido modificado por el comerciante.
+
+Diríjase a su cuenta de cliente para obtener más información al respecto.
+
+Si tiene una cuenta de invitado, puede seguir su pedido desde la sección: ["Seguimiento de invitado"]({guest_tracking_url}) de nuestra tienda.
+
+[{shop_name}]({shop_url})
+
+Powered by [PrestaShop](https://www.prestashop.com/?utm_source=marchandprestashop&utm_medium=e-mail=utm_campaign=footer_1-7)

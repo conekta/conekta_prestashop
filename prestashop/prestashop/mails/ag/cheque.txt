@@ -1,0 +1,27 @@
+{shop_url}
+
+Hola {firstname} {lastname},
+
+¡Gracias por comprar en {shop_name}!
+
+ID Pedido {order_name} - En espera de pago con cheque
+
+Su pedido con la referencia {order_name} ha sido completado correctamente y será enviado tan pronto como recibamos tu pago.
+
+Método de pago: cheque
+
+Ha elegido pagar por transferencia bancaria. Aquí está la información que necesita para realizar el cheque:
+
+Importe:  {total_paid}
+
+Páguese a la orden de:  {check_name}
+
+Por favor, envíe su cheque a:  {check_address_html}
+
+Siga su pedido y descargue su factura en nuestra tienda, vaya a la sección [Mis pedidos y detalles]({history_url}) en su cuenta de cliente.
+
+Si tiene una cuenta de invitado, puede seguir su pedido desde la sección: ["Seguimiento de invitado"]({guest_tracking_url}) de nuestra tienda.
+
+[{shop_name}]({shop_url})
+
+Powered by [PrestaShop](https://www.prestashop.com/?utm_source=marchandprestashop&utm_medium=e-mail=utm_campaign=footer_1-7)

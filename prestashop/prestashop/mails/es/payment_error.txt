@@ -1,0 +1,17 @@
+{shop_url}
+
+Hola {firstname} {lastname},
+
+ID Pedido {order_name} - Error en pago
+
+Hemos encontrado un error al procesar el pago de su pedido con la referencia {order_name} de {shop_name}. Por favor, contacte con nosotros lo antes posible.
+
+El envío se realizará tan pronto como su pago sea recibido.
+
+Siga su pedido y descargue su factura en nuestra tienda, vaya a la sección [Mis pedidos y detalles]({history_url}) en su cuenta de cliente.
+
+Si tiene una cuenta de invitado, puede seguir su pedido desde la sección: ["Seguimiento de invitado"]({guest_tracking_url}) de nuestra tienda.
+
+[{shop_name}]({shop_url})
+
+Powered by [PrestaShop](https://www.prestashop.com/?utm_source=marchandprestashop&utm_medium=e-mail=utm_campaign=footer_1-7)

@@ -1,0 +1,15 @@
+{shop_url}
+
+Hola {firstname} {lastname},
+
+ID Pedido {order_name} - Reembolso procesado
+
+Hemos procesado su reembolso para su pedido con la referencia {order_name} de {shop_name}.
+
+Siga su pedido y descargue su factura en nuestra tienda, vaya a la sección [Mis pedidos y detalles]({history_url}) en su cuenta de cliente.
+
+Si tiene una cuenta de invitado, puede seguir su pedido desde la sección: ["Seguimiento de invitado"]({guest_tracking_url}) de nuestra tienda.
+
+[{shop_name}]({shop_url})
+
+Powered by [PrestaShop](https://www.prestashop.com/?utm_source=marchandprestashop&utm_medium=e-mail=utm_campaign=footer_1-7)

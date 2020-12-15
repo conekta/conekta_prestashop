@@ -1,0 +1,13 @@
+{shop_url}
+
+Hola {firstname} {lastname},
+
+Se ha generado el código del cupón
+
+Aquí está su nuevo código de cupón: {voucher_num}
+
+Para utilizarlo, simplemente copie/pegue este código durante el proceso de pago.
+
+[{shop_name}]({shop_url})
+
+Powered by [PrestaShop](https://www.prestashop.com/?utm_source=marchandprestashop&utm_medium=e-mail=utm_campaign=footer_1-7)

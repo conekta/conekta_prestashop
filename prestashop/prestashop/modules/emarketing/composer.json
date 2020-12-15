@@ -1,0 +1,12 @@
+{
+  "autoload": {
+    "psr-4": {
+      "Emarketing\\": "classes/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\Emarketing\\": "tests/"
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{shop_url}
+
+{firstname_friend} {lastname_friend}, Join us!
+
+Your friend {firstname} {lastname} wants to refer you on [{shop_name}]({shop_url})!
+
+We are pleased to offer you a voucher worth {discount} that you can use on your next order. Get referred and earn a discount voucher of {discount}!
+
+[It's very easy to sign up, just click here!]({link})
+
+When signing up, don't forget to provide the email address of your referring friend: {email}.
+
+Best regards,
+
+[{shop_name}]({shop_url})
+
+Powered by [PrestaShop](https://www.prestashop.com/?utm_source=marchandprestashop&utm_medium=e-mail=utm_campaign=footer_1-7)
