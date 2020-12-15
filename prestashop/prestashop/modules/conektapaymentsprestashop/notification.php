@@ -45,16 +45,13 @@ if ($event_json->type == 'order.paid' && isset($event_json->data)) {
             Db::getInstance()->Execute('UPDATE ' . _DB_PREFIX_ . 'conekta_transaction SET status = "paid" WHERE id_order = ' . pSQL($id_order));
         }
     }
-}
-
-if ($event_json->type == 'order.expired' && isset($event_json->data)) {
-
+}elseif($event_json->type == 'order.expired' && isset($event_json->data)) {
     $conekta_order = $event_json->data->object;
-    
+        
     $reference_id           = (integer) $conekta_order->metadata->reference_id;
     $id_order               = Order::getOrderByCartId($reference_id);
-    Db::getInstance()->Execute('UPDATE ' . _DB_PREFIX_ . 'ps_orders SET current_state = "8" WHERE id_order = ' . pSQL($id_order));
-    
+    Db::getInstance()->Execute('UPDATE ' . _DB_PREFIX_ . 'orders SET current_state = 8 WHERE id_order = ' . pSQL($id_order));
+   
 }
 
 

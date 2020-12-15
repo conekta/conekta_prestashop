@@ -843,6 +843,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
         $events = array(
             "events" => array(
                 "order.paid",
+                "order.expired",
             )
         );
 
@@ -1060,7 +1061,6 @@ class ConektaPaymentsPrestashop extends PaymentModule
                     'payment_method' => array(
                         'type' => 'oxxo_cash',   
                         'expires_at' => time() + Configuration::get('EXPIRATION_DATE_LIMIT') * (Configuration::get('EXPIRATION_DATE_TYPE') == 0 ? 86400 : 3600),               
-                        //'expires_at' => time() + 5,
                     ),
                     'amount' => $amount
                 );
