@@ -134,3 +134,4 @@ class CustomerTest extends BaseTest
     $this->assertTrue(strlen($source['reference']) == 14);
   }
 }
+?>

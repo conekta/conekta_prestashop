@@ -41,3 +41,4 @@ class Subscription extends ConektaResource
     return parent::_customAction('post', 'resume');
   }
 }
+?>

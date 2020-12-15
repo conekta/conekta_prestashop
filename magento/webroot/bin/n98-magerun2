@@ -1,2 +1,0 @@
-#!/bin/bash
-su -c "/usr/local/bin/php /var/www/html/bin/n98-magerun2.phar $*" -s /bin/sh www-data

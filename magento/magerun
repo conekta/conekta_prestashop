@@ -1,2 +1,0 @@
-#!/bin/bash
-docker-compose exec phpfpm bin/n98-magerun2 $@

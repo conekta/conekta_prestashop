@@ -91,3 +91,5 @@ class SubscriptionTest extends BaseTest
     $this->assertTrue(strpos($subscription->status, 'canceled') !== false);
   }
 }
+
+?>

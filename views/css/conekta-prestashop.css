@@ -100,12 +100,13 @@ div.payment_module a, p.payment_module a:after {
 {
 display:none;
 }
-  
+
 .conekta-payment-form.active {
 display:block;
 }
 
-p.conekta-payment-module.payment_module.cash-option a.conekta_title{   
+
+p.conekta-payment-module.payment_module.cash-option a.conekta_title{
 background: url(../img/oxxo.png) 25px 38px no-repeat #fbfbfb;
 }
 

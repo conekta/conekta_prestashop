@@ -66,3 +66,5 @@ class ShippingLineTest extends BaseTest
     }
   }
 }
+
+?>

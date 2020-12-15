@@ -32,3 +32,4 @@ class ShippingLine extends ConektaResource
         return parent::_delete('order', 'shipping_lines');
     }
 }
+?>
