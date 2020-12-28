@@ -110,3 +110,5 @@ class ErrorHandlerTest extends BaseTest
   }
 
 }
+
+?>

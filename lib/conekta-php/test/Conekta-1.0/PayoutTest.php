@@ -60,3 +60,4 @@ class PayoutTest extends BaseTest
         //$this->assertTrue(count($payout->transactions) == 0); // Not it the response
   }
 }
+?>

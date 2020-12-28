@@ -30,3 +30,4 @@ class Token extends ConektaResource
       return parent::_scpFind($class, $id);
     }
   }
+?>

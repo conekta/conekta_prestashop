@@ -14,3 +14,4 @@ class LangTest extends BaseTest
 		$this->assertTrue( $langEsTest == $langEsOut);
 	}
 }
+?>

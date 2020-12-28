@@ -49,3 +49,4 @@ class DiscountLine extends ConektaResource
     return parent::_delete('order', 'discount_lines');
   }
 }
+?>

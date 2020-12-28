@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8" ?><rss version="2.0" xml:base="https://www.prestashop.com/en/blog/feed.xml" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:og="http://ogp.me/ns#" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:foaf="http://xmlns.com/foaf/0.1/" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:sioc="http://rdfs.org/sioc/ns#" xmlns:sioct="http://rdfs.org/sioc/types#" xmlns:skos="http://www.w3.org/2004/02/skos/core#" xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+  <channel>
+    <title>Blog Feed</title>
+    <link>https://www.prestashop.com/en/blog/feed.xml</link>
+    <description></description>
+    <language>en</language>
+     <atom:link href="https://www.prestashop.com/en/blog/feed.xml" rel="self" type="application/rss+xml" />
+      <item>
+    <title>How to create the perfect team for your e-commerce</title>
+    <link>https://www.prestashop.com/en/blog/perfect-team-e-commerce</link>
+    <description>You&#039;ve had an idea for an e-commerce that seems to work great and all you need now is a good team of trustworthy and professional people to entrust with the different tasks to get the machine runni</description>
+     <pubDate>Thu, 10 Dec 2020 15:26:29 +0100</pubDate>
+ <dc:creator>luca mastroianni</dc:creator>
+ <guid isPermaLink="false">https://www.prestashop.com/en/blog/perfect-team-e-commerce</guid>
+  </item>
+  <item>
+    <title>Essential tips for successful holiday deliveries</title>
+    <link>https://www.prestashop.com/en/blog/tips-holiday-deliveries</link>
+    <description>The Holiday season is certainly the busiest time of the year for e-merchants. This is why it is important to prepare for it as early and effectively as possible.</description>
+     <pubDate>Mon, 07 Dec 2020 15:24:08 +0100</pubDate>
+ <dc:creator>Lucie Gimon EN</dc:creator>
+ <guid isPermaLink="false">https://www.prestashop.com/en/blog/tips-holiday-deliveries</guid>
+  </item>
+  <item>
+    <title>E-commerce and environmental sustainability: from logistics to sustainable packaging</title>
+    <link>https://www.prestashop.com/en/blog/ecommerce-environmental-sustainability</link>
+    <description>Each e-commerce project has something unique and different to offer the world.</description>
+     <pubDate>Tue, 01 Dec 2020 11:22:59 +0100</pubDate>
+ <dc:creator>luca mastroianni</dc:creator>
+ <guid isPermaLink="false">https://www.prestashop.com/en/blog/ecommerce-environmental-sustainability</guid>
+  </item>
+  <item>
+    <title>Effective supply chain strategies for ecommerce business</title>
+    <link>https://www.prestashop.com/en/blog/effective-supply-chain</link>
+    <description>Ecommerce: An ever-expanding domain having innumerous opportunity and scope for development.</description>
+     <pubDate>Mon, 30 Nov 2020 14:48:09 +0100</pubDate>
+ <dc:creator>Piyush Singh</dc:creator>
+ <guid isPermaLink="false">https://www.prestashop.com/en/blog/effective-supply-chain</guid>
+  </item>
+  <item>
+    <title>End-of-year sales... let&amp;#039;s go!</title>
+    <link>https://www.prestashop.com/en/blog/end-of-year-sales</link>
+    <description>Black Friday has become an essential business event in many countries, and usually marks the start of holiday sales.</description>
+     <pubDate>Thu, 26 Nov 2020 16:49:13 +0100</pubDate>
+ <dc:creator>PrestaShop Team</dc:creator>
+ <guid isPermaLink="false">https://www.prestashop.com/en/blog/end-of-year-sales</guid>
+  </item>
+  <item>
+    <title>Engagement, interactivity, conversion: How to enhance your product page with 3D content</title>
+    <link>https://www.prestashop.com/en/blog/product-3d-content</link>
+    <description>According to Baymard, an independent web usability research institute that conducted a 2 year-long in-depth study on product page UX, of the </description>
+     <pubDate>Thu, 19 Nov 2020 16:52:45 +0100</pubDate>
+ <dc:creator>Kosta Popov</dc:creator>
+ <guid isPermaLink="false">https://www.prestashop.com/en/blog/product-3d-content</guid>
+  </item>
+  <item>
+    <title>What is click &amp;amp; collect, and how can I set it up quickly?</title>
+    <link>https://www.prestashop.com/en/blog/click-collect-service</link>
+    <description>How to efficiently set up a 10 point click and collect service for your shop.</description>
+     <pubDate>Mon, 16 Nov 2020 15:30:38 +0100</pubDate>
+ <dc:creator>PrestaShop Team</dc:creator>
+ <guid isPermaLink="false">https://www.prestashop.com/en/blog/click-collect-service</guid>
+  </item>
+  <item>
+    <title>Three tips for upgrading your return process instantly </title>
+    <link>https://www.prestashop.com/en/blog/tips-upgrading-returns</link>
+    <description>How to improve your return process management without additional costs?</description>
+     <pubDate>Thu, 12 Nov 2020 18:04:26 +0100</pubDate>
+ <dc:creator>Marek Duda</dc:creator>
+ <guid isPermaLink="false">https://www.prestashop.com/en/blog/tips-upgrading-returns</guid>
+  </item>
+  <item>
+    <title>PrestaShop is committed to supporting commerce</title>
+    <link>https://www.prestashop.com/en/blog/prestashop-supporting-commerce</link>
+    <description>Dear members of the PrestaShop ecosystem,</description>
+     <pubDate>Fri, 06 Nov 2020 17:12:39 +0100</pubDate>
+ <dc:creator>Alexandre Eruimy</dc:creator>
+ <guid isPermaLink="false">https://www.prestashop.com/en/blog/prestashop-supporting-commerce</guid>
+  </item>
+  <item>
+    <title>Three predictions for festive season shopping in 2020</title>
+    <link>https://www.prestashop.com/en/blog/predictions-shopping-2020</link>
+    <description>The 2020 festive season will be unlike any other.</description>
+     <pubDate>Fri, 06 Nov 2020 17:09:49 +0100</pubDate>
+ <dc:creator>Edwina Yvonne Dendler</dc:creator>
+ <guid isPermaLink="false">https://www.prestashop.com/en/blog/predictions-shopping-2020</guid>
+  </item>
+  </channel>
+</rss>

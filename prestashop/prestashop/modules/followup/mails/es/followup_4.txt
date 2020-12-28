@@ -1,0 +1,19 @@
+{shop_url}
+
+Hola {firstname} {lastname},
+
+Su carrito de compra en {shop_name}
+
+Usted es uno de nuestros mejores clientes, sin embargo, no ha realizado ningún pedido desde hace {days_threshold} días.
+
+Su carrito ha sido guardado, puede reanudar su pedido visitando nuestra tienda: {shop_url}
+
+Nos complace ofrecerle un descuento de un {amount}% en su próximo pedido. Esta oferta es solamente válida durante {days} días, ¡así que no espere más!
+
+Aquí está su CÓDIGO DE CUPÓN DE DESCUENTO: {voucher_num}
+
+Introduzca este código en su carrito de compra para obtener el descuento.
+
+[{shop_name}]({shop_url})
+
+Powered by [PrestaShop](https://www.prestashop.com/?utm_source=marchandprestashop&utm_medium=e-mail=utm_campaign=footer_1-7)

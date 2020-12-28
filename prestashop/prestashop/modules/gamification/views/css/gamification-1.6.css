@@ -1,0 +1,14 @@
+.material-icons {
+  display: none;
+}
+
+#gamification_notif .icon-chevron-right {
+  display: inline;
+  font-size: 12px !important;
+}
+
+.bootstrap #header_infos .gamification_notif #gamification_notif_number_wrapper {
+  right: 0;
+  line-height: 1rem;
+  border: none;
+}

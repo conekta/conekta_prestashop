@@ -7,3 +7,4 @@ use \Conekta\ConektaResource;
 class WebhookLog extends ConektaResource
 {
 }
+?>

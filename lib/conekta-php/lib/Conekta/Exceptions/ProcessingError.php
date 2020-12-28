@@ -7,3 +7,4 @@ use \Exception;
 class ProcessingError extends Handler
 {
 }
+?>

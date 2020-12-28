@@ -8,3 +8,4 @@ use \Exception;
 class NoConnectionError extends Handler
 {
 }
+?>

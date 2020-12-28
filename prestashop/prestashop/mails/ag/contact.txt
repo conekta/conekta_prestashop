@@ -1,0 +1,17 @@
+{shop_url}
+
+Mensaje de un cliente de {shop_name}
+
+Dirección de correo electrónico del cliente: {email}
+
+ID del Pedido #:  {order_name}
+
+Archivo adjunto: {attached_file}
+
+Mensaje del cliente:
+
+{message}
+
+[{shop_name}]({shop_url})
+
+Powered by [PrestaShop](https://www.prestashop.com/?utm_source=marchandprestashop&utm_medium=e-mail=utm_campaign=footer_1-7)

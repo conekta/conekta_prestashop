@@ -1,0 +1,4 @@
+<?php return array (
+  0 => 9223372036854775807,
+  1 => 'a:1:{i:0;O:50:"PrestaShopBundle\\Security\\Annotation\\AdminSecurity":7:{s:9:"' . "\0" . '*' . "\0" . 'domain";s:25:"Admin.Notifications.Error";s:16:"' . "\0" . '*' . "\0" . 'redirectRoute";N;s:6:"' . "\0" . '*' . "\0" . 'url";s:12:"admin_domain";s:28:"' . "\0" . '*' . "\0" . 'redirectQueryParamsToKeep";a:0:{}s:69:"' . "\0" . 'Sensio\\Bundle\\FrameworkExtraBundle\\Configuration\\Security' . "\0" . 'expression";s:69:"is_granted([\'read\', \'create\', \'update\', \'delete\'], \'ADMINMODULESSF_\')";s:13:"' . "\0" . '*' . "\0" . 'statusCode";N;s:10:"' . "\0" . '*' . "\0" . 'message";s:14:"Access denied.";}}',
+);

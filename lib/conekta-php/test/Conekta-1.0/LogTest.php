@@ -22,3 +22,4 @@ class LogTest extends BaseTest
     $this->assertTrue(strpos(get_class($logs[0]), 'Conekta\ConektaObject') !== false);
   }
 }
+?>

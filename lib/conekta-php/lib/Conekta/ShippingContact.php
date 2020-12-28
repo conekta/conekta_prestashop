@@ -51,3 +51,4 @@ class ShippingContact extends ConektaResource
     return parent::_delete('customer', 'shipping_contacts');
   }
 }
+?>

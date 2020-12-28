@@ -276,3 +276,6 @@ class OrderTest extends BaseTest
     $this->assertTrue($order->charges[0]->status == 'paid');
   }
 }
+
+
+?>

@@ -6,3 +6,4 @@ use \Exception;
 class MalformedRequestError extends Handler
 {
 }
+?>

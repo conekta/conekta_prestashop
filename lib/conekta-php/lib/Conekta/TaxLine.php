@@ -32,3 +32,4 @@ class TaxLine extends ConektaResource
     return parent::_delete('order', 'tax_lines');
   }
 }
+?>

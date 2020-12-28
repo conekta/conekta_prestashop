@@ -1,0 +1,35 @@
+{
+    "name": "prestashop/psaddonsconnect",
+    "description": "PrestaShop module for addons connection",
+    "homepage": "https://gitlab.com/ps-addons/psaddonsconnect",
+    "license": "AFL - Academic Free License (AFL 3.0)",
+    "authors": [
+      {
+        "name": "PrestaShop SA",
+        "email": "contact@prestashop.com"
+      }
+    ],
+    "require": {
+      "php": ">=5.6.0",
+      "prestashop/circuit-breaker": "^3.0.0",
+      "doctrine/cache": "^1.6",
+      "guzzlehttp/cache-subscriber": "dev-master"
+    },
+    "autoload": {
+      "psr-4": {
+        "PrestaShop\\Module\\AddonsConnect\\": "src/"
+      },
+      "classmap": ["psaddonsconnect.php"],
+      "exclude-from-classmap": []
+    },
+    "config": {
+      "preferred-install": "dist",
+      "prepend-autoloader": false,
+      "optimize-autoloader": true
+    },
+    "type": "prestashop-module",
+    "require-dev": {
+        "prestashop/php-coding-standards": "dev-master",
+        "phpstan/phpstan": "^0.11.12"
+    }
+}

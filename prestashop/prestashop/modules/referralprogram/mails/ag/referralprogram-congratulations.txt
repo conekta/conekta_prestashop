@@ -1,0 +1,13 @@
+{shop_url}
+
+¡Enhorabuena!
+
+¡Su amigo referido {sponsored_firstname} {sponsored_lastname} ha realizado su primera compra en [{shop_name}]({shop_url})!
+
+Nos complace ofrecerle un cupón de descuento valorado en {discount_display} (CUPÓN # {discount_name}) para que lo utilice en su próximo pedido.
+
+Saludos.
+
+[{shop_name}]({shop_url})
+
+Powered by [PrestaShop](https://www.prestashop.com/?utm_source=marchandprestashop&utm_medium=e-mail=utm_campaign=footer_1-7)

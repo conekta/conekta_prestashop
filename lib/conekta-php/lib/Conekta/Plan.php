@@ -54,3 +54,4 @@ class Plan extends ConektaResource
       return parent::_scpWhere($class, $params);
     }
   }
+?>

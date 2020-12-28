@@ -65,3 +65,5 @@ class DiscountLineTest extends BaseTest
   }
 
 }
+
+?>

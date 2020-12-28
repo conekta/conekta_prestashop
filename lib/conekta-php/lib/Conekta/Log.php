@@ -43,3 +43,4 @@ class Log extends ConektaResource
     return parent::_scpWhere($class, $params);
   }
 }
+?>

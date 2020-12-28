@@ -82,3 +82,4 @@ class ConektaList extends ConektaObject
     return $this->loadFromArray($response);
   }
 }
+?>

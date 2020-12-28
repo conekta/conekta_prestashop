@@ -60,3 +60,4 @@ class PlanTest extends BaseTest
     $this->assertTrue($plan->deleted == true);
   }
 }
+?>

@@ -27,3 +27,4 @@ class Payout extends ConektaResource
     return parent::_scpCreate($class, $params);
   }
 }
+?>
