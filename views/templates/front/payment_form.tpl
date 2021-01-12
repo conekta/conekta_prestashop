@@ -32,7 +32,7 @@
 {if isset($smarty.get.conekta_error)}<div class="conekta-payment-errors">{l s='There was a problem processing your credit card, please double check your data and try again.' mod='conektapaymentsprestashop'}</div>{/if}
   <p>
     <label>{l s='Nombre del Tarjetahabiente' mod='conektapaymentsprestashop'}</label>
-    <input type="text" autocomplete="off" class="conekta-card-name" data-conekta="card[name]">
+    <input type="text" autocomplete="off" class="conekta-card-name" data-conekta="card[name]" onKeypress="validateKey();" >
   </p>
 
   <div>
