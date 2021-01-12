@@ -43,21 +43,27 @@ if ($event_json->type == 'order.paid' && isset($event_json->data)) {
             $orderHistory->changeIdOrderState((int) Configuration::get('PS_OS_PAYMENT'), (int) $order->id);
             $orderHistory->addWithEmail();
             Db::getInstance()->Execute('UPDATE ' . _DB_PREFIX_ . 'conekta_transaction SET status = "paid" WHERE id_order = ' . pSQL($id_order));
-            Db::getInstance()->Execute('UPDATE ' . _DB_PREFIX_ . 'ps_orders SET current_state = "10" WHERE id_order = ' . pSQL($id_order));
         }
     }
-}elseif(($event_json->type == 'order.expired' || $event_json->type == 'order.canceled') && isset($event_json->data)) {
-    $conekta_order = $event_json->data->object;
-        
-    $reference_id           = (integer) $conekta_order->metadata->reference_id;
-    $id_order               = $reference_id;
-    Db::getInstance()->Execute('UPDATE ' . _DB_PREFIX_ . 'orders SET current_state = 6 WHERE id_order = ' . pSQL($id_order));
-   
-}elseif(($event_json->type == 'order.refunded' && isset($event_json->data)) {
+}elseif($event_json->type == 'order.expired' && isset($event_json->data)) {
   $conekta_order = $event_json->data->object;
       
   $reference_id           = (integer) $conekta_order->metadata->reference_id;
-  $id_order               = $reference_id;
+  $id_order               = Order::getOrderByCartId($reference_id);
+  Db::getInstance()->Execute('UPDATE ' . _DB_PREFIX_ . 'orders SET current_state = 6 WHERE id_order = ' . pSQL($id_order));
+
+}elseif($event_json->type == 'order.canceled' && isset($event_json->data)) {
+  $conekta_order = $event_json->data->object;
+      
+  $reference_id           = (integer) $conekta_order->metadata->reference_id;
+  $id_order               = Order::getOrderByCartId($reference_id);
+  Db::getInstance()->Execute('UPDATE ' . _DB_PREFIX_ . 'orders SET current_state = 6 WHERE id_order = ' . pSQL($id_order));
+  
+}elseif($event_json->type == 'order.refunded' && isset($event_json->data)) {
+  $conekta_order = $event_json->data->object;
+      
+  $reference_id           = (integer) $conekta_order->metadata->reference_id;
+  $id_order               = Order::getOrderByCartId($reference_id);
   Db::getInstance()->Execute('UPDATE ' . _DB_PREFIX_ . 'orders SET current_state = 7 WHERE id_order = ' . pSQL($id_order));
 }
 
