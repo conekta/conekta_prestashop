@@ -1025,6 +1025,9 @@ class ConektaPaymentsPrestashop extends PaymentModule
         $order_details['customer_info']    = Config::getCustomerInfo($customer, $address_delivery);
         $order_details['shipping_lines']   = Config::getShippingLines($shp_service, $shp_carrier, $shp_price);
         $order_details['shipping_contact'] = Config::getShippingContact($customer, $address_delivery, $state, $country);
+        $order_details['metadata']         = array(
+                "reference_id" => (int) $this->context->cart->id,
+            );
 
         $amount = 0;
 
@@ -1051,25 +1054,6 @@ class ConektaPaymentsPrestashop extends PaymentModule
         }
 
         try {
-            // CREATE PRESTASHOP ORDER
-            switch ($type) {
-                case "cash":
-                    $order_status = (int) Configuration::get('waiting_cash_payment');
-                    break;
-                case "spei":
-                    $order_status = (int) Configuration::get('waiting_spei_payment');
-                    break;
-                default:
-                    $order_status = (int) Configuration::get('PS_OS_PAYMENT');
-            } 
-
-            $this->validateOrder((int) $this->context->cart->id, (int) $order_status, $amount / 100, $this->displayName, null, array(), null, false, $this->context->customer->secure_key);
-            $ps_new_order = Order::getOrderByCartId((int) $this->context->cart->id);
-            $order_details['metadata']  = array(
-                "reference_id" => $ps_new_order,
-            );
-
-            // CREATE CONEKTA ORDER
             $order = \Conekta\Order::create($order_details);
 
             if ($type == "cash") {
@@ -1085,6 +1069,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 $charge_response           = $order->createCharge($charge_params);
                 $barcode_url               = $charge_response->payment_method->reference;
                 $reference                 = $charge_response->payment_method->reference;
+                $order_status    = (int) Configuration::get('waiting_cash_payment');
                 $message                   = $this->l('Conekta Transaction Details:') . "\n\n" . $this->l('Reference:') . ' ' . $reference . "\n" . $this->l('Barcode:') . ' ' . $barcode_url . "\n" . $this->l('Amount:') . ' ' . ($charge_response->amount * 0.01) . "\n" . $this->l('Processed on:') . ' ' . strftime('%Y-%m-%d %H:%M:%S', $charge_response->created_at) . "\n" . $this->l('Currency:') . ' ' . Tools::strtoupper($charge_response->currency) . "\n" . $this->l('Mode:') . ' ' . ($charge_response->livemode == 'true' ? $this->l('Live') : $this->l('Test')) . "\n";
                 $checkout                  = Module::getInstanceByName('conektapaymentsprestashop');
                 $checkout->extra_mail_vars = array(
@@ -1100,6 +1085,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
 
                 $charge_response = $order->createCharge($charge_params);
                 $reference       = $charge_response->payment_method->clabe;
+                $order_status    = (int)Configuration::get('waiting_spei_payment');
                 $message         = $this->l('Conekta Transaction Details:') . "\n\n" . $this->l('Reference:') . ' ' . $reference . "\n" . $this->l('Amount:') . ' ' . ($charge_response->amount * 0.01) . "\n" . $this->l('Processed on:') . ' ' . strftime('%Y-%m-%d %H:%M:%S', $charge_response->created_at) . "\n" . $this->l('Currency:') . ' ' . Tools::strtoupper($charge_response->currency) . "\n" . $this->l('Mode:') . ' ' . ($charge_response->livemode == 'true' ? $this->l('Live') : $this->l('Test')) . "\n";
                 $checkout        = Module::getInstanceByName('conektapaymentsprestashop');
 
@@ -1122,28 +1108,12 @@ class ConektaPaymentsPrestashop extends PaymentModule
                         'monthly_installments' => $monthly_installments
                     ));
                 }
-
                 $charge_response = $order->createCharge($charge_params);
+                $order_status    = (int)Configuration::get('PS_OS_PAYMENT');
                 $message         = $this->l('Conekta Transaction Details:') . "\n\n" . $this->l('Amount:') . ' ' . ($charge_response->amount * 0.01) . "\n" . $this->l('Status:') . ' ' . ($charge_response->status == 'paid' ? $this->l('Paid') : $this->l('Unpaid')) . "\n" . $this->l('Processed on:') . ' ' . strftime('%Y-%m-%d %H:%M:%S', $charge_response->created_at) . "\n" . $this->l('Currency:') . ' ' . Tools::strtoupper($charge_response->currency) . "\n" . $this->l('Mode:') . ' ' . ($charge_response->livemode == 'true' ? $this->l('Live') : $this->l('Test')) . "\n";
             }
 
-            // ATTACH MESSAGE TO NEW ORDER
-            
-            if (isset($message) & !empty($message)) {
-                $msg = new Message();
-                $message = strip_tags($message, '<br>');
-                if (Validate::isCleanHtml($message)) {
-                    if (self::DEBUG_MODE) {
-                        PrestaShopLogger::addLog('PaymentModule::validateOrder - Message is about to be added', 1, null, 'Cart', (int) $id_cart, true);
-                    }
-                    $msg->message = $message;
-                    $msg->id_cart = (int) $this->context->cart->id;
-                    $msg->id_customer = (int) ($this->context->customer->id);
-                    $msg->id_order = (int) $ps_new_order;
-                    $msg->private = 1;
-                    $msg->add();
-                }
-            }
+	    $this->validateOrder((int) $this->context->cart->id, (int) $order_status, $order->amount / 100, $this->displayName, $message, array(), null, false, $this->context->customer->secure_key);
 
             if (version_compare(_PS_VERSION_, '1.5', '>=')) {
                 $new_order = new Order((int) $this->currentOrder);
