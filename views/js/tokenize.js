@@ -46,13 +46,13 @@ if ( $.mobile ) {
 		conektaSuccessResponseHandler(token);
 	}
  }
- 
+
  function conektaSetup()
  {
 	if (!$('#conekta-payment-form').length){
 		return false;
 	}
-	 
+
 	var cardComponent = {
 		idElement: 'conekta-card-number',
 		style: {
@@ -75,11 +75,11 @@ if ( $.mobile ) {
 	};
 
 	renderComponents(conekta_public_key, cardComponent, cvcComponent);
-	 
+
 	 //since we are using smarty html_select_date custom function
 	 $('#conekta-card-expiry-month').removeAttr('name');
-	 $('#conekta-card-expiry-year').removeAttr('name');	
- 
+	 $('#conekta-card-expiry-year').removeAttr('name');
+
 	 $('#conekta-payment-form').submit(function(event) {
 		 var $form = $('#conekta-payment-form');
 		   if( $form.find('[name=conektaToken]').length) {
@@ -97,13 +97,13 @@ if ( $.mobile ) {
 		 }
 	 });
  }
- 
+
  var conektaSuccessResponseHandler = function(response) {
 	 var $form = $('#conekta-payment-form');
 	 $form.append($('<input type="hidden" name="conektaToken" id="conektaToken" />').val(response.id));
 	 $form.get(0).submit();
  };
- 
+
  var conektaErrorResponseHandler = function(token) {
 	if ($('.conekta-payment-errors').length)
 		$('.conekta-payment-errors').fadeIn(1000);
@@ -113,4 +113,10 @@ if ( $.mobile ) {
 		$('.conekta-payment-errors').fadeIn(1000);
 	}
  };
- 
+
+ function validateKey(){
+	 if ((event.keyCode >= 65 && event.keyCode <= 90 ) || (event.keyCode >= 97 && event.keyCode <= 122) || (event.keyCode == 32 ) || (event.keyCode == 46))
+		 event.returnValue = true;
+	 else
+		 event.returnValue = false;
+}
