@@ -157,7 +157,19 @@ class ConektaPaymentsPrestashop extends PaymentModule
             }
         }
 
-        if (!parent::install() || !$this->createPendingCashState() || !$this->createPendingSpeiState() || !$this->registerHook('header') || !$this->registerHook('paymentOptions') || !$this->registerHook('paymentReturn') || !$this->registerHook('adminOrder') && Configuration::updateValue('PAYMENT_METHS_CARD', 1) && Configuration::updateValue('PAYMENT_METHS_INSTALLMET', 1) && Configuration::updateValue('PAYMENT_METHS_CASH', 1) && Configuration::updateValue('PAYMENT_METHS_SPEI', 1) && Configuration::updateValue('MODE', 0) || !Database::installDb()) {
+        if (!parent::install() 
+        || !$this->createPendingCashState() 
+        || !$this->createPendingSpeiState() 
+        || !$this->registerHook('header') 
+        || !$this->registerHook('paymentOptions') 
+        || !$this->registerHook('paymentReturn') 
+        || !$this->registerHook('adminOrder') 
+        || !$this->registerHook('actionOrderReturn') 
+        && Configuration::updateValue('PAYMENT_METHS_CARD', 1) 
+        && Configuration::updateValue('PAYMENT_METHS_INSTALLMET', 1)
+        && Configuration::updateValue('PAYMENT_METHS_CASH', 1) 
+        && Configuration::updateValue('PAYMENT_METHS_SPEI', 1) 
+        && Configuration::updateValue('MODE', 0) || !Database::installDb()) {
             return false;
         }
 
@@ -205,6 +217,17 @@ class ConektaPaymentsPrestashop extends PaymentModule
 
         return $this->fetchTemplate('checkout-confirmation-all.tpl');
     }
+
+    public function hookActionOrderReturn($params)
+    {
+        Tools::redirect("daleboca");        
+        /*Conekta::Order.find($params['orderReturn']->id)
+            order.refund({
+            reason: 'requested_by_client',
+            amount: $params['orderReturn']->id
+        })*/
+    }
+
 
     private function createPendingCashState()
     {
