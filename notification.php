@@ -10,6 +10,9 @@
  *  @version  v2.0.0
  */
 
+use PrestaShop\PrestaShop\Core\CommandBus\CommandBusInterface;
+use PrestaShop\PrestaShop\Core\Domain\Order\Command\IssuePartialRefundCommand;
+
 include(dirname(__FILE__) . '/../../config/config.inc.php');
 include(dirname(__FILE__) . '/../../init.php');
 
@@ -29,7 +32,7 @@ if ($event_json->type == 'order.paid' && isset($event_json->data)) {
     $conekta_order = $event_json->data->object;
     
     $reference_id           = (integer) $conekta_order->metadata->reference_id;
-    $id_order               = $reference_id;
+    $id_order               = Order::getOrderByCartId($reference_id);
     $order                  = new Order($id_order);
     $order_fields           = $order->getFields();
     $currency_payment       = Currency::getPaymentCurrencies(Module::getModuleIdByName('conektapaymentsprestashop'), $order_fields['id_shop']);
@@ -65,6 +68,20 @@ if ($event_json->type == 'order.paid' && isset($event_json->data)) {
   $reference_id           = (integer) $conekta_order->metadata->reference_id;
   $id_order               = Order::getOrderByCartId($reference_id);
   Db::getInstance()->Execute('UPDATE ' . _DB_PREFIX_ . 'orders SET current_state = 7 WHERE id_order = ' . pSQL($id_order));
+
+}elseif($event_json->type == 'order.partially_refunded' && isset($event_json->data)) {
+   /* $conekta_order = $event_json->data->object;
+      
+    $reference_id           = (integer) $conekta_order->metadata->reference_id;
+    $orderId               = Order::getOrderByCartId($reference_id);
+
+    // Instantiate the corresponding command
+    $command = new IssuePartialRefundCommand(
+        $orderId
+    );
+
+    // Give it to the command bus
+    $this->commandBus->handle($command);*/
 }
 
 

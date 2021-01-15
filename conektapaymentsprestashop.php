@@ -164,7 +164,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
         || !$this->registerHook('paymentOptions') 
         || !$this->registerHook('paymentReturn') 
         || !$this->registerHook('adminOrder') 
-        || !$this->registerHook('actionOrderReturn') 
+        || !$this->registerHook('updateOrderStatus') 
         && Configuration::updateValue('PAYMENT_METHS_CARD', 1) 
         && Configuration::updateValue('PAYMENT_METHS_INSTALLMET', 1)
         && Configuration::updateValue('PAYMENT_METHS_CASH', 1) 
@@ -218,16 +218,35 @@ class ConektaPaymentsPrestashop extends PaymentModule
         return $this->fetchTemplate('checkout-confirmation-all.tpl');
     }
 
-    public function hookActionOrderReturn($params)
-    {
-        Tools::redirect("daleboca");        
-        /*Conekta::Order.find($params['orderReturn']->id)
-            order.refund({
-            reason: 'requested_by_client',
-            amount: $params['orderReturn']->id
-        })*/
-    }
+    public function hookUpdateOrderStatus($params)
+    { 
+        if($params['newOrderStatus']->id == 7) //order refunded
+        {
+            $key = Configuration::get('CONEKTA_MODE') ?
+            Configuration::get('CONEKTA_PRIVATE_KEY_LIVE') :
+            Configuration::get('CONEKTA_PRIVATE_KEY_TEST');
+            $iso_code = $this->context->language->iso_code;
 
+            \Conekta\Conekta::setApiKey($key);
+            \Conekta\Conekta::setPlugin("Prestashop1.7");
+            \Conekta\Conekta::setApiVersion("2.0.0");
+            \Conekta\Conekta::setPluginVersion($this->version);
+            \Conekta\Conekta::setLocale($iso_code);
+
+            $id_order = (int) $params['id_order'];
+            $conekta_transaction_details = Database::getOrderById($id_order);
+
+            //only credit card refund
+            if(!$conekta_transaction_details['barcode'] && !(isset($conekta_transaction_details['reference']) && !empty($conekta_transaction_details['reference']))){
+                $order = \Conekta\Order::find($conekta_transaction_details['id_conekta_order']);
+                $order->refund([
+                    'reason' => 'requested_by_client',
+                ]);
+            }      
+        }
+        
+    }
+    
 
     private function createPendingCashState()
     {
@@ -1226,4 +1245,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
             return $this->fetchTemplate("admin-order.tpl");
         }
     }
+
+
 }
+
