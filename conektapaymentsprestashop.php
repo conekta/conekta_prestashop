@@ -246,7 +246,6 @@ class ConektaPaymentsPrestashop extends PaymentModule
         }
         
     }
-    
 
     private function createPendingCashState()
     {
