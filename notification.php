@@ -66,24 +66,7 @@ if ($event_json->type == 'order.paid' && isset($event_json->data)) {
   $id_order               = Order::getOrderByCartId($reference_id);
   Db::getInstance()->Execute('UPDATE ' . _DB_PREFIX_ . 'orders SET current_state = 7 WHERE id_order = ' . pSQL($id_order));
 
-}/*elseif($event_json->type == 'order.partially_refunded' && isset($event_json->data)) {   
-    
-    $conekta_order = $event_json->data->object;
-      
-    $reference_id           = (integer) $conekta_order->metadata->reference_id;
-    $orderId               = Order::getOrderByCartId($reference_id);
-    $refunds = [$orderDetailId => ['quantity' => $conekta_order->line_items->data->quantity,'amount' => $conekta_order->amount_refunded]];
-    
-    // Instantiate the corresponding command
-    $command = new IssuePartialRefundCommand(
-        $orderId,
-        $refunds        
-    );
-
-    // Give it to the command bus
-    $this->commandBus->handle($command);
-}*/
-
+}
 
 function authenticateEvent($body, $digest)
 {
