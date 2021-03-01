@@ -15,8 +15,7 @@
     padding-top: 15px;
     overflow: hidden;
 }
-.conekta-module-header
-img.conekta-logo {
+.conekta-module-header img.conekta-logo {
     float: left;
     margin: 0px 70px 0px 0px;
 }
@@ -47,8 +46,7 @@ a.conekta-module-create-btn {
     text-shadow: 0px -1px 0px #03609e;
 }
 .conekta-module-header
-a.conekta-module-create-btn
-span {
+a.conekta-module-create-btn span {
     background: url(img/bg_btn-blue.png) right bottom no-repeat;
     display: block;
     height: 35px;
@@ -57,7 +55,8 @@ span {
 }
 .conekta-module-wrap {
     background-color: #f7fbff;
-    border: #c3d9ef solid 1px;
+    border: #c3d9ef,
+    solid 1px;
     -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
     border-radius: 5px;
