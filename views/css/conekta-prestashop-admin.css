@@ -15,15 +15,15 @@
     padding-top: 15px;
     overflow: hidden;
 }
-.conekta-module-header,
+.conekta-module-header
 img.conekta-logo {
     float: left;
     margin: 0px 70px 0px 0px;
 }
-.conekta-module-header,
+.conekta-module-header
 span.conekta-module-intro {
-    border-left: #C3D9EF solid 1px;
-    color: #008CDD;
+    border-left: #c3d9ef solid 1px;
+    color: #008cdd;
     display: block;
     float: left;
     font-size: 18px;
@@ -33,7 +33,7 @@ span.conekta-module-intro {
     padding: 11px 0px 0px 20px;
     width: 310px;
 }
-.conekta-module-header,
+.conekta-module-header
 a.conekta-module-create-btn {
     background: url(img/bg_btn-blue.png) left top no-repeat;
     color: #ffffff;
@@ -44,10 +44,10 @@ a.conekta-module-create-btn {
     line-height: 33px;
     margin: 16px 0px 0px 0px;
     padding: 0px 0px 0px 20px;
-    text-shadow: 0px -1px 0px #03609E;
+    text-shadow: 0px -1px 0px #03609e;
 }
-.conekta-module-header,
-a.conekta-module-create-btn,
+.conekta-module-header
+a.conekta-module-create-btn
 span {
     background: url(img/bg_btn-blue.png) right bottom no-repeat;
     display: block;
@@ -56,8 +56,8 @@ span {
     padding: 0px 20px 0px 0px;
 }
 .conekta-module-wrap {
-    background-color: #F7FBFF;
-    border: #C3D9EF solid 1px;
+    background-color: #f7fbff;
+    border: #c3d9ef solid 1px;
     -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
     border-radius: 5px;
@@ -91,17 +91,17 @@ span {
 }
 .conekta-module-wrap,
 .conekta-module-col2inner h3 {
-    border-top: #C3D9EF solid 1px;
+    border-top: #c3d9ef solid 1px;
     padding-top: 20px;
 }
 .conekta-module-wrap h3 {
-    color: #008CDD;
+    color: #008cdd;
     font-size: 18px;
     font-weight: normal;
     line-height: 22px;
     margin: 0px 0px 15px 0px;
     padding: 0px;
-    text-shadow: 0px -1px 0px #DAF2FF;
+    text-shadow: 0px -1px 0px #daf2ff;
 }
 .conekta-module-wrap p,
 .conekta-module-wrap ul li {
@@ -110,17 +110,17 @@ span {
     line-height: 22px;
     margin: 0px;
     padding: 0px;
-    text-shadow: 0px 1px 0px #FFFFFF;
+    text-shadow: 0px 1px 0px #ffffff;
 }
 .conekta-module-wrap,
 a.conekta-module-btn {
     background: url(img/conekta-btn-arrow.png) left center no-repeat;
-    color: #008CDD;
+    color: #008cdd;
     display: inline-block;
     margin: 7px 0px;
     padding-left: 8px;
     text-decoration: none;
-    text-shadow: 0px 1px 0px #FFFFFF;
+    text-shadow: 0px 1px 0px #ffffff;
 }
 .conekta-module-wrap,
 a.conekta-module-btn:hover {
@@ -144,8 +144,8 @@ img.conekta-cc {
     float: right;
 }
 .conekta-module-wrap-video {
-    background-color: #FFFFFF;
-    border: #C3D9EF solid 1px;
+    background-color: #ffffff;
+    border: #c3d9ef solid 1px;
     -moz-border-radius: 3px;
     -webkit-border-radius: 3px;
     border-radius: 3px;
@@ -186,7 +186,7 @@ table.conekta-settings td {
     padding: 8px;
 }
 table.conekta-settings td.td-right {
-    color: #7F7F7F;
+    color: #7f7f7f;
     font-size: 0.9em;
 }
 table.conekta-settings td.td-noborder {
@@ -203,7 +203,7 @@ table.innerTable td {
 }
 table.conekta-settings,
 table.innerTable td.vertBorder {
-    border-left: #CCCED7 solid 1px;
+    border-left: #ccced7 solid 1px;
 }
 input.button:hover {
     cursor: pointer;
@@ -213,17 +213,17 @@ fieldset.conekta-cc-numbers {
     float: left;
 }
 table.conekta-cc-numbers {
-    border: #CCCED7 solid 1px;
-    background-color: #FFFFFF;
+    border: #ccced7 solid 1px;
+    background-color: #ffffff;
 }
 table.conekta-cc-numbers th {
-    background-color: #F7FBFF;
-    border-bottom: #CCCED7 solid 1px;
+    background-color: #f7fbff;
+    border-bottom: #ccced7 solid 1px;
     padding: 5px 25px 5px 8px;
     text-align: left;
 }
 table.conekta-cc-numbers td {
-    border-bottom: #CCCED7 solid 1px;
+    border-bottom: #ccced7 solid 1px;
     padding: 5px 25px 5px 8px;
 }
 table.conekta-cc-numbers td.last {
@@ -233,7 +233,7 @@ table.conekta-cc-numbers td.number code {
     font-family: Courier;
 }
 .conekta-module-wrapper table {
-    color: #585A69;
+    color: #585a69;
     font-size: 12px;
-    text-shadow: 0 1px 0 #FFFFFF;
+    text-shadow: 0 1px 0 #ffffff;
 }
