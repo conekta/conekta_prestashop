@@ -23,21 +23,20 @@
 *  @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
-
-if ( $.mobile ) {
-	//jq mobile loaded
-	 $(document).on('pageinit', function() {
-		 conektaSetup();
-	 });
-	 $(document).ready(function() {
-		 conektaSetup();
-	 });
- } else {
-   // not jqm
-	 $(document).ready(function() {
-		 conektaSetup();
-	 });
- }
+// if ( $.mobile ) {
+// 	//jq mobile loaded
+// 	 $(document).on('pageinit', function() {
+// 		 conektaSetup();
+// 	 });
+// 	 $(document).ready(function() {
+// 		 conektaSetup();
+// 	 });
+//  } else {
+//    // not jqm
+// 	 $(document).ready(function() {
+// 		 conektaSetup();
+// 	 });
+//  }
 
  function callBack(token){
 	if(!token.id){
@@ -54,7 +53,7 @@ if ( $.mobile ) {
 	}
 	 
 	var cardComponent = {
-		idElement: 'conekta-card-number',
+		idElement: 'cardNumber',
 		style: {
 			'width': '210px',
 			'padding': '5px 10px',
@@ -65,7 +64,7 @@ if ( $.mobile ) {
 	};
 
 	var cvcComponent = {
-		idElement: 'conekta-card-cvc',
+		idElement: 'cardVerificationValue',
 		style: {
 			'padding': '5px 10px',
 			'font-size': '15px',
@@ -77,18 +76,18 @@ if ( $.mobile ) {
 	renderComponents(conekta_public_key, cardComponent, cvcComponent);
 	 
 	 //since we are using smarty html_select_date custom function
-	 $('#conekta-card-expiry-month').removeAttr('name');
-	 $('#conekta-card-expiry-year').removeAttr('name');	
+	 $('#cardExpMonth').removeAttr('name');
+	 $('#cardExpYear').removeAttr('name');	
  
 	 $('#conekta-payment-form').submit(function(event) {
 		 var $form = $('#conekta-payment-form');
 		   if( $form.find('[name=conektaToken]').length) {
 			 return true;
 		 } else {
-			 var month = $('#conekta-card-expiry-month').val();
-			 var year = $('#conekta-card-expiry-year').val();
-			 var owner = $('.conekta-card-name').val();
-			createToken('conekta-card-number', callBack, {
+			 var month = $('#cardExpMonth').val();
+			 var year = $('#cardExpYear').val();
+			 var owner = $('.cardNumber').val();
+			createToken('cardNumber', callBack, {//conekta-card-number
 				name: owner,
 				expMonth: month,
 				expYear: year
@@ -99,9 +98,10 @@ if ( $.mobile ) {
  }
  
  var conektaSuccessResponseHandler = function(response) {
-	 var $form = $('#conekta-payment-form');
-	 $form.append($('<input type="hidden" name="conektaToken" id="conektaToken" />').val(response.id));
-	 $form.get(0).submit();
+	var $form = $('#conekta-payment-form');
+	$form.append($('<input type="hidden" name="conektaToken" id="conektaToken" />').val(response.id));
+
+	$form.get(0).submit();
  };
  
  var conektaErrorResponseHandler = function(token) {
@@ -113,4 +113,43 @@ if ( $.mobile ) {
 		$('.conekta-payment-errors').fadeIn(1000);
 	}
  };
- 
+
+
+$(document).ready(function($) {
+	console.log("ORDER ID: " +conekta_orderID);			
+	window.ConektaCheckoutComponents.Integration({
+		targetIFrame: "#conektaIframeContainer",
+		checkoutRequestId: checkout_id,
+		publicKey: conekta_public_key,
+		options: {
+			theme: 'default', // 'blue' | 'dark' | 'default' | 'green' | 'red'
+			styles: {
+				fontSize: 'baseline', // 'baseline' | 'compact'
+				inputType: 'rounded', // 'basic' | 'rounded' | 'line'
+				buttonType: 'sharp' // 'basic' | 'rounded' | 'sharp'
+			}
+		},
+		onCreateTokenSucceeded: function (token) {
+			console.log(token);
+			console.log("Token creado ");
+			document.getElementById('conektaIframeContainer').remove();
+			conektaSuccessResponseHandler(token);
+		},
+		onCreateTokenError: function (error) {
+			console.log(error);
+			conektaErrorResponseHandler(error);
+		},
+		onFinalizePayment: function(event){
+		  console.log(event);
+		  var $form = $('#conekta-payment-form');
+		  $form.append($('<input type="hidden" name="conektaOrdenID" id="conektaOrdenID" />').val(conekta_orderID));
+			
+		  alert("Pago exitoso.")
+		},
+		onErrorPayment: function(event) {
+		  console.log(event)
+		  alert("Pago declinado.")
+		}
+	})
+
+});

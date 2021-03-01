@@ -70,6 +70,14 @@ class Database
             PRIMARY KEY (`id_conekta_transaction`),
             KEY `idx_transaction` (`type`,`id_order`,`status`))
             ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8 AUTO_INCREMENT=1'));
+            //  &amp&amp
+            // (Db::getInstance()->execute('CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'conekta_metadata` (
+            // `id_conekta_metadata` int(11) NOT NULL AUTO_INCREMENT,
+            // `user_id` INT(11) UNSIGNED NOT NULL,
+            // `meta_option` varchar(32) NOT NULL,
+            // `meta_value` VARCHAR( 128 ) NOT NULL ,
+            // PRIMARY KEY (`id_conekta_metadata`),
+            // ENGINE = '._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8 AUTO_INCREMENT=1')) 
     }
 
 

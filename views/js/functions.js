@@ -12,4 +12,5 @@ $(document).ready(function() {
         $('#EXPIRATION_DATE_LIMIT').prop( "disabled", !this.checked );  
         $('#EXPIRATION_DATE_LIMIT').prop( "required", this.checked );      
     });
+
 }); 
