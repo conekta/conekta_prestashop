@@ -355,7 +355,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
 
     public function hookHeader()
     {
-        if (Tools::getValue('controller') != 'order-opc' && (!($_SERVER['PHP_SELF'] == __PS_BASE_URI__ . 'order.php' || $_SERVER['PHP_SELF'] == __PS_BASE_URI__ . 'order-opc.php' || Tools::getValue('controller') == 'order' || Tools::getValue('controller') == 'orderopc' || Tools::getValue('step') == 3))) {
+        if (Tools::getValue('controller') != 'order-opc' && (!(filter_input(INPUT_SERVER, 'PHP_SELF') == __PS_BASE_URI__ . 'order.php' || filter_input(INPUT_SERVER, 'PHP_SELF') == __PS_BASE_URI__ . 'order-opc.php' || Tools::getValue('controller') == 'order' || Tools::getValue('controller') == 'orderopc' || Tools::getValue('step') == 3))) {
             return;
         }
 
@@ -763,7 +763,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
         if (Configuration::get('CONEKTA_MODE')) {
             $tests['ssl'] = array(
                 'name' => $this->l('SSL must be enabled on your store (before entering Live mode)'),
-                'result' => (integer) Configuration::get('PS_SSL_ENABLED') || (!empty($_SERVER['HTTPS']) && Tools::strtolower($_SERVER['HTTPS']) != 'off')
+                'result' => (integer) Configuration::get('PS_SSL_ENABLED') || (!empty(filter_input(INPUT_SERVER, 'HTTPS')) && Tools::strtolower(filter_input(INPUT_SERVER, 'HTTPS')) != 'off')
             );
         }
 
