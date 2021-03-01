@@ -6,7 +6,7 @@
 
 .conekta-module-wrapper {
   clear: both;
-  margin: 0px auto;
+  margin: 0 auto;
   min-width: 930px;
   overflow: hidden;
 }
@@ -20,11 +20,10 @@
 
 .conekta-module-header img.conekta-logo {
   float: left;
-  margin: 0px 70px 0px 0px;
+  margin: 0 70px 0 0;
 }
 
-.conekta-module-header
-span.conekta-module-intro {
+.conekta-module-header span.conekta-module-intro {
   border-left: #c3d9ef solid 1px;
   color: #008cdd;
   display: block;
@@ -32,23 +31,23 @@ span.conekta-module-intro {
   font-size: 18px;
   height: 61px;
   line-height: 24px;
-  margin: 0px 35px 0px 0px;
-  padding: 11px 0px 0px 20px;
+  margin: 0 35px 0 0;
+  padding: 11px 0 0 20px;
   width: 310px;
 }
 
 .conekta-module-header
 a.conekta-module-create-btn {
   background: url(img/bg_btn-blue.png) left top no-repeat;
-  color: #ffffff;
+  color: #fff;
   display: inline-block;
   font-size: 16px;
   font-weight: bold;
   height: 35px;
   line-height: 33px;
-  margin: 16px 0px 0px 0px;
-  padding: 0px 0px 0px 20px;
-  text-shadow: 0px -1px 0px #03609e;
+  margin: 16 0 0 0;
+  padding: 0 0 0 20px;
+  text-shadow: 0 -1px 0 #03609e;
 }
 
 .conekta-module-header
@@ -56,8 +55,8 @@ a.conekta-module-create-btn span {
    background: url(img/bg_btn-blue.png) right bottom no-repeat;
    display: block;
    height: 35px;
-   margin: 0px -20px 0px 0px;
-   padding: 0px 20px 0px 0px;
+   margin: 0 -20px 0 0;
+   padding: 0 20px 0 0;
 }
 
 .conekta-module-wrap {
@@ -68,34 +67,34 @@ a.conekta-module-create-btn span {
   -webkit-border-radius: 5px;
   border-radius: 5px;
   clear: both;
-  margin: 0px 0px 15px 0px;
+  margin: 0 0 15px 0;
   overflow: hidden;
   padding: 15px;
 }
 
 .conekta-module-col1 {
   float: right;
-  margin: 0px;
+  margin: 0;
   overflow: hidden;
   width: 320px;
 }
 
 .conekta-module-col2 {
-  margin: 0px 335px 0px 0px;
+  margin: 0 335px 0 0;
   overflow: hidden;
   min-width: 563px;
 }
 
 .conekta-module-col1inner {
   float: left;
-  margin: 0px;
+  margin: 0;
   overflow: hidden;
   width: 48%;
 }
 
 .conekta-module-col2inner {
   clear: both;
-  margin: 0px;
+  margin: 0;
   padding-top: 20px;
 }
 
@@ -110,9 +109,9 @@ a.conekta-module-create-btn span {
   font-size: 18px;
   font-weight: normal;
   line-height: 22px;
-  margin: 0px 0px 15px 0px;
-  padding: 0px;
-  text-shadow: 0px -1px 0px #daf2ff;
+  margin: 0 0 15px 0;
+  padding: 0;
+  text-shadow: 0 -1px 0 #daf2ff;
 }
 
 .conekta-module-wrap p,
@@ -120,9 +119,9 @@ a.conekta-module-create-btn span {
   color: #535353;
   font-size: 14px;
   line-height: 22px;
-  margin: 0px;
-  padding: 0px;
-  text-shadow: 0px 1px 0px #ffffff;
+  margin: 0;
+  padding: 0;
+  text-shadow: 0 1px 0 #ffffff;
 }
 
 .conekta-module-wrap,
@@ -130,10 +129,10 @@ a.conekta-module-btn {
   background: url(img/conekta-btn-arrow.png) left center no-repeat;
   color: #008cdd;
   display: inline-block;
-  margin: 7px 0px;
+  margin: 7px 0;
   padding-left: 8px;
   text-decoration: none;
-  text-shadow: 0px 1px 0px #ffffff;
+  text-shadow: 0 1px 0 #ffffff;
 }
 
 .conekta-module-wrap,
@@ -143,18 +142,18 @@ a.conekta-module-btn:hover {
 
 .conekta-module-wrap ul {
   list-style: none;
-  margin: 0px;
-  padding: 0px;
+  margin: 0;
+  padding: 0;
 }
 
 .conekta-module-wrap ul li {
   background: url(img/checkmark-blue.png) left 5px no-repeat;
-  margin: 0px;
-  padding: 0px 0px 0px 15px;
+  margin: 0;
+  padding: 0 0 0 15px;
 }
 
 img.conekta-cc {
-  margin: 0px 40px 0px 0px;
+  margin: 0 40px 0 0;
   vertical-align: middle;
 }
 
@@ -173,12 +172,12 @@ img.conekta-cc {
 }
 
 img.conekta-dashboard {
-  margin: 0px;
+  margin: 0;
 }
 
 a.conekta-module-video-btn {
   display: inline-block;
-  margin: 15px 0px 0px 0px;
+  margin: 15px 0 0 0;
   position: relative;
 }
 
@@ -189,7 +188,7 @@ img.conekta-video-btn {
 }
 
 table.conekta-technical td {
-  padding: 4px 0px;
+  padding: 4px 0;
 }
 
 fieldset.conekta-settings {
@@ -200,13 +199,13 @@ fieldset.conekta-settings {
 
 table.conekta-settings label {
   float: none;
-  padding-right: 0px;
+  padding-right: 0;
   text-align: right;
   width: auto;
 }
 
 table.conekta-settings {
-  margin: 0px;
+  margin: 0;
 }
 
 table.conekta-settings td {
