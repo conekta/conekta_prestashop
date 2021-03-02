@@ -10,10 +10,43 @@ div.payment_module {
   vertical-align: middle;
 }
 
+div.payment_module a,
+p.payment_module a::after {
+  display: block;
+  content: "\f054";
+  position: absolute;
+  right: 15px;
+  margin-top: -11px;
+  top: 50%;
+  font-family: "FontAwesome";
+  font-size: 25px;
+  height: 22px;
+  width: 14px;
+  color: #777;
+}
+
 div.conekta-payment-module.payment_module.active a,
 p.conekta-payment-module.payment_module.active a::after {
   content: "\f078";
   padding-right: 20px;
+}
+
+p.payment_module a,
+div.payment_module a {
+  display: block;
+  border: 1px solid #d6d4d4;
+  -moz-border-radius: 4px;
+  -webkit-border-radius: 4px;
+  border-radius: 4px;
+  font-size: 17px;
+  line-height: 23px;
+  color: #333;
+  font-weight: bold;
+  padding: 33px 40px 34px 99px;
+  letter-spacing: -1px;
+  position: relative;
+  background: 15px 15px no-repeat #fbfbfb;
+  cursor: pointer;
 }
 
 #conekta-payment-form label {
@@ -42,6 +75,7 @@ p.conekta-payment-module.payment_module.active a::after {
 }
 
 a.conekta-card-cvc-info { font-style: italic; }
+div.cvc-info:hover { cursor: default; }
 
 a.conekta-card-cvc-info div.cvc-info {
   background-color: #bde5f8;
@@ -61,7 +95,6 @@ a.conekta-card-cvc-info div.cvc-info {
 }
 
 a.conekta-card-cvc-info:hover div.cvc-info { display: block; }
-div.cvc-info:hover { cursor: default; }
 
 #conekta-payment-form img.cc-icon {
   border: #ccc solid 1px;
@@ -124,39 +157,6 @@ div.conekta-payment-errors {
 
 p.payment_module,
 div.payment_module { margin-bottom: 10px; }
-
-p.payment_module a,
-div.payment_module a {
-  display: block;
-  border: 1px solid #d6d4d4;
-  -moz-border-radius: 4px;
-  -webkit-border-radius: 4px;
-  border-radius: 4px;
-  font-size: 17px;
-  line-height: 23px;
-  color: #333;
-  font-weight: bold;
-  padding: 33px 40px 34px 99px;
-  letter-spacing: -1px;
-  position: relative;
-  background: 15px 15px no-repeat #fbfbfb;
-  cursor: pointer;
-}
-
-div.payment_module a,
-p.payment_module a::after {
-  display: block;
-  content: "\f054";
-  position: absolute;
-  right: 15px;
-  margin-top: -11px;
-  top: 50%;
-  font-family: "FontAwesome";
-  font-size: 25px;
-  height: 22px;
-  width: 14px;
-  color: #777;
-}
 
 .conekta-payment-form { display: none; }
 .conekta-payment-form.active { display: block; }
