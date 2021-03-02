@@ -10,6 +10,12 @@ div.payment_module {
   vertical-align: middle;
 }
 
+div.conekta-payment-module.payment_module.active a,
+p.conekta-payment-module.payment_module.active a::after {
+  content: "\f078";
+  padding-right: 20px;
+}
+
 #conekta-payment-form label {
   display: inline-block;
   margin-bottom: 4px;
@@ -169,10 +175,4 @@ p.conekta-payment-module.payment_module.spei-option a.conekta_title {
 
 p.conekta-payment-module.payment_module.banorte-option a.conekta_title {
   background: url(../img/banorte.png) 20px 30px no-repeat #fbfbfb;
-}
-
-div.conekta-payment-module.payment_module.active a,
-p.conekta-payment-module.payment_module.active a::after {
-  content: "\f078";
-  padding-right: 20px;
 }
