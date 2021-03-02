@@ -36,8 +36,7 @@
   width: 310px;
 }
 
-.conekta-module-header
-a.conekta-module-create-btn {
+.conekta-module-header a.conekta-module-create-btn {
   background: url(img/bg_btn-blue.png) left top no-repeat;
   color: #fff;
   display: inline-block;
@@ -50,19 +49,19 @@ a.conekta-module-create-btn {
   text-shadow: 0 -1px 0 #03609e;
 }
 
-.conekta-module-header
-a.conekta-module-create-btn span {
-   background: url(img/bg_btn-blue.png) right bottom no-repeat;
-   display: block;
-   height: 35px;
-   margin: 0 -20px 0 0;
-   padding: 0 20px 0 0;
+.conekta-module-header a.conekta-module-create-btn span {
+  background: url(img/bg_btn-blue.png),
+   right bottom no-repeat;
+  display: block;
+  height: 35px;
+  margin: 0 -20px 0 0;
+  padding: 0 20px 0 0;
 }
 
 .conekta-module-wrap {
   background-color: #f7fbff;
   border: #c3d9ef,
-  solid 1px;
+   solid 1px;
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
   border-radius: 5px;
@@ -121,22 +120,20 @@ a.conekta-module-create-btn span {
   line-height: 22px;
   margin: 0;
   padding: 0;
-  text-shadow: 0 1px 0 #ffffff;
+  text-shadow: 0 1px 0 #fff;
 }
 
-.conekta-module-wrap,
-a.conekta-module-btn {
+.conekta-module-wrap a.conekta-module-btn {
   background: url(img/conekta-btn-arrow.png) left center no-repeat;
   color: #008cdd;
   display: inline-block;
   margin: 7px 0;
   padding-left: 8px;
   text-decoration: none;
-  text-shadow: 0 1px 0 #ffffff;
+  text-shadow: 0 1px 0 #fff;
 }
 
-.conekta-module-wrap,
-a.conekta-module-btn:hover {
+.conekta-module-wrap a.conekta-module-btn:hover {
   text-decoration: underline;
 }
 
@@ -162,7 +159,7 @@ img.conekta-cc {
 }
 
 .conekta-module-wrap-video {
-  background-color: #ffffff;
+  background-color: #fff;
   border: #c3d9ef solid 1px;
   -moz-border-radius: 3px;
   -webkit-border-radius: 3px;
@@ -248,7 +245,7 @@ fieldset.conekta-cc-numbers {
 
 table.conekta-cc-numbers {
   border: #ccced7 solid 1px;
-  background-color: #ffffff;
+  background-color: #fff;
 }
 
 table.conekta-cc-numbers th {
@@ -274,5 +271,5 @@ table.conekta-cc-numbers td.number code {
 .conekta-module-wrapper table {
   color: #585a69;
   font-size: 12px;
-  text-shadow: 0 1px 0 #ffffff;
+  text-shadow: 0 1px 0 #fff;
 }
