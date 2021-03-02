@@ -38,12 +38,12 @@ div.payment_module {
 a.conekta-card-cvc-info { font-style: italic; }
 
 a.conekta-card-cvc-info div.cvc-info {
-  background-color: #BDE5F8;
+  background-color: #bde5f8;
   border: #00529B solid 1px;
   -moz-border-radius: 3px;
   -webkit-border-radius: 3px;
   border-radius: 3px;
-  color: #00529B!important;
+  color: #00529b;
   display: none;
   font-style: normal;
   padding: 8px;
@@ -64,7 +64,6 @@ div.cvc-info:hover { cursor: default; }
 
 .block-left {
   display: inline-block;
-  float: left;
   margin-right: 20px;
 }
 
@@ -102,7 +101,7 @@ div.conekta-payment-errors {
   padding: 10px;
   border: 1px solid #900;
   font-size: 13px;
-  background: #FCC;
+  background: #ffcccc;
   display: none;
 }
 
