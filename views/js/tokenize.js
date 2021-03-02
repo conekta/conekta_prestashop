@@ -24,32 +24,32 @@
 *  International Registered Trademark & Property of PrestaShop SA
 */
 function conektaSetup() {
-   if (!$("#conekta-payment-form").length){
-	   return false;
-   }
+	if (!$("#conekta-payment-form").length){
+		return false;
+  	}
 	
-   var cardComponent = {
-	   idElement: "conekta-card-number",
-	   style: {
+   	var cardComponent = {
+	   	idElement: "conekta-card-number",
+	   	style: {
 		   'width': '210px',
 		   'padding': '5px 10px',
 		   'font-size': '15px',
 		   'border': '1px solid rgb(204, 204, 204)'
-	   },
+	   	},
 	   placeholder: ' '
-   };
+   	};
 
-   var cvcComponent = {
-	   idElement: "conekta-card-cvc",
-	   style: {
+   	var cvcComponent = {
+		idElement: "conekta-card-cvc",
+		style: {
 		   'padding': '5px 10px',
 		   'font-size': '15px',
 		   'border': '1px solid rgb(204, 204, 204)'
-	   },
-	   placeholder: " "
-   };
+		},
+		placeholder: " "
+   	};
 
-   renderComponents(conekta_public_key, cardComponent, cvcComponent);
+   	renderComponents(conekta_public_key, cardComponent, cvcComponent);
 	
 	//since we are using smarty html_select_date custom function
 	$('#conekta-card-expiry-month').removeAttr('name');
