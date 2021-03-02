@@ -1,8 +1,8 @@
 ## [v1.1.0](https://github.com/conekta/ConektaPaymentsPrestashop/releases/tag/v1.1.0) - 2017-09-09
 ### Fixed
--  Calculate order total in method Validate Order
--  Verify payment method selected in checkout confirmation
--  Logo.png not found in tpl
+  - Calculate order total in method Validate Order
+  - Verify payment method selected in checkout confirmation
+  - Logo.png not found in tpl
 
 ### Changed
 -  Exception control in try catch
