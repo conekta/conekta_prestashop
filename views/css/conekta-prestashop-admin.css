@@ -60,7 +60,7 @@
 .conekta-module-wrap {
   background-color: #f7fbff;
   border:
-    #c3d9ef solid 1px;
+    #c3d9ef, solid 1px;
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
   border-radius: 5px;
