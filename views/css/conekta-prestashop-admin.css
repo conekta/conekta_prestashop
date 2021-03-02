@@ -50,8 +50,8 @@
 }
 
 .conekta-module-header a.conekta-module-create-btn span {
-  background: url(img/bg_btn-blue.png),
-   right bottom no-repeat;
+  background:
+    url(img/bg_btn-blue.png) right bottom no-repeat;
   display: block;
   height: 35px;
   margin: 0 -20px 0 0;
