@@ -37,7 +37,7 @@ function conektaSetup() {
 			"border": "1px solid rgb(204, 204, 204)"
 		},
 		placeholder: " "
-   	};
+	};
 	var cvcComponent = {
 		idElement: "conekta-card-cvc",
 		style: {
@@ -94,12 +94,12 @@ var conektaSuccessResponseHandler = function(response) {
 };
 
 var conektaErrorResponseHandler = function(token) {
-   	if ($(".conekta-payment-errors").length) {
+	if ($(".conekta-payment-errors").length) {
 		$(".conekta-payment-errors").fadeIn(1000);
 	} else {
 		$("#conekta-payment-form").prepend("<div class='conekta-payment-errors'>" + token +"</div>");
 		$(".conekta-payment-errors").fadeIn(1000);
-   	}
+	}
 };
 
 function callBack(token){
