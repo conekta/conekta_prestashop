@@ -36,7 +36,7 @@ function conektaSetup() {
 		   "font-size": "15px",
 		   "border": "1px solid rgb(204, 204, 204)"
 	   	},
-	   placeholder: " "
+	   	placeholder: " "
    	};
 
    	var cvcComponent = {
@@ -57,18 +57,18 @@ function conektaSetup() {
 
 	$("#conekta-payment-form").submit(function(event) {
 		var $form = $("#conekta-payment-form");
-		  if( $form.find("[name=conektaToken]").length) {
+		if( $form.find("[name=conektaToken]").length) {
 			return true;
 		} else {
 			var month = $("#conekta-card-expiry-month").val();
 			var year = $("#conekta-card-expiry-year").val();
 			var owner = $(".conekta-card-name").val();
-		   createToken("conekta-card-number", callBack, {
-			   name: owner,
-			   expMonth: month,
-			   expYear: year
-		   });
-		  return false;
+			createToken("conekta-card-number", callBack, {
+				name: owner,
+				expMonth: month,
+				expYear: year
+				});
+			return false;
 		}
 	});
 }
@@ -100,7 +100,7 @@ var conektaErrorResponseHandler = function(token) {
 	} else {
 	   $("#conekta-payment-form").prepend('<div class="conekta-payment-errors">' + token +'</div>');
 	   $(".conekta-payment-errors").fadeIn(1000);
-   }
+   	}
 };
 
 function callBack(token){
@@ -110,7 +110,3 @@ function callBack(token){
 		conektaSuccessResponseHandler(token);
 	}
 }
- 
-
-
- 
