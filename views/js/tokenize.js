@@ -26,30 +26,29 @@
 function conektaSetup() {
 	if (!$("#conekta-payment-form").length){
 		return false;
-  	}
+	}
 	
-   	var cardComponent = {
-	   	idElement: "conekta-card-number",
-	   	style: {
-		   "width": "210px",
-		   "padding": "5px 10px",
-		   "font-size": "15px",
-		   "border": "1px solid rgb(204, 204, 204)"
-	   	},
-	   	placeholder: " "
-   	};
-
-   	var cvcComponent = {
-		idElement: "conekta-card-cvc",
+	var cardComponent = {
+		idElement: "conekta-card-number",
 		style: {
-		   "padding": "5px 10px",
-		   "font-size": "15px",
-		   "border": "1px solid rgb(204, 204, 204)"
+			"width": "210px",
+			"padding": "5px 10px",
+			"font-size": "15px",
+			"border": "1px solid rgb(204, 204, 204)"
 		},
 		placeholder: " "
    	};
+	var cvcComponent = {
+		idElement: "conekta-card-cvc",
+		style: {
+			"padding": "5px 10px",
+			"font-size": "15px",
+			"border": "1px solid rgb(204, 204, 204)"
+		},
+		placeholder: " "
+	};
 
-   	renderComponents(conekta_public_key, cardComponent, cvcComponent);
+	renderComponents(conekta_public_key, cardComponent, cvcComponent);
 	
 	//since we are using smarty html_select_date custom function
 	$("#conekta-card-expiry-month").removeAttr("name");
@@ -90,16 +89,16 @@ if ( $.mobile ) {
  
 var conektaSuccessResponseHandler = function(response) {
 	var $form = $("#conekta-payment-form");
-	$form.append($('<input type="hidden" name="conektaToken" id="conektaToken" />').val(response.id));
+	$form.append($("<input type='hidden' name='conektaToken' id='conektaToken' />").val(response.id));
 	$form.get(0).submit();
 };
 
 var conektaErrorResponseHandler = function(token) {
    	if ($(".conekta-payment-errors").length) {
-	   $(".conekta-payment-errors").fadeIn(1000);
+		$(".conekta-payment-errors").fadeIn(1000);
 	} else {
-	   $("#conekta-payment-form").prepend('<div class="conekta-payment-errors">' + token +'</div>');
-	   $(".conekta-payment-errors").fadeIn(1000);
+		$("#conekta-payment-form").prepend("<div class='conekta-payment-errors'>" + token +"</div>");
+		$(".conekta-payment-errors").fadeIn(1000);
    	}
 };
 
