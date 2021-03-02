@@ -1,9 +1,28 @@
-div.payment_module { padding-bottom: 20px; text-transform: none; }
-.conekta_title img { float: none; margin-right: 8px; margin-top: -2px; vertical-align: middle; }
-#conekta-payment-form {}
-#conekta-payment-form label { display: inline-block; margin-bottom: 4px; text-transform: uppercase; }
+div.payment_module {
+  padding-bottom: 20px;
+  text-transform: none;
+}
+
+.conekta_title img {
+  float: none;
+  margin-right: 8px;
+  margin-top: -2px;
+  vertical-align: middle;
+}
+#conekta-payment-form label {
+  display: inline-block;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
 #conekta-payment-form label.lowercase { text-transform: none; }
-#conekta-payment-form input[type="text"], #conekta-payment-form select { border: #CCCCCC solid 1px; margin-bottom: 15px; padding: 3px; }
+
+#conekta-payment-form input[type="text"],
+#conekta-payment-form select {
+  border: #ccc solid 1px;
+  margin-bottom: 15px;
+  padding: 3px;
+}
+
 #conekta-payment-form input[type="checkbox"] { margin-bottom: 15px; }
 #conekta-payment-form input.conekta-card-number { width: 210px; }
 #conekta-payment-form input.conekta-card-cvc {  }
