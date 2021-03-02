@@ -10,6 +10,24 @@ div.payment_module {
   vertical-align: middle;
 }
 
+p.payment_module a,
+div.payment_module a {
+  display: block;
+  border: 1px solid #d6d4d4;
+  -moz-border-radius: 4px;
+  -webkit-border-radius: 4px;
+  border-radius: 4px;
+  font-size: 17px;
+  line-height: 23px;
+  color: #333;
+  font-weight: bold;
+  padding: 33px 40px 34px 99px;
+  letter-spacing: -1px;
+  position: relative;
+  background: 15px 15px no-repeat #fbfbfb;
+  cursor: pointer;
+}
+
 div.payment_module a,
 p.payment_module a::after {
   display: block;
@@ -48,24 +66,6 @@ p.conekta-payment-module.payment_module.active a::after {
 
 #conekta-payment-form input[type="checkbox"] { margin-bottom: 15px; }
 #conekta-payment-form input.conekta-card-number { width: 210px; }
-
-p.payment_module a,
-div.payment_module a {
-  display: block;
-  border: 1px solid #d6d4d4;
-  -moz-border-radius: 4px;
-  -webkit-border-radius: 4px;
-  border-radius: 4px;
-  font-size: 17px;
-  line-height: 23px;
-  color: #333;
-  font-weight: bold;
-  padding: 33px 40px 34px 99px;
-  letter-spacing: -1px;
-  position: relative;
-  background: 15px 15px no-repeat #fbfbfb;
-  cursor: pointer;
-}
 
 #conekta-payment-form a {
   display: inline;
