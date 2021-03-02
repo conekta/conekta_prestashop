@@ -84,7 +84,7 @@ img.enable { opacity: 1; }
   position: relative;
   display: inline-block;
   padding: 5px 7px;
-  border: 1px solid #cc9900;
+  border: 1px solid #c90;
   -moz-border-radius: 3px;
   -webkit-border-radius: 3px;
   border-radius: 3px;
@@ -96,7 +96,7 @@ img.enable { opacity: 1; }
 #conekta-payment-form .conekta-submit-button:hover,
 #conekta-payment-form-cc .conekta-submit-button-cc:hover {
   text-decoration: none;
-  background-position: left -50px
+  background-position: left -50px;
 }
 
 div.conekta-payment-errors {
@@ -139,17 +139,17 @@ div.payment_module a {
 
 div.payment_module a,
 p.payment_module a::after {
-    display: block;
-    content: "\f054";
-    position: absolute;
-    right: 15px;
-    margin-top: -11px;
-    top: 50%;
-    font-family: "FontAwesome";
-    font-size: 25px;
-    height: 22px;
-    width: 14px;
-    color: #777777;
+  display: block;
+  content: "\f054";
+  position: absolute;
+  right: 15px;
+  margin-top: -11px;
+  top: 50%;
+  font-family: "FontAwesome";
+  font-size: 25px;
+  height: 22px;
+  width: 14px;
+  color: #777;
 }
 
 .conekta-payment-form { display: none; }
@@ -171,7 +171,8 @@ p.conekta-payment-module.payment_module.banorte-option a.conekta_title {
   background: url(../img/banorte.png) 20px 30px no-repeat #fbfbfb;
 }
 
-div.conekta-payment-module.payment_module.active a, p.conekta-payment-module.payment_module.active a:after {
+div.conekta-payment-module.payment_module.active a,
+p.conekta-payment-module.payment_module.active a::after {
   content: "\f078";
   padding-right: 20px;
 }
