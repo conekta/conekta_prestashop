@@ -63,6 +63,18 @@ class ConektaPaymentsPrestashop extends PaymentModule {
             'LIVE_PUBLIC_KEY'
         ));
 
+        $this->setConfiguration($config);
+
+        $this->bootstrap = true;
+        parent::__construct();
+
+        if (!count(Currency::checkPaymentCurrencies($this->id))) {
+            $this->warning = $this->l('No currency has been set for this module.');
+        }
+    }
+
+    private function setConfiguration($config) {
+        
         if (isset($config['PAYEE_NAME'])) {
             $this->checkName = $config['PAYEE_NAME'];
         }
@@ -104,12 +116,6 @@ class ConektaPaymentsPrestashop extends PaymentModule {
         }
         if (isset($config['LIVE_PUBLIC_KEY'])) {
             $this->live_public_key = $config['LIVE_PUBLIC_KEY'];
-        }
-        $this->bootstrap = true;
-        parent::__construct();
-
-        if (!count(Currency::checkPaymentCurrencies($this->id))) {
-            $this->warning = $this->l('No currency has been set for this module.');
         }
     }
 

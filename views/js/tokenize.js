@@ -110,7 +110,3 @@ if ( $.mobile ) {
 		conektaSetup();
 	});
 }
- 
-
-
-
