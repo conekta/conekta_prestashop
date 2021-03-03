@@ -10,8 +10,8 @@
  *  @version  v2.0.0
  */
 
-include __DIR__ . '/../../config/config.inc.php';
-include __DIR__ . '/../../init.php';
+include '/../../config/config.inc.php';
+include '/../../init.php';
 
 if (!defined('_PS_VERSION_')) {
     exit;
