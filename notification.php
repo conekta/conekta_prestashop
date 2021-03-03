@@ -9,15 +9,12 @@
  *  @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  @version  v2.0.0
  */
-define(CONFIG_INC, __DIR__ . '/../../config/config.inc.php' );
-define(_INIT_, __DIR__ . '/../../init.php' );
 
-include( CONFIG_INC );
-include(_INIT_);
+include(__DIR__ . '/../../config/config.inc.php');
+include(__DIR__ . '/../../init.php');
 
-if (!defined('_PS_VERSION_')) {
-    exit;
-}
+if (defined('_PS_VERSION_')) {
+
 
 // To configure, add webhook in account storename.com/modules/conektaefectivo/notification.php
 
@@ -70,8 +67,7 @@ if ($event_json->type == 'order.paid' && isset($event_json->data)) {
 
 }
 
-function authenticateEvent($body, $digest)
-{
+function authenticateEvent($body, $digest) {
     if (Configuration::get('CONEKTA_MODE')) {
         $private_key_string = Configuration::get('CONEKTA_SIGNATURE_KEY_LIVE');
     } else {
@@ -93,8 +89,7 @@ function authenticateEvent($body, $digest)
 }
 
 
-function authenticateLogger($log_message)
-{
+function authenticateLogger($log_message) {
     if (version_compare(_PS_VERSION_, '1.4.0.3', '>') && class_exists('Logger')) {
         Logger::addLog($log_message, 1, null, 'notification', '');
     }
@@ -102,3 +97,5 @@ function authenticateLogger($log_message)
 
 header('HTTP/1.1 200 OK');
 exit;
+
+}
