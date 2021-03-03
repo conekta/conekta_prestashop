@@ -21,7 +21,6 @@ Installation
 
 There is no custom installation for this plugin, just the default:
 
-
 *   Compress the folder conektapaymentsprestashop.
 *   Go to the modules section and clic on 'Add a new module'.
 *   Select the compressed folder.
