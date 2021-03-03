@@ -23,6 +23,30 @@
 *  @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
+
+var conektaSuccessResponseHandler = function(response) {
+	var $form = $("#conekta-payment-form");
+	$form.append($("<input type='hidden' name='conektaToken' id='conektaToken' />").val(response.id));
+	$form.get(0).submit();
+};
+
+var conektaErrorResponseHandler = function(token) {
+	if ($(".conekta-payment-errors").length) {
+		$(".conekta-payment-errors").fadeIn(1000);
+	} else {
+		$("#conekta-payment-form").prepend("<div class='conekta-payment-errors'>" + token +"</div>");
+		$(".conekta-payment-errors").fadeIn(1000);
+	}
+};
+
+function callBack(token) {
+	if(!token.id) {
+		conektaErrorResponseHandler(token);
+	} else {
+		conektaSuccessResponseHandler(token);
+	}
+}
+
 function conektaSetup() {
 	if (!$("#conekta-payment-form").length){
 		return false;
@@ -87,25 +111,6 @@ if ( $.mobile ) {
 	});
 }
  
-var conektaSuccessResponseHandler = function(response) {
-	var $form = $("#conekta-payment-form");
-	$form.append($("<input type='hidden' name='conektaToken' id='conektaToken' />").val(response.id));
-	$form.get(0).submit();
-};
 
-var conektaErrorResponseHandler = function(token) {
-	if ($(".conekta-payment-errors").length) {
-		$(".conekta-payment-errors").fadeIn(1000);
-	} else {
-		$("#conekta-payment-form").prepend("<div class='conekta-payment-errors'>" + token +"</div>");
-		$(".conekta-payment-errors").fadeIn(1000);
-	}
-};
 
-function callBack(token){
-	if(!token.id) {
-		conektaErrorResponseHandler(token);
-	} else {
-		conektaSuccessResponseHandler(token);
-	}
-}
+
