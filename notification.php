@@ -13,8 +13,9 @@
 include(__DIR__ . '/../../config/config.inc.php');
 include(__DIR__ . '/../../init.php');
 
-if (defined('_PS_VERSION_')) {
-
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
 
 // To configure, add webhook in account storename.com/modules/conektaefectivo/notification.php
 
@@ -97,5 +98,3 @@ function authenticateLogger($log_message) {
 
 header('HTTP/1.1 200 OK');
 exit;
-
-}
