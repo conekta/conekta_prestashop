@@ -28,7 +28,7 @@ class ConektaPaymentsPrestashopValidationModuleFrontController extends ModuleFro
             }
         }
         if (!$authorized) {
-            echo (Context::getContext()->getTranslator()->trans('This payment method is not available.', array(), 'Modules.ConektaPaymentsPrestashop.Shop'));
+            echo ($this->module->getTranslator()->trans('This payment method is not available.', array(), 'Modules.ConektaPaymentsPrestashop.Shop'));
         } else {
 
             if (!Validate::isLoadedObject($customer)) {

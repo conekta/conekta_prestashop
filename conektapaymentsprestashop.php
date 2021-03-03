@@ -111,8 +111,6 @@ class ConektaPaymentsPrestashop extends PaymentModule {
         if (!count(Currency::checkPaymentCurrencies($this->id))) {
             $this->warning = $this->l('No currency has been set for this module.');
         }
-
-        // _e(Context::getContext()->getTranslator()->trans('This payment method is not available.', array(), 'Modules.ConektaPaymentsPrestashop.Shop'));
     }
 
     public function install() {

@@ -10,8 +10,8 @@
  *  @version  v2.0.0
  */
 
-include(dirname(__FILE__) . '/../../config/config.inc.php');
-include(dirname(__FILE__) . '/../../init.php');
+include __DIR__ . '/../../config/config.inc.php';
+include __DIR__ . '/../../init.php';
 
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -20,7 +20,7 @@ if (!defined('_PS_VERSION_')) {
 // To configure, add webhook in account storename.com/modules/conektaefectivo/notification.php
 
 $body = Tools::file_get_contents('php://input');
-authenticateEvent($body, $_SERVER['HTTP_DIGEST']);
+authenticateEvent($body, filter_input(INPUT_SERVER, 'HTTP_DIGEST'));
 $event_json = Tools::jsonDecode($body);
 
 
