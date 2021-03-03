@@ -9,9 +9,11 @@
  *  @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  @version  v2.0.0
  */
+define(CONFIG_INC, __DIR__ . '/../../config/config.inc.php' );
+define(_INIT_, __DIR__ . '/../../init.php' );
 
-include '/../../config/config.inc.php';
-include '/../../init.php';
+include( CONFIG_INC );
+include(_INIT_);
 
 if (!defined('_PS_VERSION_')) {
     exit;
