@@ -230,7 +230,7 @@ class ConektaPaymentsPrestashop extends PaymentModule {
                         $new_txt_file  = _PS_MODULE_DIR_ . $this->name . '/mails/' . $file . '/conektaefectivo.txt';
                         $html_folder = $directory . $file . '/conektaefectivo.html';
                         $txt_folder  = $directory . $file . '/conektaefectivo.txt';
-
+                        // TEST
                         try {
                             Tools::copy($new_html_file, $html_folder);
                             Tools::copy($new_txt_file, $txt_folder);
