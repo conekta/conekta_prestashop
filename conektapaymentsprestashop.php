@@ -146,23 +146,23 @@ class ConektaPaymentsPrestashop extends PaymentModule {
     public function hookPaymentReturn($params) {
         if ($params['order'] && Validate::isLoadedObject($params['order'])) {
             $id_order                    = (int) $params['order']->id;
-            $conekta_transaction_details = Database::getOrderById($id_order);
-            if ($conekta_transaction_details['barcode']) {
+            $conekta_tran_details = Database::getOrderById($id_order);
+            if ($conekta_tran_details['barcode']) {
                 $this->smarty->assign('cash', true);
                 $this->smarty->assign('conekta_order', array(
-                    'barcode' => $conekta_transaction_details['reference'],
+                    'barcode' => $conekta_tran_details['reference'],
                     'type' => 'cash',
-                    'barcode_url' => $conekta_transaction_details['barcode'],
-                    'amount' => $conekta_transaction_details['amount'],
-                    'currency' => $conekta_transaction_details['currency']
+                    'barcode_url' => $conekta_tran_details['barcode'],
+                    'amount' => $conekta_tran_details['amount'],
+                    'currency' => $conekta_tran_details['currency']
                 ));
-            } elseif (isset($conekta_transaction_details['reference']) && !empty($conekta_transaction_details['reference'])) {
-                if (strpos($conekta_transaction_details['reference'], '6461801118') !== false) {
+            } elseif (isset($conekta_tran_details['reference']) && !empty($conekta_tran_details['reference'])) {
+                if (strpos($conekta_tran_details['reference'], '6461801118') !== false) {
                     $this->smarty->assign('spei', true);
                     $this->smarty->assign('conekta_order', array(
-                        'receiving_account_number' => $conekta_transaction_details['reference'],
-                        'amount' => $conekta_transaction_details['amount'],
-                        'currency' => $conekta_transaction_details['currency']
+                        'receiving_account_number' => $conekta_tran_details['reference'],
+                        'amount' => $conekta_tran_details['amount'],
+                        'currency' => $conekta_tran_details['currency']
                     ));
                 }
             } else {
@@ -191,10 +191,10 @@ class ConektaPaymentsPrestashop extends PaymentModule {
             \Conekta\Conekta::setLocale($iso_code);
 
             $id_order = (int) $params['id_order'];
-            $conekta_transaction_details = Database::getOrderById($id_order);
+            $conekta_tran_details = Database::getOrderById($id_order);
             //only credit card refund
-            if(!$conekta_transaction_details['barcode'] && !(isset($conekta_transaction_details['reference']) && !empty($conekta_transaction_details['reference']))){
-                $order = \Conekta\Order::find($conekta_transaction_details['id_conekta_order']);
+            if(!$conekta_tran_details['barcode'] && !(isset($conekta_tran_details['reference']) && !empty($conekta_tran_details['reference']))){
+                $order = \Conekta\Order::find($conekta_tran_details['id_conekta_order']);
                 $order->refund(['reason' => 'requested_by_client']);
             }      
         }
@@ -230,7 +230,7 @@ class ConektaPaymentsPrestashop extends PaymentModule {
                         $new_txt_file  = _PS_MODULE_DIR_ . $this->name . '/mails/' . $file . '/conektaefectivo.txt';
                         $html_folder = $directory . $file . '/conektaefectivo.html';
                         $txt_folder  = $directory . $file . '/conektaefectivo.txt';
-                        // TEST
+
                         try {
                             Tools::copy($new_html_file, $html_folder);
                             Tools::copy($new_txt_file, $txt_folder);
@@ -982,11 +982,11 @@ class ConektaPaymentsPrestashop extends PaymentModule {
     }
     public function getTransactionStatus($order_id) {
         if (Database::getOrderConekta($order_id) == $this->name) {
-            $conekta_transaction_details = Database::getConektaTransaction($order_id);
+            $conekta_tran_details = Database::getConektaTransaction($order_id);
 
-            $this->smarty->assign('conekta_transaction_details', $conekta_transaction_details);
+            $this->smarty->assign('conekta_tran_details', $conekta_tran_details);
             
-            if ($conekta_transaction_details['status'] === 'paid') {
+            if ($conekta_tran_details['status'] === 'paid') {
                 $this->smarty->assign("color_status", "green");
                 $this->smarty->assign("message_status", $this->l("Paid"));
             } else 
@@ -994,10 +994,10 @@ class ConektaPaymentsPrestashop extends PaymentModule {
                 $this->smarty->assign("color_status", "#CC0000");
                 $this->smarty->assign("message_status", $this->l("Unpaid"));
             }
-            $this->smarty->assign("display_price", Tools::displayPrice($conekta_transaction_details['amount']));
-            $this->smarty->assign("processed_on", Tools::safeOutput($conekta_transaction_details['date_add']));
+            $this->smarty->assign("display_price", Tools::displayPrice($conekta_tran_details['amount']));
+            $this->smarty->assign("processed_on", Tools::safeOutput($conekta_tran_details['date_add']));
 
-            if ($conekta_transaction_details['mode'] === "live") {
+            if ($conekta_tran_details['mode'] === "live") {
                 $this->smarty->assign("color_mode", "green");
                 $this->smarty->assign("txt_mode", $this->l("Live"));
             } else {
