@@ -343,7 +343,7 @@ class Conekta_Prestashop extends PaymentModule
                 || Tools::getValue('step') == 3))) {
             return;
         }
-
+        //TEST
         $this->context->controller->addCSS($this->_path . 'views/css/conekta-prestashop.css');
 
         if (Configuration::get('MODE')) {
