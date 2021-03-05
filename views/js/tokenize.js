@@ -38,16 +38,15 @@
 // 	 });
 //  }
 
- function callBack(token){
-	if(!token.id){
+function callBack(token){
+	if(!token.id) {
 		conektaErrorResponseHandler(token);
-	}else {
+	} else {
 		conektaSuccessResponseHandler(token);
 	}
- }
+}
  
- function conektaSetup()
- {
+function conektaSetup() {
 	if (!$('#conekta-payment-form').length){
 		return false;
 	}
@@ -76,50 +75,49 @@
 	renderComponents(conekta_public_key, cardComponent, cvcComponent);
 	 
 	 //since we are using smarty html_select_date custom function
-	 $('#cardExpMonth').removeAttr('name');
-	 $('#cardExpYear').removeAttr('name');	
+	//  $('#cardExpMonth').removeAttr('name');
+	//  $('#cardExpYear').removeAttr('name');	
  
 	 $('#conekta-payment-form').submit(function(event) {
-		 var $form = $('#conekta-payment-form');
-		   if( $form.find('[name=conektaToken]').length) {
-			 return true;
-		 } else {
-			 var month = $('#cardExpMonth').val();
-			 var year = $('#cardExpYear').val();
-			 var owner = $('.cardNumber').val();
+		var $form = $('#conekta-payment-form');
+		if( $form.find('[name=conektaToken]').length) {
+			return true;
+		} else {
+			var month = $('#cardExpMonth').val();
+			var year = $('#cardExpYear').val();
+			var owner = $('.cardNumber').val();
 			createToken('cardNumber', callBack, {//conekta-card-number
 				name: owner,
 				expMonth: month,
 				expYear: year
 			});
-		   return false;
-		 }
-	 });
- }
+		   	return false;
+		}
+	});
+}
  
- var conektaSuccessResponseHandler = function(response) {
+var conektaSuccessResponseHandler = function(response) {
+	console.log(response);
 	var $form = $('#conekta-payment-form');
 	$form.append($('<input type="hidden" name="conektaToken" id="conektaToken" />').val(response.id));
-
 	$form.get(0).submit();
- };
+};
  
- var conektaErrorResponseHandler = function(token) {
-	if ($('.conekta-payment-errors').length)
+var conektaErrorResponseHandler = function(token) {
+	if ($('.conekta-payment-errors').length){
 		$('.conekta-payment-errors').fadeIn(1000);
-	else
-	{
+	} else {
 		$('#conekta-payment-form').prepend('<div class="conekta-payment-errors">' + token +'</div>');
 		$('.conekta-payment-errors').fadeIn(1000);
 	}
- };
+};
 
 
 $(document).ready(function($) {
-	console.log("ORDER ID: " +conekta_orderID);			
+	console.log("ENASDOASKDOAS");
 	window.ConektaCheckoutComponents.Integration({
 		targetIFrame: "#conektaIframeContainer",
-		checkoutRequestId: checkout_id,
+		checkoutRequestId: conekta_checkout_id,
 		publicKey: conekta_public_key,
 		options: {
 			theme: 'default', // 'blue' | 'dark' | 'default' | 'green' | 'red'
@@ -130,7 +128,6 @@ $(document).ready(function($) {
 			}
 		},
 		onCreateTokenSucceeded: function (token) {
-			console.log(token);
 			console.log("Token creado ");
 			document.getElementById('conektaIframeContainer').remove();
 			conektaSuccessResponseHandler(token);
@@ -140,11 +137,9 @@ $(document).ready(function($) {
 			conektaErrorResponseHandler(error);
 		},
 		onFinalizePayment: function(event){
-		  console.log(event);
-		  var $form = $('#conekta-payment-form');
-		  $form.append($('<input type="hidden" name="conektaOrdenID" id="conektaOrdenID" />').val(conekta_orderID));
-			
-		  alert("Pago exitoso.")
+		  	var $form = $('#conekta-payment-form');
+		  	$form.append($('<input type="hidden" name="conektaOrdenID" id="conektaOrdenID" />').val(conekta_order_id));
+		  	console.log("Pago exitoso.")
 		},
 		onErrorPayment: function(event) {
 		  console.log(event)

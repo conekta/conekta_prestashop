@@ -424,8 +424,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
         return $status;
     }
 
-    public function hookPaymentOptions($params)
-    {
+    public function hookPaymentOptions($params) {
         if (!$this->active) {
             return;
         }
@@ -440,13 +439,13 @@ class ConektaPaymentsPrestashop extends PaymentModule
 
         $payment_options = array();
 
-        if (Configuration::get('PAYMENT_METHS_SPEI')) {
-            array_push($payment_options, $this->getSpeiPaymentOption());
-        }
+        // if (Configuration::get('PAYMENT_METHS_SPEI')) {
+        //     array_push($payment_options, $this->getSpeiPaymentOption());
+        // }
 
-        if (Configuration::get('PAYMENT_METHS_CASH')) {
-            array_push($payment_options, $this->getOxxoPaymentOption());
-        }
+        // if (Configuration::get('PAYMENT_METHS_CASH')) {
+        //     array_push($payment_options, $this->getOxxoPaymentOption());
+        // }
 
         if (Configuration::get('PAYMENT_METHS_CARD')) {
             array_push($payment_options, $this->getCardPaymentOption());
@@ -1040,9 +1039,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
         return $this->context->smarty->fetch('module:conektapaymentsprestashop/views/templates/front/payment_form.tpl');
     }
 
-    public function processPayment($type, $token, $msi, $on_demand, $order_id)
-    {
-        print_r("ENTROOOSDJKAIODJASIOD");
+    public function processPayment($type, $token, $msi, $on_demand, $order_id) {
         $key      = Configuration::get('CONEKTA_MODE') ? Configuration::get('CONEKTA_PRIVATE_KEY_LIVE') : Configuration::get('CONEKTA_PRIVATE_KEY_TEST');
         $iso_code = $this->context->language->iso_code;
 
@@ -1051,7 +1048,6 @@ class ConektaPaymentsPrestashop extends PaymentModule
         \Conekta\Conekta::setApiVersion("2.0.0");
         \Conekta\Conekta::setPluginVersion($this->version);
         \Conekta\Conekta::setLocale($iso_code);
-        print_r("ENTROOO");
         $cart             = $this->context->cart;
         $customer         = \Conekta\Customer::find((int) $cart->id_customer);
         if($on_demand) {

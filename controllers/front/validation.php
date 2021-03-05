@@ -15,8 +15,7 @@
 
 class ConektaPaymentsPrestashopValidationModuleFrontController extends ModuleFrontController
 {
-    public function postProcess()
-    {
+    public function postProcess() {
         $cart = $this->context->cart;
         $authorized = false;
         $customer = new Customer($cart->id_customer);
