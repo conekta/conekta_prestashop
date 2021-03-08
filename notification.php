@@ -10,8 +10,8 @@
  *  @version  v2.0.0
  */
 
-include(dirname(__FILE__) . '/../../config/config.inc.php');
-include(dirname(__FILE__) . '/../../init.php');
+include(__DIR__ . '/../../config/config.inc.php');
+include(__DIR__ . '/../../init.php');
 
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -20,7 +20,7 @@ if (!defined('_PS_VERSION_')) {
 // To configure, add webhook in account storename.com/modules/conektaefectivo/notification.php
 
 $body = Tools::file_get_contents('php://input');
-authenticateEvent($body, $_SERVER['HTTP_DIGEST']);
+authenticateEvent($body, filter_input(INPUT_SERVER, 'HTTP_DIGEST'));
 $event_json = Tools::jsonDecode($body);
 
 if ($event_json->type == 'order.paid' && isset($event_json->data)) {
@@ -67,8 +67,7 @@ if ($event_json->type == 'order.paid' && isset($event_json->data)) {
 
 }
 
-function authenticateEvent($body, $digest)
-{
+function authenticateEvent($body, $digest) {
     if (Configuration::get('CONEKTA_MODE')) {
         $private_key_string = Configuration::get('CONEKTA_SIGNATURE_KEY_LIVE');
     } else {
@@ -90,8 +89,7 @@ function authenticateEvent($body, $digest)
 }
 
 
-function authenticateLogger($log_message)
-{
+function authenticateLogger($log_message) {
     if (version_compare(_PS_VERSION_, '1.4.0.3', '>') && class_exists('Logger')) {
         Logger::addLog($log_message, 1, null, 'notification', '');
     }
