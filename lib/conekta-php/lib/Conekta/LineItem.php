@@ -55,4 +55,3 @@ class LineItem extends ConektaResource
     return parent::_delete('order', 'line_items');
   }
 }
-?>

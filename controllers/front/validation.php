@@ -13,10 +13,9 @@
 *
 */
 
-class ConektaPaymentsPrestashopValidationModuleFrontController extends ModuleFrontController
-{
-    public function postProcess()
-    {
+class ConektaPaymentsPrestashopValidationModuleFrontController extends ModuleFrontController {
+
+    public function postProcess() {
         $cart = $this->context->cart;
         $authorized = false;
         $customer = new Customer($cart->id_customer);
@@ -29,20 +28,20 @@ class ConektaPaymentsPrestashopValidationModuleFrontController extends ModuleFro
             }
         }
         if (!$authorized) {
-            die($this->module->getTranslator()
-                ->trans('This payment method is not available.', array(), 'Modules.ConektaPaymentsPrestashop.Shop'));
+            print_r ($this->getTranslator()->trans('This payment method is not available.', array(), 'Modules.ConektaPaymentsPrestashop.Shop'));
+        } else {
+
+            if (!Validate::isLoadedObject($customer)) {
+                Tools::redirect('index.php?controller=order&step=1');
+            }
+            
+            $type = pSQL(Tools::getValue('type'));
+            $msi = pSQL(Tools::getValue('monthly_installments'));
+            $conektaToken = pSQL(Tools::getValue('conektaToken'));
+            
+            $conekta->processPayment($type, $conektaToken, $msi);
+            
+            $this->setTemplate('module:conektapaymentsprestashop/views/templates/front/payment_return.tpl');
         }
-
-        if (!Validate::isLoadedObject($customer)) {
-            Tools::redirect('index.php?controller=order&step=1');
-        }
-
-        $type = pSQL(Tools::getValue('type'));
-        $msi = pSQL(Tools::getValue('monthly_installments'));
-        $conektaToken = pSQL(Tools::getValue('conektaToken'));
-
-        $conekta->processPayment($type, $conektaToken, $msi);
-
-        $this->setTemplate('module:conektapaymentsprestashop/views/templates/front/payment_return.tpl');
     }
 }
