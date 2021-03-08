@@ -1,8 +1,8 @@
-.conekta-module-wrapper,
+/* .conekta-module-wrapper,
 .bootstrap:parent,
 .nobootstrap:parent {
   min-width: 930px;
-}
+} */
 
 .conekta-module-wrapper {
   clear: both;
@@ -262,9 +262,9 @@ table.conekta-cc-numbers td.last {
   border-bottom: none;
 }
 
-table.conekta-cc-numbers td.number code {
+/* table.conekta-cc-numbers td.number code {
   font-family: Courier;
-}
+} */
 
 .conekta-module-wrapper table {
   color: #585a69;
