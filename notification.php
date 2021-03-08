@@ -23,7 +23,6 @@ $body = Tools::file_get_contents('php://input');
 authenticateEvent($body, $_SERVER['HTTP_DIGEST']);
 $event_json = Tools::jsonDecode($body);
 
-
 if ($event_json->type == 'order.paid' && isset($event_json->data)) {
 
     $conekta_order = $event_json->data->object;

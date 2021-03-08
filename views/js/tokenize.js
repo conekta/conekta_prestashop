@@ -46,13 +46,13 @@ if ( $.mobile ) {
 		conektaSuccessResponseHandler(token);
 	}
  }
- 
+
  function conektaSetup()
  {
 	if (!$('#conekta-payment-form').length){
 		return false;
 	}
-	 
+
 	var cardComponent = {
 		idElement: 'conekta-card-number',
 		style: {

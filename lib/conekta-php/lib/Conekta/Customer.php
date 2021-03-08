@@ -160,4 +160,8 @@ class Customer extends ConektaResource
     return parent::_scpWhere($class, $params);
   }
 }
+<<<<<<< HEAD
 ?>
+=======
+?>
+>>>>>>> 84e64705292069b96fb8c4a25b16164e0ba1c2f9
