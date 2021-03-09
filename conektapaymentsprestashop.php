@@ -501,6 +501,26 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 $this->postErrors[] = $this->trans('The "Expiration date limit" must be a number.', array(), 'Modules.ConektaPaymentsPrestashop.Admin');
             }
 
+            $order_elements = array_keys(get_class_vars('Cart'));
+            $i = 0;
+            $attributes_count = 0;
+            while ($i < count($order_elements) && $attributes_count <= 5) {
+                if(!empty(Tools::getValue('ORDER_'.strtoupper($order_elements[$i])))){
+                    $attributes_count++;
+                }
+                $i++;
+            }
+            $i = 0;
+            $product_elements = self::CART_PRODUCT_ATTR;
+            while ($i < count($product_elements) && $attributes_count <= 5) {
+                if(!empty(Tools::getValue('PRODUCT_'.strtoupper($product_elements[$i])))){
+                    $attributes_count++;
+                }
+                $i++;
+            }
+            if ($attributes_count > 5){
+                $this->postErrors[] = $this->trans('No more than 5 attributes can be sent as metadata', array(), 'Modules.ConektaPaymentsPrestashop.Admin');
+            }
 
             if (!Tools::getValue('TEST_PRIVATE_KEY')) {
                 $this->postErrors[] = $this->trans('The "Test Private Key" field is required.', array(), 'Modules.ConektaPaymentsPrestashop.Admin');
@@ -577,12 +597,13 @@ class ConektaPaymentsPrestashop extends PaymentModule
         );
         $order_elements = array_keys(get_class_vars('Cart'));
         foreach ($order_elements as $element) {
-            $ret['ORDER_'.strtoupper($element)] = Tools::getValue('ORDER_'.strtoupper($element), Configuration::get('ORDER_'.strtoupper($element)));
+            $ret['ORDER_'.strtoupper($element)] = Configuration::get('ORDER_'.strtoupper($element));
         }
         $product_elements = self::CART_PRODUCT_ATTR;
         foreach ($product_elements as $element) {
-            $ret['PRODUCT_'.strtoupper($element)] = Tools::getValue('PRODUCT_'.strtoupper($element), Configuration::get('PRODUCT_'.strtoupper($element)));
+            $ret['PRODUCT_'.strtoupper($element)] = Configuration::get('PRODUCT_'.strtoupper($element));
         }
+        
         return $ret;
     }
 
@@ -915,15 +936,6 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 'EXPIRATION_DATE_TYPE' => rtrim(Tools::getValue('EXPIRATION_DATE_TYPE')),
                 
             );
-            $order_elements = array_keys(get_class_vars('Cart'));
-            foreach ($order_elements as $element) {
-                $configuration_values['ORDER_'.strtoupper($element)] = rtrim(Tools::getValue('ORDER_'.strtoupper($element)));
-            }
-            $product_elements = self::CART_PRODUCT_ATTR;
-            foreach ($product_elements as $element) {
-                $configuration_values['PRODUCT_'.strtoupper($element)] = rtrim(Tools::getValue('PRODUCT_'.strtoupper($element)));
-            }
-
             foreach ($configuration_values as $configuration_key => $configuration_value) {
                 //echo $configuration_key."\t=>   ".$configuration_value.'<br>';
                 Configuration::updateValue($configuration_key, $configuration_value);
