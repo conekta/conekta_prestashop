@@ -504,7 +504,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
             $order_elements = array_keys(get_class_vars('Cart'));
             $i = 0;
             $attributes_count = 0;
-            while ($i < count($order_elements) && $attributes_count <= 5) {
+            while ($i < count($order_elements) && $attributes_count <= 12) {
                 if(!empty(Tools::getValue('ORDER_'.strtoupper($order_elements[$i])))){
                     $attributes_count++;
                 }
@@ -512,14 +512,14 @@ class ConektaPaymentsPrestashop extends PaymentModule
             }
             $i = 0;
             $product_elements = self::CART_PRODUCT_ATTR;
-            while ($i < count($product_elements) && $attributes_count <= 5) {
+            while ($i < count($product_elements) && $attributes_count <= 12) {
                 if(!empty(Tools::getValue('PRODUCT_'.strtoupper($product_elements[$i])))){
                     $attributes_count++;
                 }
                 $i++;
             }
-            if ($attributes_count > 5){
-                $this->postErrors[] = $this->trans('No more than 5 attributes can be sent as metadata', array(), 'Modules.ConektaPaymentsPrestashop.Admin');
+            if ($attributes_count > 12){
+                $this->postErrors[] = $this->trans('No more than 12 attributes can be sent as metadata', array(), 'Modules.ConektaPaymentsPrestashop.Admin');
             }
 
             if (!Tools::getValue('TEST_PRIVATE_KEY')) {
@@ -1199,8 +1199,6 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 $order_details['metadata'][$element] = $this->context->cart->$element;
             }
         }
-        var_dump($order_details);
-        die;
 
         $amount = 0;
 
