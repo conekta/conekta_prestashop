@@ -22,6 +22,7 @@ require_once(dirname(__FILE__) . '/lib/conekta-php/lib/Conekta.php');
 if (!defined('_PS_VERSION_')) {
     exit;
 }
+define("METADATA_LIMIT",12);
 
 class ConektaPaymentsPrestashop extends PaymentModule
 {
@@ -54,7 +55,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
         $this->currencies_mode        = 'checkbox';
         $this->cash                   = true;
 
-        $config = Configuration::getMultiple(array(
+        $settings = array(
             'PAYEE_NAME',
             'PAYEE_ADDRESS',
             'MODE',
@@ -69,7 +70,17 @@ class ConektaPaymentsPrestashop extends PaymentModule
             'TEST_PUBLIC_KEY',
             'LIVE_PRIVATE_KEY',
             'LIVE_PUBLIC_KEY'
-        ));
+        );
+        $order_elements = array_keys(get_class_vars('Cart'));
+        foreach ($order_elements as $element) {
+            $settings[] = 'ORDER_'.strtoupper($element);
+        }
+        $product_elements = self::CART_PRODUCT_ATTR;
+        foreach ($product_elements as $element) {
+            $settings[] = 'PRODUCT_'.strtoupper($element);
+        }
+
+        $config = Configuration::getMultiple($settings);
 
         if (isset($config['PAYEE_NAME'])) {
             $this->checkName = $config['PAYEE_NAME'];
@@ -491,6 +502,26 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 $this->postErrors[] = $this->trans('The "Expiration date limit" must be a number.', array(), 'Modules.ConektaPaymentsPrestashop.Admin');
             }
 
+            $order_elements = array_keys(get_class_vars('Cart'));
+            $i = 0;
+            $attributes_count = 0;
+            while ($i < count($order_elements) && $attributes_count <= METADATA_LIMIT) {
+                if(!empty(Tools::getValue('ORDER_'.strtoupper($order_elements[$i])))){
+                    $attributes_count++;
+                }
+                $i++;
+            }
+            $i = 0;
+            $product_elements = self::CART_PRODUCT_ATTR;
+            while ($i < count($product_elements) && $attributes_count <= METADATA_LIMIT) {
+                if(!empty(Tools::getValue('PRODUCT_'.strtoupper($product_elements[$i])))){
+                    $attributes_count++;
+                }
+                $i++;
+            }
+            if ($attributes_count > 12){
+                $this->postErrors[] = $this->trans('No more than '.METADATA_LIMIT.' attributes can be sent as metadata', array(), 'Modules.ConektaPaymentsPrestashop.Admin');
+            }
 
             if (!Tools::getValue('TEST_PRIVATE_KEY')) {
                 $this->postErrors[] = $this->trans('The "Test Private Key" field is required.', array(), 'Modules.ConektaPaymentsPrestashop.Admin');
@@ -528,6 +559,14 @@ class ConektaPaymentsPrestashop extends PaymentModule
             Configuration::updateValue('TEST_PUBLIC_KEY', Tools::getValue('TEST_PUBLIC_KEY'));
             Configuration::updateValue('LIVE_PRIVATE_KEY', Tools::getValue('LIVE_PRIVATE_KEY'));
             Configuration::updateValue('LIVE_PUBLIC_KEY', Tools::getValue('LIVE_PUBLIC_KEY'));
+            $order_elements = array_keys(get_class_vars('Cart'));
+            foreach ($order_elements as $element) {
+                Configuration::updateValue('ORDER_'.strtoupper($element), Tools::getValue('ORDER_'.strtoupper($element)));
+            }
+            $product_elements = self::CART_PRODUCT_ATTR;
+            foreach ($product_elements as $element) {
+                Configuration::updateValue('PRODUCT_'.strtoupper($element), Tools::getValue('PRODUCT_'.strtoupper($element)));
+            }
         }
 
         $this->html .= $this->displayConfirmation($this->trans('Settings updated', array(), 'Admin.Notifications.Success'));
@@ -540,7 +579,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
 
     public function getConfigFieldsValues()
     {
-        return array(
+        $ret = array(
             'PAYEE_NAME' => Tools::getValue('PAYEE_NAME', Configuration::get('PAYEE_NAME')),
             'PAYEE_ADDRESS' => Tools::getValue('PAYEE_ADDRESS', Configuration::get('PAYEE_ADDRESS')),
             'MODE' => Tools::getValue('MODE', Configuration::get('MODE')),
@@ -557,11 +596,43 @@ class ConektaPaymentsPrestashop extends PaymentModule
             'LIVE_PRIVATE_KEY' => Tools::getValue('LIVE_PRIVATE_KEY', Configuration::get('LIVE_PRIVATE_KEY')),
             'LIVE_PUBLIC_KEY' => Tools::getValue('LIVE_PUBLIC_KEY', Configuration::get('LIVE_PUBLIC_KEY'))
         );
+        $order_elements = array_keys(get_class_vars('Cart'));
+        foreach ($order_elements as $element) {
+            $ret['ORDER_'.strtoupper($element)] = Configuration::get('ORDER_'.strtoupper($element));
+        }
+        $product_elements = self::CART_PRODUCT_ATTR;
+        foreach ($product_elements as $element) {
+            $ret['PRODUCT_'.strtoupper($element)] = Configuration::get('PRODUCT_'.strtoupper($element));
+        }
+        
+        return $ret;
     }
+
+    private const CART_PRODUCT_ATTR = array("id_product_attribute", "id_product", "cart_quantity", "id_shop", "id_customization", "name", "is_virtual", "description_short", "available_now", "available_later", "id_category_default", "id_supplier", "id_manufacturer", "manufacturer_name", "on_sale", "ecotax", "additional_shipping_cost", "available_for_order", "show_price", "price", "active", "unity", "unit_price_ratio", "quantity_available", "width", "height", "depth", "out_of_stock", "weight", "available_date", "date_add", "date_upd", "quantity", "link_rewrite", "category", "unique_id", "id_address_delivery", "advanced_stock_management", "supplier_reference", "customization_quantity", "price_attribute", "ecotax_attr", "reference", "weight_attribute", "ean13", "isbn", "upc", "minimal_quantity", "wholesale_price", "id_image", "legend", "reduction_type", "is_gift", "reduction", "reduction_without_tax", "price_without_reduction", "attributes", "attributes_small", "rate", "tax_name", "stock_quantity", "price_without_reduction_without_tax", "price_with_reduction", "price_with_reduction_without_tax", "total", "total_wt", "price_wt", "reduction_applies", "quantity_discount_applies", "allow_oosp");
 
     public function buildAdminContent()
     {
         $this->context->controller->addJS($this->_path . 'views/js/functions.js');
+        $order_elements = array_keys(array_diff_key(get_class_vars('Cart'), array('definition' => '', 'htmlFields' => '')));
+        sort($order_elements);
+        $order_meta =  array();
+        foreach ($order_elements as $val){
+            $order_meta[] = array(
+                "id" => strtoupper($val),
+                "name" => $val,
+                "val" => $val
+            );
+        }
+        $product_elements = self::CART_PRODUCT_ATTR;
+        sort($product_elements);
+        $product_meta =  array();
+        foreach ($product_elements as $val){
+            $product_meta[] = array(
+                "id" => strtoupper($val),
+                "name" => $val,
+                "val" => $val
+            );
+        }
         $fields_form = array(
             'form' => array(
                 'legend' => array(
@@ -622,7 +693,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                                 ),
                                 array(
                                     'id' => 'INSTALLMET',
-                                    'name' => $this->l('Monthly Installents'),
+                                    'name' => $this->l('Monthly Installments'),
                                     'val' => 'installment_payment_method'
                                 ),
                                 array(
@@ -700,6 +771,50 @@ class ConektaPaymentsPrestashop extends PaymentModule
                         'label' => $this->trans('Live Public Key', array(), 'Modules.ConektaPaymentsPrestashop.Admin'),
                         'name' => 'LIVE_PUBLIC_KEY',
                         'required' => true
+                    ),
+                    array(
+                        'type' => 'checkbox',
+                        'label' => $this->l('Additional Order Metadata'),
+                        'name' => 'ORDER',
+                        'values' => array(
+                            'query' => $order_meta,
+                            'id' => 'id',
+                            'name' => 'name'
+                        ),
+                        'expand' => array(
+                            'print_total' => count($order_meta),
+                            'default' => 'show',
+                            'show' => array(
+                                'text' => $this->l('show'),
+                                'icon' => 'plus-sign-alt'
+                            ),
+                            'hide' => array(
+                                'text' => $this->l('hide'),
+                                'icon' => 'minus-sign-alt'
+                            )
+                        )
+                    ),
+                    array(
+                        'type' => 'checkbox',
+                        'label' => $this->l('Additional Product Metadata'),
+                        'name' => 'PRODUCT',
+                        'values' => array(
+                            'query' => $product_meta,
+                            'id' => 'id',
+                            'name' => 'name'
+                        ),
+                        'expand' => array(
+                            'print_total' => count($product_meta),
+                            'default' => 'show',
+                            'show' => array(
+                                'text' => $this->l('show'),
+                                'icon' => 'plus-sign-alt'
+                            ),
+                            'hide' => array(
+                                'text' => $this->l('hide'),
+                                'icon' => 'minus-sign-alt'
+                            )
+                        )
                     )
                 ),
                 'submit' => array(
@@ -806,7 +921,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
         if (empty($url)) {
             $url = _PS_BASE_URL_ . __PS_BASE_URI__ . "modules/conektapaymentsprestashop/notification.php";
         }
-
+        
         if (Tools::isSubmit('btnSubmit') && Tools::getValue('TEST_PUBLIC_KEY') && Tools::getValue('TEST_PRIVATE_KEY')) {
             $configuration_values = array(
                 'CONEKTA_MODE' => Tools::getValue('MODE'),
@@ -822,7 +937,6 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 'EXPIRATION_DATE_TYPE' => rtrim(Tools::getValue('EXPIRATION_DATE_TYPE')),
                 
             );
-
             foreach ($configuration_values as $configuration_key => $configuration_value) {
                 //echo $configuration_key."\t=>   ".$configuration_value.'<br>';
                 Configuration::updateValue($configuration_key, $configuration_value);
@@ -1057,7 +1171,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 $shp_service = "Digital";
             }
         }
-
+        
         $order_details                     = array();
         $order_details['currency']         = $this->context->currency->iso_code;
         $order_details['line_items']       = Config::getLineItems($items);
@@ -1068,7 +1182,24 @@ class ConektaPaymentsPrestashop extends PaymentModule
         $order_details['shipping_contact'] = Config::getShippingContact($customer, $address_delivery, $state, $country);
         $order_details['metadata']         = array(
                 "reference_id" => (int) $this->context->cart->id,
-            );
+                "products" => array(),
+        );
+        $product_elements = self::CART_PRODUCT_ATTR;
+        foreach($items as $item){
+            $prod = array();
+            foreach ($product_elements as $element) {
+                if(!empty(Configuration::get('PRODUCT_'.strtoupper($element))) && array_key_exists($element, $item)){
+                    $prod[$element] = $item[$element];
+                }
+            }
+            $order_details['metadata']["products"][] = $prod;
+        }
+        $order_elements = array_keys(get_class_vars('Cart'));
+        foreach ($order_elements as $element) {
+            if(!empty(Configuration::get('ORDER_'.strtoupper($element))) && property_exists($this->context->cart, $element)){
+                $order_details['metadata'][$element] = $this->context->cart->$element;
+            }
+        }
 
         $amount = 0;
 
