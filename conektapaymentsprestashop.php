@@ -352,16 +352,30 @@ class ConektaPaymentsPrestashop extends PaymentModule
             if ($carrier->name != null) {
                 $shp_carrier = $carrier->name;
                 $shp_service = implode(",", $carrier->delay);
-            }else {
+            } else {
                 $shp_carrier = "Producto digital";
                 $shp_service = "Digital";
             }
         }
         $order_details = array();
 
+        $payment_options = array();
+
+        if (Configuration::get('PAYMENT_METHS_SPEI')) {
+            array_push($payment_options, 'bank_transfer');
+        }
+
+        if (Configuration::get('PAYMENT_METHS_CASH')) {
+            array_push($payment_options, 'cash');
+        }
+
+        if (Configuration::get('PAYMENT_METHS_CARD')) {
+            array_push($payment_options, 'card');
+        }
+
         $order_details['checkout'] = [
             "type" => 'Integration',
-            "allowed_payment_methods" => array("cash", "card", "bank_transfer"),
+            "allowed_payment_methods" => $payment_options,
             "on_demand_enabled" => true
         ];
         $order_details['shipping_lines'] = [
@@ -376,7 +390,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
         $order_details['shipping_contact'] = Config::getShippingContact($customer, $address_delivery, $state, $country);
         
         
-        $order_details['tax_lines']        = Config::getTaxLines($items);
+        // $order_details['tax_lines']        = Config::getTaxLines($items);
         $order_details['discount_lines']   = Config::getDiscountLines($discounts);
         
         // $order_details['customer_info']    = (true)? Config::getCustomerInfo($customer, $address_delivery) : array("customer_id" => $customer->id );
@@ -447,7 +461,9 @@ class ConektaPaymentsPrestashop extends PaymentModule
         //     array_push($payment_options, $this->getOxxoPaymentOption());
         // }
 
-        if (Configuration::get('PAYMENT_METHS_CARD')) {
+        if (Configuration::get('PAYMENT_METHS_CARD') 
+            || Configuration::get('PAYMENT_METHS_CASH')
+            || Configuration::get('PAYMENT_METHS_SPEI')) {
             array_push($payment_options, $this->getCardPaymentOption());
         }
         return $payment_options;
@@ -1040,6 +1056,9 @@ class ConektaPaymentsPrestashop extends PaymentModule
     }
 
     public function processPayment($type, $token, $msi, $on_demand, $order_id) {
+        
+        die("ENTROOOO!");
+    
         $key      = Configuration::get('CONEKTA_MODE') ? Configuration::get('CONEKTA_PRIVATE_KEY_LIVE') : Configuration::get('CONEKTA_PRIVATE_KEY_TEST');
         $iso_code = $this->context->language->iso_code;
 
@@ -1137,7 +1156,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
             $order->update([
                 $order_details
             ]);
-            if( empty($order) ){
+            if( empty($order) ) {
 
                 $order = \Conekta\Order::create($order_details);
             }

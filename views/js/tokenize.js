@@ -78,29 +78,14 @@ function conektaSetup() {
 	//  $('#cardExpMonth').removeAttr('name');
 	//  $('#cardExpYear').removeAttr('name');	
  
-	 $('#conekta-payment-form').submit(function(event) {
-		var $form = $('#conekta-payment-form');
-		if( $form.find('[name=conektaToken]').length) {
-			return true;
-		} else {
-			var month = $('#cardExpMonth').val();
-			var year = $('#cardExpYear').val();
-			var owner = $('.cardNumber').val();
-			createToken('cardNumber', callBack, {//conekta-card-number
-				name: owner,
-				expMonth: month,
-				expYear: year
-			});
-		   	return false;
-		}
-	});
+	
 }
  
 var conektaSuccessResponseHandler = function(response) {
 	console.log(response);
 	var $form = $('#conekta-payment-form');
 	$form.append($('<input type="hidden" name="conektaToken" id="conektaToken" />').val(response.id));
-	$form.get(0).submit();
+	// $form.get(0).submit();
 };
  
 var conektaErrorResponseHandler = function(token) {
@@ -116,9 +101,9 @@ var conektaErrorResponseHandler = function(token) {
 $(document).ready(function($) {
 	console.log("ENASDOASKDOAS");
 	window.ConektaCheckoutComponents.Integration({
-		targetIFrame: "#conektaIframeContainer",
-		checkoutRequestId: conekta_checkout_id,
-		publicKey: conekta_public_key,
+		targetIFrame: "#conektaIframeContainer", 
+		checkoutRequestId: conekta_checkout_id, // id del checkout $order->checkout['id']
+		publicKey: conekta_public_key, // key de conekta, la que se pone en el admin
 		options: {
 			theme: 'default', // 'blue' | 'dark' | 'default' | 'green' | 'red'
 			styles: {
@@ -139,7 +124,8 @@ $(document).ready(function($) {
 		onFinalizePayment: function(event){
 		  	var $form = $('#conekta-payment-form');
 		  	$form.append($('<input type="hidden" name="conektaOrdenID" id="conektaOrdenID" />').val(conekta_order_id));
-		  	console.log("Pago exitoso.")
+			$form.append($('<button id="conekta-payment-resume" type="submit" class="btn btn-primary" >resumen</button>').val(conekta_order_id));
+			console.log("Pago exitoso.")
 		},
 		onErrorPayment: function(event) {
 		  console.log(event)
@@ -148,3 +134,20 @@ $(document).ready(function($) {
 	})
 
 });
+$('#conekta-payment-form').submit(function(event) {
+		console.log("ENTOAOSOSKADSODKASDa");
+		var $form = $('#conekta-payment-form');
+		if( $form.find('[name=conektaToken]').length) {
+			return true;
+		} else {
+			var month = $('#cardExpMonth').val();
+			var year = $('#cardExpYear').val();
+			var owner = $('.cardNumber').val();
+			createToken('cardNumber', callBack, {//conekta-card-number
+				name: owner,
+				expMonth: month,
+				expYear: year
+			});
+		   	return false;
+		}
+	});
