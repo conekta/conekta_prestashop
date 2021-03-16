@@ -31,14 +31,14 @@
 		<ul class="nav nav-tabs" id="tabConekta">
 			<li class="active">
 				<a href="#conekta_details">
-					<i class="icon-money"></i> {l s='Details' mod='conektapaymentsprestashop'} <span class="badge">{$conekta_transaction_details.id_transaction|escape:'htmlall':'UTF-8'}</span>
+					<i class="icon-money"></i> {l s='Details' mod='conektapaymentsprestashop'} <span class="badge">{$conekta_tran_details.id_transaction|escape:'htmlall':'UTF-8'}</span>
 				</a>
 			</li>
 		</ul>
 
 		<div class="tab-content panel">
 			<div class="tab-pane active" id="conekta_details">
-			{if isset($conekta_transaction_details.id_transaction)}
+			{if isset($conekta_tran_details.id_transaction)}
 				<p>
 					<strong>Status</strong> <span style="font-weight: bold; color: {$color_status|escape:'htmlall':'UTF-8'};">{$message_status|escape:'htmlall':'UTF-8'}</span>
 					<br>
