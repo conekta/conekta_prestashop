@@ -52,7 +52,8 @@ class Database
 
     public static function installDb()
     {
-        return (Db::getInstance()->Execute('CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'conekta_transaction` (
+        return (
+            Db::getInstance()->execute('CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'conekta_transaction` (
             `id_conekta_transaction` int(11) NOT NULL AUTO_INCREMENT,
             `type` enum(\'payment\',\'refund\') NOT NULL,
             `id_cart` int(10) unsigned NOT NULL,
@@ -69,17 +70,44 @@ class Database
             `captured` tinyint(1) NOT NULL DEFAULT \'1\',
             PRIMARY KEY (`id_conekta_transaction`),
             KEY `idx_transaction` (`type`,`id_order`,`status`))
-            ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8 AUTO_INCREMENT=1'));
-            //  &amp&amp
-            // (Db::getInstance()->execute('CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'conekta_metadata` (
-            // `id_conekta_metadata` int(11) NOT NULL AUTO_INCREMENT,
-            // `user_id` INT(11) UNSIGNED NOT NULL,
-            // `meta_option` varchar(32) NOT NULL,
-            // `meta_value` VARCHAR( 128 ) NOT NULL ,
-            // PRIMARY KEY (`id_conekta_metadata`),
-            // ENGINE = '._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8 AUTO_INCREMENT=1')) 
+            ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8 AUTO_INCREMENT=1')
+        );
     }
 
+    public static function createTableMetaData(){
+        $table = _DB_PREFIX_."conekta_metadata";
+        $sql = "CREATE TABLE IF NOT EXISTS $table (
+            id_conekta_metadata int(11) NOT NULL AUTO_INCREMENT,
+            id_user int(11) unsigned NOT NULL,
+            meta_option varchar(32) NOT NULL,
+            meta_value varchar(128) NOT NULL,
+            PRIMARY KEY (id_conekta_metadata),
+            KEY id_user (id_user),
+            KEY id_conekta_metadata (id_conekta_metadata)
+            )
+            ENGINE=". _MYSQL_ENGINE_ . "DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;";
+
+        return (Db::getInstance()->execute($sql));
+    }
+
+    public static function createTableConektaOrder() {
+        $table = _DB_PREFIX_."conekta_order_checkout";
+        $sql = "CREATE TABLE IF NOT EXISTS $table (
+            id int(11) NOT NULL AUTO_INCREMENT,
+            id_user int(11) unsigned NOT NULL,
+            id_cart int(11) unsigned NOT NULL,
+            id_conekta_order varchar(32) NOT NULL,
+            `status` enum(\"paid\",\"unpaid\") NOT NULL,
+            PRIMARY KEY (id),
+            KEY id_user (id_user),
+            KEY id_cart (id_cart),
+            KEY id (id),
+            KEY id_conekta_order (id_conekta_order)
+            )
+            ENGINE=". _MYSQL_ENGINE_ . "DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;";
+
+        return (Db::getInstance()->execute($sql));
+    }
 
     public static function insertSpeiPayment($order, $charge_response, $reference, $currentOrder, $cartId)
     {
@@ -114,5 +142,45 @@ class Database
             'SELECT * FROM ' . _DB_PREFIX_ . 'conekta_transaction '
             .'WHERE id_order = ' . pSQL((int) $id_order) . ';'
         );
+    }
+
+    static public function get_conekta_metadata($user_id, $meta_options) {
+        $table = _DB_PREFIX_."conekta_metadata";
+		$sql = "SELECT meta_value FROM  $table WHERE id_user = '{$user_id}' AND meta_option = '{$meta_options}'";
+		
+		return  Db::getInstance()->getRow($sql);
+    }
+    
+    static public function update_conekta_metadata($user_id, $meta_options, $meta_value) {
+        $table = _DB_PREFIX_."conekta_metadata";
+
+        if (empty(Database::get_conekta_metadata($user_id, $meta_options))) {
+            $sql = "INSERT INTO $table(id_user, meta_option, meta_value) VALUES ('{$user_id}','{$meta_options}','{$meta_value}')";
+        } else {
+			$sql ="UPDATE $table SET id_user = '{$user_id}', meta_option = '{$meta_options}', meta_value = '{$meta_value}' WHERE id_user = '{$user_id}' AND meta_option = '{$meta_options}'";
+        }
+
+        return Db::getInstance()->Execute($sql);
+    }
+
+    static public function get_conekta_order($user_id, $cart_id) {
+
+        $table = _DB_PREFIX_."conekta_order_checkout";
+		$sql = "SELECT id_conekta_order, `status` FROM  $table WHERE id_user = '{$user_id}' AND `status` = \"unpaid\" AND id_cart ='{$cart_id}'";
+		
+		return  Db::getInstance()->getRow($sql);
+    }
+
+    static public function update_conekta_order($user_id, $cart_id, $id_conekta_order, $status) {
+
+        $table = _DB_PREFIX_."conekta_order_checkout";
+
+        if (empty(Database::get_conekta_order($user_id, $cart_id))) {
+            $sql = "INSERT INTO $table(id_user,	id_cart, id_conekta_order, `status`) VALUES ('{$user_id}','{$cart_id}','{$id_conekta_order}', '{$status}')";
+        } else {
+			$sql = "UPDATE $table SET `status` = '{$status}' WHERE id_user = '{$user_id}' AND id_cart = '{$cart_id}' AND id_conekta_order = '{$id_conekta_order}'";
+        }
+
+        return Db::getInstance()->Execute($sql);
     }
 }

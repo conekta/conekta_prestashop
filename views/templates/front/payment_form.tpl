@@ -28,7 +28,6 @@
 {if isset($smarty.get.message)}
   <div class="conekta-payment-errors" style="display:block;">{$smarty.get.message|escape:'htmlall':'UTF-8'}</div>
 {/if}
-
 <form action="{$action|escape:'htmlall':'UTF-8'}" id="conekta-payment-form">
 
   {if isset($smarty.get.conekta_error)}
@@ -38,4 +37,5 @@
   {/if}
 
   <div id="conektaIframeContainer" style="height:800px; width: 600px;"></div>
+  <button style="display:none" id="conekta-payment-resume" type="submit" class="btn btn-primary">resumen</button>
 </form>

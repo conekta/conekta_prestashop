@@ -74,13 +74,11 @@ function conektaSetup() {
 
 	renderComponents(conekta_public_key, cardComponent, cvcComponent);
 	 
-	 //since we are using smarty html_select_date custom function
+	//  since we are using smarty html_select_date custom function
 	//  $('#cardExpMonth').removeAttr('name');
 	//  $('#cardExpYear').removeAttr('name');	
- 
-	
 }
- 
+
 var conektaSuccessResponseHandler = function(response) {
 	console.log(response);
 	var $form = $('#conekta-payment-form');
@@ -89,7 +87,7 @@ var conektaSuccessResponseHandler = function(response) {
 };
  
 var conektaErrorResponseHandler = function(token) {
-	if ($('.conekta-payment-errors').length){
+	if ($('.conekta-payment-errors').length) {
 		$('.conekta-payment-errors').fadeIn(1000);
 	} else {
 		$('#conekta-payment-form').prepend('<div class="conekta-payment-errors">' + token +'</div>');
@@ -98,9 +96,9 @@ var conektaErrorResponseHandler = function(token) {
 };
 
 
-$(document).ready(function($) {
+$(document).ready (function($) {
 	console.log("ENASDOASKDOAS");
-	window.ConektaCheckoutComponents.Integration({
+	window.ConektaCheckoutComponents.Integration ({
 		targetIFrame: "#conektaIframeContainer", 
 		checkoutRequestId: conekta_checkout_id, // id del checkout $order->checkout['id']
 		publicKey: conekta_public_key, // key de conekta, la que se pone en el admin
@@ -121,33 +119,33 @@ $(document).ready(function($) {
 			console.log(error);
 			conektaErrorResponseHandler(error);
 		},
-		onFinalizePayment: function(event){
+		onFinalizePayment: function(event) {
 		  	var $form = $('#conekta-payment-form');
 		  	$form.append($('<input type="hidden" name="conektaOrdenID" id="conektaOrdenID" />').val(conekta_order_id));
-			$form.append($('<button id="conekta-payment-resume" type="submit" class="btn btn-primary" >resumen</button>').val(conekta_order_id));
+			$form.get(0).submit();
 			console.log("Pago exitoso.")
 		},
 		onErrorPayment: function(event) {
-		  console.log(event)
-		  alert("Pago declinado.")
+			console.log(event)
+			alert("Pago declinado.")
 		}
 	})
 
 });
 $('#conekta-payment-form').submit(function(event) {
-		console.log("ENTOAOSOSKADSODKASDa");
-		var $form = $('#conekta-payment-form');
-		if( $form.find('[name=conektaToken]').length) {
-			return true;
-		} else {
-			var month = $('#cardExpMonth').val();
-			var year = $('#cardExpYear').val();
-			var owner = $('.cardNumber').val();
-			createToken('cardNumber', callBack, {//conekta-card-number
-				name: owner,
-				expMonth: month,
-				expYear: year
-			});
-		   	return false;
-		}
-	});
+	console.log("ENTOAOSOSKADSODKASDa");
+	var $form = $('#conekta-payment-form');
+	if ($form.find('[name=conektaToken]').length) {
+		return true;
+	} else {
+		var month = $('#cardExpMonth').val();
+		var year = $('#cardExpYear').val();
+		var owner = $('.cardNumber').val();
+		createToken('cardNumber', callBack, {//conekta-card-number
+			name: owner,
+			expMonth: month,
+			expYear: year
+		});
+		return false;
+	}
+});
