@@ -74,7 +74,7 @@ class Database
         );
     }
 
-    public static function createTableMetaData(){
+    public static function createTableMetaData() {
         $table = _DB_PREFIX_."conekta_metadata";
         $sql = "CREATE TABLE IF NOT EXISTS $table (
             id_conekta_metadata int(11) NOT NULL AUTO_INCREMENT,

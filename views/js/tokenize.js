@@ -73,17 +73,12 @@ function conektaSetup() {
 	};
 
 	renderComponents(conekta_public_key, cardComponent, cvcComponent);
-	 
-	//  since we are using smarty html_select_date custom function
-	//  $('#cardExpMonth').removeAttr('name');
-	//  $('#cardExpYear').removeAttr('name');	
 }
 
 var conektaSuccessResponseHandler = function(response) {
 	console.log(response);
 	var $form = $('#conekta-payment-form');
 	$form.append($('<input type="hidden" name="conektaToken" id="conektaToken" />').val(response.id));
-	// $form.get(0).submit();
 };
  
 var conektaErrorResponseHandler = function(token) {
@@ -97,17 +92,17 @@ var conektaErrorResponseHandler = function(token) {
 
 
 $(document).ready (function($) {
-	console.log("ENASDOASKDOAS");
+	
 	window.ConektaCheckoutComponents.Integration ({
 		targetIFrame: "#conektaIframeContainer", 
-		checkoutRequestId: conekta_checkout_id, // id del checkout $order->checkout['id']
-		publicKey: conekta_public_key, // key de conekta, la que se pone en el admin
+		checkoutRequestId: conekta_checkout_id,
+		publicKey: conekta_public_key,
 		options: {
-			theme: 'default', // 'blue' | 'dark' | 'default' | 'green' | 'red'
+			theme: 'default',
 			styles: {
-				fontSize: 'baseline', // 'baseline' | 'compact'
-				inputType: 'rounded', // 'basic' | 'rounded' | 'line'
-				buttonType: 'sharp' // 'basic' | 'rounded' | 'sharp'
+				fontSize: 'baseline',
+				inputType: 'rounded',
+				buttonType: 'sharp'
 			}
 		},
 		onCreateTokenSucceeded: function (token) {
@@ -133,7 +128,6 @@ $(document).ready (function($) {
 
 });
 $('#conekta-payment-form').submit(function(event) {
-	console.log("ENTOAOSOSKADSODKASDa");
 	var $form = $('#conekta-payment-form');
 	if ($form.find('[name=conektaToken]').length) {
 		return true;
@@ -141,7 +135,7 @@ $('#conekta-payment-form').submit(function(event) {
 		var month = $('#cardExpMonth').val();
 		var year = $('#cardExpYear').val();
 		var owner = $('.cardNumber').val();
-		createToken('cardNumber', callBack, {//conekta-card-number
+		createToken('cardNumber', callBack, {
 			name: owner,
 			expMonth: month,
 			expYear: year
