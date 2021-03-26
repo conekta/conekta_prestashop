@@ -27,6 +27,7 @@ require_once __DIR__ . '/lib/conekta-php/lib/Conekta.php';
 if (!defined('_PS_VERSION_')) {
     exit;
 }
+define("METADATA_LIMIT",12);
 
 /**
  * ConektaPaymentsPrestashop Class Doc Comment
@@ -82,6 +83,7 @@ class ConektaPaymentsPrestashop extends PaymentModule {
         foreach ($product_elements as $element) {
             $settings[] = 'PRODUCT_'.strtoupper($element);
         }
+
         $config = Configuration::getMultiple($settings);
 
         if (isset($config['PAYEE_NAME'])) {
@@ -257,6 +259,7 @@ class ConektaPaymentsPrestashop extends PaymentModule {
                 );
             }
         }
+
         return $this->fetchTemplate('checkout-confirmation-all.tpl');
     }
 
@@ -412,6 +415,7 @@ class ConektaPaymentsPrestashop extends PaymentModule {
         } else {
             $this->smarty->assign("api_key", addslashes(Configuration::get('TEST_PUBLIC_KEY')));
         }
+
         $this->smarty->assign("path", $this->_path);
 
         $cart = $this->context->cart;
@@ -1112,6 +1116,7 @@ class ConektaPaymentsPrestashop extends PaymentModule {
 
         $this->html .= $this->displayCheck();
         $this->html .= $this->renderForm();
+        
 
         return $this->html;
     }
@@ -1320,8 +1325,10 @@ class ConektaPaymentsPrestashop extends PaymentModule {
             }
 
             $message = $e->getMessage() . ' ';
+
             $controller = Configuration::get('PS_ORDER_PROCESS_TYPE') ? 'order-opc.php' : 'order.php';
             $location   = $this->context->link->getPageLink($controller, true) . (strpos($controller, '?') !== false ? '&' : '?') . 'step=3&conekta_error=1&message=' . $message . '#conekta_error';
+
             Tools::redirectLink($location);
         }
     }
@@ -1378,4 +1385,7 @@ class ConektaPaymentsPrestashop extends PaymentModule {
             return $this->fetchTemplate("admin-order.tpl");
         }
     }
+
+
 }
+
