@@ -126,7 +126,7 @@ class Config
     {
         $customer_info = array(
             "name"     => $customer->firstname . " " . $customer->lastname,
-            "phone"    => $address_delivery->phone,
+            // "phone"    => $address_delivery->phone,
             "email"    => $customer->email,
             "metadata" => array("soft_validations" => true)
             );

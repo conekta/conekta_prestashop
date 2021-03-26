@@ -23,20 +23,20 @@
 *  @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
-// if ( $.mobile ) {
-// 	//jq mobile loaded
-// 	 $(document).on('pageinit', function() {
-// 		 conektaSetup();
-// 	 });
-// 	 $(document).ready(function() {
-// 		 conektaSetup();
-// 	 });
-//  } else {
-//    // not jqm
-// 	 $(document).ready(function() {
-// 		 conektaSetup();
-// 	 });
-//  }
+if ( $.mobile ) {
+	//jq mobile loaded
+	 $(document).on('pageinit', function() {
+		 conektaSetup();
+	 });
+	 $(document).ready(function() {
+		 conektaSetup();
+	 });
+ } else {
+   // not jqm
+	 $(document).ready(function() {
+		 conektaSetup();
+	 });
+ }
 
 function callBack(token){
 	if(!token.id) {
@@ -92,6 +92,7 @@ var conektaErrorResponseHandler = function(token) {
 
 
 $(document).ready (function($) {
+	console.log(conekta_checkout_id);
 	
 	window.ConektaCheckoutComponents.Integration ({
 		targetIFrame: "#conektaIframeContainer", 
