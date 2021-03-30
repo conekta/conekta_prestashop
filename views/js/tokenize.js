@@ -92,8 +92,6 @@ var conektaErrorResponseHandler = function(token) {
 
 
 $(document).ready (function($) {
-	console.log(conekta_checkout_id);
-	
 	window.ConektaCheckoutComponents.Integration ({
 		targetIFrame: "#conektaIframeContainer", 
 		checkoutRequestId: conekta_checkout_id,
