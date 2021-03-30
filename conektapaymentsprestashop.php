@@ -731,6 +731,7 @@ class ConektaPaymentsPrestashop extends PaymentModule {
             Configuration::updateValue('TEST_PUBLIC_KEY', Tools::getValue('TEST_PUBLIC_KEY'));
             Configuration::updateValue('LIVE_PRIVATE_KEY', Tools::getValue('LIVE_PRIVATE_KEY'));
             Configuration::updateValue('LIVE_PUBLIC_KEY', Tools::getValue('LIVE_PUBLIC_KEY'));
+            Configuration::updateValue('CHARGE_ON_DEMAND_ENABLE', Tools::getValue('CHARGE_ON_DEMAND_ENABLE'));
             $order_elements = array_keys(get_class_vars('Cart'));
             foreach ($order_elements as $element) {
                 Configuration::updateValue('ORDER_'.strtoupper($element), Tools::getValue('ORDER_'.strtoupper($element)));
@@ -1350,7 +1351,7 @@ class ConektaPaymentsPrestashop extends PaymentModule {
         if (Database::getOrderConekta($order_id) == $this->name) {
             $conekta_tran_details = Database::getConektaTransaction($order_id);
 
-            $this->smarty->assign('conekta_tran_details', $conekta_tran_details);
+            $this->smarty->assign('conekta_transaction_details', $conekta_tran_details);
             
             if ($conekta_tran_details['status'] === 'paid') {
                 $this->smarty->assign("color_status", "green");
