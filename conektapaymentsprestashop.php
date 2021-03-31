@@ -472,8 +472,9 @@ class ConektaPaymentsPrestashop extends PaymentModule {
             $customerConekta->update($customerInfo);
         }
 
-        if (count($payment_options) > 0 && $customer_id != null && $shippingContact != null && $shippingLines != null) {
+        if (count($payment_options) > 0 && $customer_id != null && $shippingContact['postal_code'] != null && $shippingLines != null) {
             $order_details = array();
+            $taxlines = array();
     
             if ((Configuration::get('PAYMENT_METHS_INSTALLMET'))) {
                 $msi = true;
@@ -502,9 +503,11 @@ class ConektaPaymentsPrestashop extends PaymentModule {
             foreach ($order_details['line_items'] as $item) {
                 $amount = $amount + ($item['quantity'] * $item['unit_price']);
             }
-    
-            if (isset($order_details['tax_lines'])) {
-                foreach ($order_details['tax_lines'] as $tax) {
+            
+            $taxlines = Config::getTaxLines($items);
+
+            if (isset($taxlines)) {
+                foreach ($taxlines as $tax) {
                     $amount = $amount + $tax['amount'];
                 }
             }
@@ -524,6 +527,10 @@ class ConektaPaymentsPrestashop extends PaymentModule {
             $result = Database::get_conekta_order($customer->id, $this->context->cart->id);
 
             try {
+
+                if ($amount < 2000) {
+                    return false;
+                }
 
                 if (isset($result) && $result['status'] == 'unpaid') {
                     $order = \Conekta\Order::find($result['id_conekta_order']);
@@ -565,8 +572,9 @@ class ConektaPaymentsPrestashop extends PaymentModule {
                 $message = $e->getMessage() . ' ';
 
                 $controller = Configuration::get('PS_ORDER_PROCESS_TYPE') ? 'order-opc.php' : 'order.php';
-                $location   = $this->context->link->getPageLink($controller, true) . (strpos($controller, '?') !== false ? '&' : '?') . '&message=' . $message . '#conekta_error';
-                $this->smarty->assign("message", $message);
+                $location   = $this->context->link->getPageLink($controller, true) . (strpos($controller, '?') !== false ? '&' : '?') . '&message=' . $message;
+                
+                $this->context->smarty->assign("message", $message);
             }
         }
         if (isset($order)) {
