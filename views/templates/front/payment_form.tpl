@@ -24,10 +24,13 @@
  * International Registered Trademark & Property of PrestaShop SA
  *}
 
- 
+{if isset($message)}
+  <div class="conekta-payment-errors" style="display:block;">{$message|escape:'htmlall':'UTF-8'}</div>
+{/if}
 {if isset($smarty.get.message)}
   <div class="conekta-payment-errors" style="display:block;">{$smarty.get.message|escape:'htmlall':'UTF-8'}</div>
 {/if}
+
 <form action="{$action|escape:'htmlall':'UTF-8'}" id="conekta-payment-form">
 
   {if isset($smarty.get.conekta_error)}
@@ -35,7 +38,9 @@
       {l s='There was a problem processing your credit card, please double check your data and try again.' mod='conektapaymentsprestashop'}
     </div>
   {/if}
+  {if !isset($message)}
+      <div id="conektaIframeContainer" style="height:800px; width: 600px;"></div>
+      <button style="display:none" id="conekta-payment-resume" type="submit" class="btn btn-primary">resumen</button>
+  {/if}
 
-  <div id="conektaIframeContainer" style="height:800px; width: 600px;"></div>
-  <button style="display:none" id="conekta-payment-resume" type="submit" class="btn btn-primary">resumen</button>
 </form>
