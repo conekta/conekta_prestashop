@@ -57,6 +57,7 @@ class ConektaPaymentsPrestashop extends PaymentModule {
         $this->currencies             = true;
         $this->currencies_mode        = 'checkbox';
         $this->cash                   = true;
+        $this->amount_min             = 2000;
 
         $settings = array(
             'PAYEE_NAME',
@@ -472,8 +473,9 @@ class ConektaPaymentsPrestashop extends PaymentModule {
             $customerConekta->update($customerInfo);
         }
 
-        if (count($payment_options) > 0 && $customer_id != null && $shippingContact != null && $shippingLines != null) {
+        if (count($payment_options) > 0 && !empty($customer_id) && !empty($shippingContact['address']['postal_code']) && !empty($shippingLines)) {
             $order_details = array();
+            $taxlines = array();
     
             if ((Configuration::get('PAYMENT_METHS_INSTALLMET'))) {
                 $msi = true;
@@ -482,6 +484,8 @@ class ConektaPaymentsPrestashop extends PaymentModule {
             if (Configuration::get('CHARGE_ON_DEMAND_ENABLE')) {
                 $on_demand_enabled = true;
             }
+           
+            $taxlines = Config::getTaxLines($items);
 
             $order_details = [
                 'currency' => $this->context->currency->iso_code,
@@ -499,14 +503,17 @@ class ConektaPaymentsPrestashop extends PaymentModule {
 
             ];
             $amount = 0;
-            foreach ($order_details['line_items'] as $item) {
-                $amount = $amount + ($item['quantity'] * $item['unit_price']);
-            }
-    
-            if (isset($order_details['tax_lines'])) {
-                foreach ($order_details['tax_lines'] as $tax) {
+
+            if (isset($taxlines)) {
+                $i = 0;
+                foreach ($taxlines as $tax) {
+                    $order_details['tax_lines'][$i] = $tax;
                     $amount = $amount + $tax['amount'];
                 }
+            }
+
+            foreach ($order_details['line_items'] as $item) {
+                $amount = $amount + ($item['quantity'] * $item['unit_price']);
             }
     
             if (isset($order_details['shipping_lines'])) {
@@ -524,7 +531,14 @@ class ConektaPaymentsPrestashop extends PaymentModule {
             $result = Database::get_conekta_order($customer->id, $this->context->cart->id);
 
             try {
-
+            
+                if ( $order_details['currency'] == 'MXN' && $amount < $this->amount_min) {
+                    $message = "El monto minimo de compra con Conekta tiene que ser mayor a $20.00 ";
+                    $this->context->smarty->assign(array(
+                        'message' =>  $message,
+                    ));
+                    return false;
+                }
                 if (isset($result) && $result['status'] == 'unpaid') {
                     $order = \Conekta\Order::find($result['id_conekta_order']);
     
@@ -555,7 +569,7 @@ class ConektaPaymentsPrestashop extends PaymentModule {
                     Database::update_conekta_order($customer->id, $this->context->cart->id, $order->id, 'unpaid');
                 }
 
-            } catch (\Exception $e) {
+            }  catch (\Exception $e) {
                 $log_message = $e->getMessage() . ' ';
     
                 if (class_exists('Logger')) {
@@ -564,9 +578,7 @@ class ConektaPaymentsPrestashop extends PaymentModule {
     
                 $message = $e->getMessage() . ' ';
 
-                $controller = Configuration::get('PS_ORDER_PROCESS_TYPE') ? 'order-opc.php' : 'order.php';
-                $location   = $this->context->link->getPageLink($controller, true) . (strpos($controller, '?') !== false ? '&' : '?') . '&message=' . $message . '#conekta_error';
-                $this->smarty->assign("message", $message);
+                $this->context->smarty->assign("message", $message);
             }
         }
         if (isset($order)) {
