@@ -453,6 +453,7 @@ class ConektaPaymentsPrestashop extends PaymentModule {
             if ($carrier->name != null) {
                 $shp_carrier = $carrier->name;
                 $shp_service = implode(",", $carrier->delay);
+
             } else {
                 $shp_carrier = "Producto digital";
                 $shp_service = "Digital";
@@ -460,8 +461,8 @@ class ConektaPaymentsPrestashop extends PaymentModule {
         }
 
         $result = Database::get_conekta_metadata($customer->id, "conekta_customer_id");
-       
         $shippingLines =  Config::getShippingLines($shp_service, $shp_carrier, $shp_price);
+       
         $shippingContact = Config::getShippingContact($customer, $address_delivery, $state, $country);
         $customerInfo = Config::getCustomerInfo($customer, $address_delivery);
 
@@ -472,7 +473,6 @@ class ConektaPaymentsPrestashop extends PaymentModule {
             $customerConekta = \Conekta\Customer::find($customer_id);
             $customerConekta->update($customerInfo);
         }
-
         if (count($payment_options) > 0 && !empty($customer_id) && !empty($shippingContact['address']['postal_code']) && !empty($shippingLines)) {
             $order_details = array();
             $taxlines = array();
@@ -484,7 +484,6 @@ class ConektaPaymentsPrestashop extends PaymentModule {
             if (Configuration::get('CHARGE_ON_DEMAND_ENABLE')) {
                 $on_demand_enabled = true;
             }
-           
             $taxlines = Config::getTaxLines($items);
 
             $order_details = [
@@ -494,20 +493,22 @@ class ConektaPaymentsPrestashop extends PaymentModule {
                 'discount_lines' => Config::getDiscountLines($discounts),
                 'shipping_lines' => $shippingLines,
                 'shipping_contact' => $shippingContact,
+                'tax_lines' => array(),
                 'metadata' => ["reference_id" => $this->context->cart->id],
                 'checkout' => [
                     "type" => 'Integration',
                     "allowed_payment_methods" => $payment_options,
                     "on_demand_enabled" => $on_demand_enabled
                 ]
-
             ];
             $amount = 0;
 
             if (isset($taxlines)) {
-                $i = 0;
                 foreach ($taxlines as $tax) {
-                    $order_details['tax_lines'][$i] = $tax;
+                    array_push($order_details['tax_lines'], array(
+                        'description' => str_replace('%','',$tax['description']),
+                        'amount' => $tax['amount']
+                    ));
                     $amount = $amount + $tax['amount'];
                 }
             }
@@ -549,10 +550,7 @@ class ConektaPaymentsPrestashop extends PaymentModule {
 
                 if (empty($order)) {
                     $order = \Conekta\Order::create($order_details);
-                    foreach (Config::getTaxLines($items) as $taxlines) {
-		
-                        $order->createTaxLine($taxlines);
-                    }
+
                     Database::update_conekta_order($customer->id, $this->context->cart->id, $order->id, 'unpaid');
 
                 } elseif (empty($order->charges[0]->status) || $order->charges[0]->status != 'paid') {
@@ -562,13 +560,10 @@ class ConektaPaymentsPrestashop extends PaymentModule {
                 } else {
                   
                     $order = \Conekta\Order::create($order_details);
-                    foreach (Config::getTaxLines($items) as $taxlines) {
-		
-                        $order->createTaxLine($taxlines);
-                    }
+
                     Database::update_conekta_order($customer->id, $this->context->cart->id, $order->id, 'unpaid');
                 }
-
+                
             }  catch (\Exception $e) {
                 $log_message = $e->getMessage() . ' ';
     
