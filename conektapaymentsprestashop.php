@@ -265,34 +265,30 @@ class ConektaPaymentsPrestashop extends PaymentModule {
     }
 
     public function hookUpdateOrderStatus($params) { 
-        $key = Configuration::get('CONEKTA_MODE') ?
-        Configuration::get('CONEKTA_PRIVATE_KEY_LIVE') :
-        Configuration::get('CONEKTA_PRIVATE_KEY_TEST');
-        $iso_code = $this->context->language->iso_code;
 
-        \Conekta\Conekta::setApiKey($key);
-        \Conekta\Conekta::setPlugin("Prestashop1.7");
-        \Conekta\Conekta::setApiVersion("2.0.0");
-        \Conekta\Conekta::setPluginVersion($this->version);
-        \Conekta\Conekta::setLocale($iso_code);
-        if ($params['newOrderStatus']->id == 7) {
-            //order refunded
+        if ($params['newOrderStatus']->id == 7 || $params['newOrderStatus']->id == 6) {
+
+            $key = Configuration::get('CONEKTA_MODE') ?
+            Configuration::get('CONEKTA_PRIVATE_KEY_LIVE') :
+            Configuration::get('CONEKTA_PRIVATE_KEY_TEST');
+            $iso_code = $this->context->language->iso_code;
+
+            \Conekta\Conekta::setApiKey($key);
+            \Conekta\Conekta::setPlugin("Prestashop1.7");
+            \Conekta\Conekta::setApiVersion("2.0.0");
+            \Conekta\Conekta::setPluginVersion($this->version);
+            \Conekta\Conekta::setLocale($iso_code);
 
             $id_order = (int) $params['id_order'];
             $conekta_tran_details = Database::getOrderById($id_order);
-
             //only credit card refund
-            if(!$conekta_tran_details['barcode'] && !(isset($conekta_tran_details['reference']) && !empty($conekta_tran_details['reference']))){
+            if(!empty($conekta_tran_details) && !$conekta_tran_details['barcode'] && !(isset($conekta_tran_details['reference']) && !empty($conekta_tran_details['reference']))){
                 $order = \Conekta\Order::find($conekta_tran_details['id_conekta_order']);
-                $order->refund(['reason' => 'requested_by_client']);
+                if(!empty($order) && $order->charges[0]->payment_method->object == "card_payment"){
+                    $order->refund(['reason' => 'requested_by_client']);
+                }
             }      
-        }else if ($params['newOrderStatus']->id == 6) {
-            $id_order = (int) $params['id_order'];
-            $conekta_tran_details = Database::getOrderById($id_order);
-            $order = \Conekta\Order::find($conekta_tran_details['id_conekta_order']);
-            $order->update(['payment_status' => 'order.canceled']);     
         }
-        
     }
 
     private function createPendingCashState() {
