@@ -528,9 +528,7 @@ class ConektaPaymentsPrestashop extends PaymentModule {
             $amount = 0;
 
             if (isset($taxlines)) {
-                $i = 0;
                 foreach ($taxlines as $tax) {
-                    $order_details['tax_lines'][$i] = $tax;
                     $amount = $amount + $tax['amount'];
                 }
             }
