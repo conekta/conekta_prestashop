@@ -417,6 +417,7 @@ class ConektaPaymentsPrestashop extends PaymentModule {
             $this->smarty->assign("api_key", addslashes(Configuration::get('TEST_PUBLIC_KEY')));
         }
 
+
         $this->smarty->assign("path", $this->_path);
 
         $cart = $this->context->cart;
@@ -465,13 +466,13 @@ class ConektaPaymentsPrestashop extends PaymentModule {
         $shippingContact = Config::getShippingContact($customer, $address_delivery, $state, $country);
         $customerInfo = Config::getCustomerInfo($customer, $address_delivery);
 
-        if (empty($result['meta_value'])) {
+        // if (empty($result['meta_value'])) {
             $customer_id = $this->createCustomer($customer->id, $customerInfo );
-        } else {
-            $customer_id = $result['meta_value'];
-            $customerConekta = \Conekta\Customer::find($customer_id);
-            $customerConekta->update($customerInfo);
-        }
+        // } else {
+        //     $customer_id = $result['meta_value'];
+        //     $customerConekta = \Conekta\Customer::find($customer_id);
+        //     $customerConekta->update($customerInfo);
+        // }
 
         if (count($payment_options) > 0 && !empty($customer_id) && !empty($shippingContact['address']['postal_code']) && !empty($shippingLines)) {
             $order_details = array();
@@ -524,9 +525,9 @@ class ConektaPaymentsPrestashop extends PaymentModule {
             $amount = 0;
 
             if (isset($taxlines)) {
-                $i = 0;
+                // $i = 0;
                 foreach ($taxlines as $tax) {
-                    $order_details['tax_lines'][$i] = $tax;
+                    // $order_details['tax_lines'][$i] = $tax;
                     $amount = $amount + $tax['amount'];
                 }
             }
@@ -730,7 +731,7 @@ class ConektaPaymentsPrestashop extends PaymentModule {
             $order_elements = array_keys(get_class_vars('Cart'));
             $i = 0;
             $attributes_count = 0;
-            while ($i < count($order_elements) && $attributes_count <= 12) {
+            while ($i < count($order_elements) && $attributes_count <= METADATA_LIMIT) {
                 if(!empty(Tools::getValue('ORDER_'.strtoupper($order_elements[$i])))){
                     $attributes_count++;
                 }
@@ -738,13 +739,13 @@ class ConektaPaymentsPrestashop extends PaymentModule {
             }
             $i = 0;
             $product_elements = self::CART_PRODUCT_ATTR;
-            while ($i < count($product_elements) && $attributes_count <= 12) {
+            while ($i < count($product_elements) && $attributes_count <= METADATA_LIMIT) {
                 if(!empty(Tools::getValue('PRODUCT_'.strtoupper($product_elements[$i])))){
                     $attributes_count++;
                 }
                 $i++;
             }
-            if ($attributes_count > 12){
+            if ($attributes_count > METADATA_LIMIT){
                 $this->postErrors[] = $this->trans('No more than 12 attributes can be sent as metadata', array(), 'Modules.ConektaPaymentsPrestashop.Admin');
             }
 
@@ -933,30 +934,6 @@ class ConektaPaymentsPrestashop extends PaymentModule {
                         'name' => 'EXPIRATION_DATE_LIMIT',
                     ),       
                     array(
-                        'type' => 'text',
-                        'label' => $this->trans('Test Private Key', array(), 'Modules.ConektaPaymentsPrestashop.Admin'),
-                        'name' => 'TEST_PRIVATE_KEY',
-                        'required' => true
-                    ),
-                    array(
-                        'type' => 'text',
-                        'label' => $this->trans('Test Public Key', array(), 'Modules.ConektaPaymentsPrestashop.Admin'),
-                        'name' => 'TEST_PUBLIC_KEY',
-                        'required' => true
-                    ),
-                    array(
-                        'type' => 'password',
-                        'label' => $this->trans('Live Private Key', array(), 'Modules.ConektaPaymentsPrestashop.Admin'),
-                        'name' => 'LIVE_PRIVATE_KEY',
-                        'required' => true
-                    ),
-                    array(
-                        'type' => 'password',
-                        'label' => $this->trans('Live Public Key', array(), 'Modules.ConektaPaymentsPrestashop.Admin'),
-                        'name' => 'LIVE_PUBLIC_KEY',
-                        'required' => true
-                    ),
-                    array(
                         'type' => 'checkbox',
                         'label' => $this->l('Additional Order Metadata'),
                         'name' => 'ORDER',
@@ -1021,12 +998,57 @@ class ConektaPaymentsPrestashop extends PaymentModule {
                     'title' => $this->trans('Save', array(), 'Admin.Actions')
                 )
             )
-        );                 
+        );  
+        
+       
         return $fields_form;
     }
+    public function buildAdminContentKey() {
 
+        $this->context->controller->addJS($this->_path . 'views/js/functions.js');
+
+        $fields_form_keys = array(
+            'form' => array(
+                'legend' => array(
+                    'title' => $this->trans('KEYS', array(), 'Modules.ConektaPaymentsPrestashop.Admin'),
+                    'icon' => 'icon-envelope'
+                ),
+                'input' => array(
+                    array(
+                        'type' => 'text',
+                        'label' => $this->trans('Test Private Key', array(), 'Modules.ConektaPaymentsPrestashop.Admin'),
+                        'name' => 'TEST_PRIVATE_KEY',
+                        'required' => true
+                    ),
+                    array(
+                        'type' => 'text',
+                        'label' => $this->trans('Test Public Key', array(), 'Modules.ConektaPaymentsPrestashop.Admin'),
+                        'name' => 'TEST_PUBLIC_KEY',
+                        'required' => true
+                    ),
+                    array(
+                        'type' => 'password',
+                        'label' => $this->trans('Live Private Key', array(), 'Modules.ConektaPaymentsPrestashop.Admin'),
+                        'name' => 'LIVE_PRIVATE_KEY',
+                        'required' => true
+                    ),
+                    array(
+                        'type' => 'password',
+                        'label' => $this->trans('Live Public Key', array(), 'Modules.ConektaPaymentsPrestashop.Admin'),
+                        'name' => 'LIVE_PUBLIC_KEY',
+                        'required' => true
+                    ),
+                ),
+                'submit' => array(
+                    'title' => $this->trans('Save keys', array(), 'Admin.Actions')
+                )
+            )
+        );
+        return $fields_form_keys;
+    }
     public function renderForm() {
         $fields_form           = $this->buildAdminContent();
+        $fields_form_keys       = $this->buildAdminContentKey();
         $helper                = new HelperForm();
         $helper->show_toolbar  = false;
         $helper->id            = (int) Tools::getValue('id_carrier');
@@ -1036,7 +1058,8 @@ class ConektaPaymentsPrestashop extends PaymentModule {
         $helper->token         = Tools::getAdminTokenLite('AdminModules');
         $helper->tpl_vars      = array( 'fields_value' => $this->getConfigFieldsValues() );
         $this->fields_form = array();
-        return $helper->generateForm(array( $fields_form ));
+        $this->fields_form_keys = array();
+        return $helper->generateForm(array( $fields_form, $fields_form_keys ));
     }
 
     public function checkSettings($mode = 'global') {
