@@ -498,7 +498,8 @@ class ConektaPaymentsPrestashop extends PaymentModule {
                 'checkout' => [
                     "type" => 'Integration',
                     "allowed_payment_methods" => $payment_options,
-                    "on_demand_enabled" => $on_demand_enabled
+                    "on_demand_enabled" => $on_demand_enabled,
+                    "force_3ds_flow" => Configuration::get('CONEKTA_MODE') ? true : false
                 ]
 
             ];
@@ -1008,6 +1009,22 @@ class ConektaPaymentsPrestashop extends PaymentModule {
                                     'id' => 'ENABLE',
                                     'name' => $this->l('Enable card save'),
                                     'val' => 'charge_on_demand_enabled'
+                                ),
+                            ),
+                            'id' => 'id',
+                            'name' => 'name',
+                        )
+                    ),
+                    array(
+                        'type' => 'checkbox',
+                        'label' => $this->l('3DS'),
+                        'name' => '3DS',
+                        'values' => array(
+                            'query' => array(
+                                array(
+                                    'id' => 'FORCE',
+                                    'name' => $this->l('Activar 3DS'),
+                                    'val' => 'force_3ds'
                                 ),
                             ),
                             'id' => 'id',
