@@ -29,7 +29,7 @@ if ($event_json->type == 'order.paid' && isset($event_json->data)) {
     $conekta_order = $event_json->data->object;
     
     $reference_id           = (integer) $conekta_order->metadata->reference_id;
-    $id_order               = Order::getOrderByCartId($reference_id);
+    $id_order               = OrderPayment::getByOrderReference($reference_id);
     $order                  = new Order($id_order);
     $order_fields           = $order->getFields();
     $currency_payment       = Currency::getPaymentCurrencies(Module::getModuleIdByName('conektapaymentsprestashop'), $order_fields['id_shop']);
@@ -49,21 +49,21 @@ if ($event_json->type == 'order.paid' && isset($event_json->data)) {
   $conekta_order = $event_json->data->object;
       
   $reference_id           = (integer) $conekta_order->metadata->reference_id;
-  $id_order               = Order::getOrderByCartId($reference_id);
+  $id_order               = OrderPayment::getByOrderReference($reference_id);
   Db::getInstance()->Execute('UPDATE ' . _DB_PREFIX_ . 'orders SET current_state = 6 WHERE id_order = ' . pSQL($id_order));
 
 }elseif($event_json->type == 'order.canceled' && isset($event_json->data)) {
   $conekta_order = $event_json->data->object;
       
   $reference_id           = (integer) $conekta_order->metadata->reference_id;
-  $id_order               = Order::getOrderByCartId($reference_id);
+  $id_order               = OrderPayment::getByOrderReference($reference_id);
   Db::getInstance()->Execute('UPDATE ' . _DB_PREFIX_ . 'orders SET current_state = 6 WHERE id_order = ' . pSQL($id_order));
   
 }elseif($event_json->type == 'order.refunded' && isset($event_json->data)) {
   $conekta_order = $event_json->data->object;
       
   $reference_id           = (integer) $conekta_order->metadata->reference_id;
-  $id_order               = Order::getOrderByCartId($reference_id);
+  $id_order               = OrderPayment::getByOrderReference($reference_id);
   Db::getInstance()->Execute('UPDATE ' . _DB_PREFIX_ . 'orders SET current_state = 7 WHERE id_order = ' . pSQL($id_order));
 
 }

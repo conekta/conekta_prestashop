@@ -182,6 +182,7 @@ class ConektaPaymentsPrestashop extends PaymentModule {
             || !$this->registerHook('paymentReturn')
             || !$this->registerHook('adminOrder')
             || !$this->registerHook('updateOrderStatus')
+            || !$this->registerHook('actionValidateOrder')
             && Configuration::updateValue('PAYMENT_METHS_CARD', 1)
             && Configuration::updateValue('PAYMENT_METHS_INSTALLMET', 1)
             && Configuration::updateValue('PAYMENT_METHS_CASH', 1)
@@ -195,6 +196,33 @@ class ConektaPaymentsPrestashop extends PaymentModule {
 
         Configuration::updateValue('CONEKTA_PRESTASHOP_VERSION', $this->version);
         return true;
+    }
+
+    public function hookActionValidateOrder($params) {
+
+        $key = Configuration::get('CONEKTA_MODE') ? Configuration::get('CONEKTA_PRIVATE_KEY_LIVE') : Configuration::get('CONEKTA_PRIVATE_KEY_TEST');
+        $iso_code = $this->context->language->iso_code;
+
+        \Conekta\Conekta::setApiKey($key);
+        \Conekta\Conekta::setPlugin("Prestashop 1.7");
+        \Conekta\Conekta::setApiVersion("2.0.0");
+        \Conekta\Conekta::setPluginVersion($this->version);
+        \Conekta\Conekta::setLocale($iso_code);
+
+        if (!empty(filter_input(INPUT_GET,'conektaOrdenID'))) {
+        
+            try {
+
+                $order = \Conekta\Order::find(filter_input(INPUT_GET,'conektaOrdenID'));
+
+                $params['order']->reference = $order->metadata['reference_id'];
+
+                return true;
+            } catch(\Exception $e){
+                return false;
+            }
+        }
+        
     }
 
     public function uninstall() {
@@ -494,7 +522,9 @@ class ConektaPaymentsPrestashop extends PaymentModule {
                 'discount_lines' => Config::getDiscountLines($discounts),
                 'shipping_lines' => $shippingLines,
                 'shipping_contact' => $shippingContact,
-                'metadata' => ["reference_id" => $this->context->cart->id],
+                'metadata' => [
+                    "reference_id" => Order::generateReference()
+                ],
                 'checkout' => [
                     "type" => 'Integration',
                     "allowed_payment_methods" => $payment_options,
@@ -502,6 +532,7 @@ class ConektaPaymentsPrestashop extends PaymentModule {
                 ]
 
             ];
+
             $order_elements = array_keys(get_class_vars('Cart'));
             foreach ($order_elements as $element) {
                 if(!empty(Configuration::get('ORDER_'.strtoupper($element))) && property_exists($this->context->cart, $element)){
@@ -1339,6 +1370,7 @@ class ConektaPaymentsPrestashop extends PaymentModule {
             $order_status = (int) Configuration::get('PS_OS_PAYMENT');
             
             $message = $this->l('Conekta Transaction Details:') . "\n\n" . $this->l('Amount:') . ' ' . ($charge_response->amount * 0.01) . "\n" . $this->l('Status:') . ' ' . ($charge_response->status == 'paid' ? $this->l('Paid') : $this->l('Unpaid')) . "\n" . $this->l('Processed on:') . ' ' . strftime('%Y-%m-%d %H:%M:%S', $charge_response->created_at) . "\n" . $this->l('Currency:') . ' ' . Tools::strtoupper($charge_response->currency) . "\n" . $this->l('Mode:') . ' ' . ($charge_response->livemode == 'true' ? $this->l('Live') : $this->l('Test')) . "\n";
+
             $this->validateOrder((int) $this->context->cart->id, (int) $order_status, $order->amount / 100, $this->displayName, $message, array(), null, false, $this->context->customer->secure_key);
             
             if (version_compare(_PS_VERSION_, '1.5', '>=')) {
@@ -1367,6 +1399,7 @@ class ConektaPaymentsPrestashop extends PaymentModule {
                 'key' => $this->context->customer->secure_key,
                 'id_module' => (int) $this->id
             ));
+
             Tools::redirect($redirect);
         } catch (\Exception $e) {
             $log_message = $e->getMessage() . ' ';
