@@ -494,7 +494,11 @@ class ConektaPaymentsPrestashop extends PaymentModule {
                 'discount_lines' => Config::getDiscountLines($discounts),
                 'shipping_lines' => $shippingLines,
                 'shipping_contact' => $shippingContact,
-                'metadata' => ["reference_id" => $this->context->cart->id],
+                'metadata' => [
+                    "plugin" => "Prestashop",
+                    "plugin_version" => _PS_VERSION_,
+                    "reference_id" => $this->context->cart->id
+                ],
                 'checkout' => [
                     "type" => 'Integration',
                     "allowed_payment_methods" => $payment_options,
