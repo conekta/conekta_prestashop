@@ -1364,6 +1364,7 @@ class ConektaPaymentsPrestashop extends PaymentModule {
         \Conekta\Conekta::setPluginVersion($this->version);
         \Conekta\Conekta::setLocale($iso_code);
         $cart = $this->context->cart;
+
         try {
             $order = \Conekta\Order::find($conektaOrderId);
             $charge_response = $order->charges[0];
@@ -1384,10 +1385,10 @@ class ConektaPaymentsPrestashop extends PaymentModule {
                 }
             }
 
-            if (isset($charge_response->id) && $charge_response->payment_method->type == "cash") {
-                Database::insertOxxoPayment($order, $charge_response, $reference, $this->currentOrder, $this->context->cart->id);
+            if (isset($charge_response->id) && $charge_response->payment_method->type == "oxxo") {
+                Database::insertOxxoPayment($order, $charge_response, $charge_response->payment_method->reference, $this->currentOrder, $this->context->cart->id);
             } elseif (isset($charge_response->id) && $charge_response->payment_method->type == "spei") {
-                Database::insertSpeiPayment($order, $charge_response, $reference, $this->currentOrder, $this->context->cart->id);
+                Database::insertSpeiPayment($order, $charge_response, $charge_response->payment_method->reference, $this->currentOrder, $this->context->cart->id);
             } elseif (isset($charge_response->id)) {
                 Database::insertCardPayment($order, $charge_response, $this->currentOrder, $this->context->cart->id);
             }
