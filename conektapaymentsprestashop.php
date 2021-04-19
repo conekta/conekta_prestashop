@@ -770,7 +770,7 @@ class ConektaPaymentsPrestashop extends PaymentModule {
             $order_elements = array_keys(get_class_vars('Cart'));
             $i = 0;
             $attributes_count = 0;
-            while ($i < count($order_elements) && $attributes_count <= 12) {
+            while ($i < count($order_elements) && $attributes_count <= METADATA_LIMIT) {
                 if(!empty(Tools::getValue('ORDER_'.strtoupper($order_elements[$i])))){
                     $attributes_count++;
                 }
@@ -778,13 +778,13 @@ class ConektaPaymentsPrestashop extends PaymentModule {
             }
             $i = 0;
             $product_elements = self::CART_PRODUCT_ATTR;
-            while ($i < count($product_elements) && $attributes_count <= 12) {
+            while ($i < count($product_elements) && $attributes_count <= METADATA_LIMIT) {
                 if(!empty(Tools::getValue('PRODUCT_'.strtoupper($product_elements[$i])))){
                     $attributes_count++;
                 }
                 $i++;
             }
-            if ($attributes_count > 12){
+            if ($attributes_count > METADATA_LIMIT){
                 $this->postErrors[] = $this->trans('No more than 12 attributes can be sent as metadata', array(), 'Modules.ConektaPaymentsPrestashop.Admin');
             }
 
