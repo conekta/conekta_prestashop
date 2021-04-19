@@ -735,7 +735,10 @@ class ConektaPaymentsPrestashop extends PaymentModule {
 
     public function getConektaPaymentOption() {
         $embeddedOption = new PaymentOption();
-        $embeddedOption->setModuleName($this->name)->setCallToActionText($this->l('Pago por medio de Conekta '))->setAction($this->context->link->getModuleLink($this->name, 'validation', array(), true))->setForm($this->generateCardPaymentForm())->setLogo(Media::getMediaPath(_PS_MODULE_DIR_ . $this->name . '/views/img/cards2.png'));
+        $embeddedOption->setModuleName($this->name)->setCallToActionText($this->l('Pago por medio de Conekta '))->setAction($this->context->link->getModuleLink(
+            $this->name, 'validation', array()
+            , true )
+            )->setForm($this->generateCardPaymentForm())->setLogo(Media::getMediaPath(_PS_MODULE_DIR_ . $this->name . '/views/img/cards2.png'));
 
         return $embeddedOption;
     }
@@ -1346,15 +1349,8 @@ class ConektaPaymentsPrestashop extends PaymentModule {
 
         $this->context->smarty->assign(array(
             'action' => $this->context->link->getModuleLink($this->name, 'validation', array(), true),
-            'months' => $months,
-            'years' => $years,
-            'msi' => $msi,
-            'msi_jumps' => $jumps[0],
-            'test_private_key' => Configuration::get('TEST_PRIVATE_KEY'),
-            'charge_on_demand' => $this->charge_on_demand,
             'path' => $this->_path
         ));
-      
         
         return $this->context->smarty->fetch('module:conektapaymentsprestashop/views/templates/front/payment_form.tpl');
     }
