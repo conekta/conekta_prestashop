@@ -736,9 +736,11 @@ class ConektaPaymentsPrestashop extends PaymentModule {
     public function getConektaPaymentOption() {
         $embeddedOption = new PaymentOption();
         $embeddedOption->setModuleName($this->name)->setCallToActionText($this->l('Pago por medio de Conekta '))->setAction($this->context->link->getModuleLink(
-            $this->name, 'validation', array()
-            , true )
-            )->setForm($this->generateCardPaymentForm())->setLogo(Media::getMediaPath(_PS_MODULE_DIR_ . $this->name . '/views/img/cards2.png'));
+            $this->name,
+            'validation',
+            array(),
+            true 
+            ))->setForm($this->generateCardPaymentForm())->setLogo(Media::getMediaPath(_PS_MODULE_DIR_ . $this->name . '/views/img/cards2.png'));
 
         return $embeddedOption;
     }
