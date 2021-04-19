@@ -97,7 +97,7 @@ class Database
             id_user int(11) unsigned NOT NULL,
             id_cart int(11) unsigned NOT NULL,
             id_conekta_order varchar(32) NOT NULL,
-            `status` enum(\"paid\",\"unpaid\") NOT NULL,
+            `status` enum(\"paid\",\"unpaid\",\"pending_payment\") NOT NULL,
             PRIMARY KEY (id),
             KEY id_user (id_user),
             KEY id_cart (id_cart),

@@ -246,6 +246,12 @@ class ConektaPaymentsPrestashop extends PaymentModule {
         && Configuration::deleteByName('CONEKTA_WEBHOOK_FAILED_URL')
         && Db::getInstance()->Execute(
             'DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'conekta_transaction`'
+        )
+        && Db::getInstance()->Execute(
+            'DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'conekta_metadata`'
+        )
+        && Db::getInstance()->Execute(
+            'DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'conekta_order_checkout`'
         );
     }
 
@@ -1385,14 +1391,14 @@ class ConektaPaymentsPrestashop extends PaymentModule {
                 }
             }
 
-            if (isset($charge_response->id) && $charge_response->payment_method->type == "oxxo") {
+            if (isset($charge_response->id) && strtolower($charge_response->payment_method->type) == "oxxo") {
                 Database::insertOxxoPayment($order, $charge_response, $charge_response->payment_method->reference, $this->currentOrder, $this->context->cart->id);
-            } elseif (isset($charge_response->id) && $charge_response->payment_method->type == "spei") {
+            } elseif (isset($charge_response->id) && strtolower($charge_response->payment_method->type) == "spei") {
                 Database::insertSpeiPayment($order, $charge_response, $charge_response->payment_method->reference, $this->currentOrder, $this->context->cart->id);
             } elseif (isset($charge_response->id)) {
                 Database::insertCardPayment($order, $charge_response, $this->currentOrder, $this->context->cart->id);
             }
-            Database::update_conekta_order($this->context->customer->id,$this->context->cart->id, $order->id, $order->charges[0]->status);
+            Database::update_conekta_order($this->context->customer->id,$this->context->cart->id, $order->id, $charge_response->status);
 
             $redirect = $this->context->link->getPageLink('order-confirmation', true, null, array(
                 'id_order' => (int) $this->currentOrder,

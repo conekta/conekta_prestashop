@@ -36,13 +36,8 @@ class ConektaPaymentsPrestashopValidationModuleFrontController extends ModuleFro
             Tools::redirect('index.php?controller=order&step=1');
         }
 
-        $type = pSQL(Tools::getValue('type'));
-        $msi = pSQL(Tools::getValue('monthly_installments'));
-        $conektaToken = pSQL(Tools::getValue('conektaToken'));
         $conektaOrderId = pSQL(Tools::getValue('conektaOrdenID'));
-        $on_demand = pSQL(Tools::getValue('savePaymentSource'));
 
-        // $conekta->processPayment($type, $conektaToken, $msi, $on_demand, $conektaOrderId);
         $conekta->processPayment($conektaOrderId);
 
         $this->setTemplate('module:conektapaymentsprestashop/views/templates/front/payment_return.tpl');
