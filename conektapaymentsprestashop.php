@@ -498,6 +498,8 @@ class ConektaPaymentsPrestashop extends PaymentModule {
                 'shipping_lines' => $shippingLines,
                 'shipping_contact' => $shippingContact,
                 'metadata' => [
+                    "plugin" => "Prestashop",
+                    "plugin_version" => _PS_VERSION_,
                     "reference_id" => $this->context->cart->id
                 ],
                 'checkout' => [
