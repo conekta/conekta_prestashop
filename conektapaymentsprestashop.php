@@ -460,28 +460,26 @@ class ConektaPaymentsPrestashop extends PaymentModule {
                 $shp_service = "Digital";
             }
         }
-
-        if ($customer->isLogged()) {
-
-            $result = Database::get_conekta_metadata($customer->id, $this->conekta_mode, "conekta_customer_id");
-        }
        
         $shippingLines =  Config::getShippingLines($shp_service, $shp_carrier, $shp_price);
         $shippingContact = Config::getShippingContact($customer, $address_delivery, $state, $country);
         $customerInfo = Config::getCustomerInfo($customer, $address_delivery);
 
-        if (empty($result['meta_value'])) {
-            $customer_id = $this->createCustomer($customer, $customerInfo );
-        } else {
-            $customer_id = $result['meta_value'];
-            $customerConekta = \Conekta\Customer::find($customer_id);
-            $customerConekta->update($customerInfo);
-        }
+        $result = Database::get_conekta_metadata($customer->id, $this->conekta_mode, "conekta_customer_id");
 
-        if (count($payment_options) > 0 && !empty($customer_id) && !empty($shippingContact['address']['postal_code']) && !empty($shippingLines)) {
+        if (count($payment_options) > 0 && !empty($shippingContact['address']['postal_code']) && !empty($shippingLines)) {
+            
             $order_details = array();
             $taxlines = array();
-    
+
+            if (empty($result['meta_value'])) {
+                $customer_id = $this->createCustomer($customer, $customerInfo );
+            } else {
+                $customer_id = $result['meta_value'];
+                $customerConekta = \Conekta\Customer::find($customer_id);
+                $customerConekta->update($customerInfo);
+            }
+  
             if ((Configuration::get('PAYMENT_METHS_INSTALLMET'))) {
                 $msi = true;
             }
@@ -499,7 +497,9 @@ class ConektaPaymentsPrestashop extends PaymentModule {
                 'discount_lines' => Config::getDiscountLines($discounts),
                 'shipping_lines' => $shippingLines,
                 'shipping_contact' => $shippingContact,
-                'metadata' => ["reference_id" => $this->context->cart->id],
+                'metadata' => [
+                    "reference_id" => $this->context->cart->id
+                ],
                 'checkout' => [
                     "type" => 'Integration',
                     "allowed_payment_methods" => $payment_options,
@@ -1180,11 +1180,9 @@ class ConektaPaymentsPrestashop extends PaymentModule {
 
         try {
             $customerConekta = \conekta\customer::create($params);
-            
-            if ($customer->isLogged()) {
 
-                Database::update_conekta_metadata($customer->id, $this->conekta_mode, "conekta_customer_id", $customerConekta->id);
-            }
+            Database::update_conekta_metadata($customer->id, $this->conekta_mode, "conekta_customer_id", $customerConekta->id);
+            
             return $customerConekta->id;
 
         } catch (\Exception $e) {

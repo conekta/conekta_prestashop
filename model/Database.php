@@ -166,10 +166,10 @@ class Database
         return Db::getInstance()->Execute($sql);
     }
 
-    static public function get_conekta_order($user_id, $cart_id, $mode) {
+    static public function get_conekta_order($user_id, $mode, $cart_id) {
         $table = _DB_PREFIX_."conekta_order_checkout";
 
-		$sql = "SELECT id_conekta_order, `status` FROM  $table WHERE id_user = '{$user_id}' AND `mode` = '{$mode}'  AND `status` = \"unpaid\" AND id_cart ='{$cart_id}'";
+		$sql = "SELECT id_conekta_order, `status` FROM  $table WHERE id_user = '{$user_id}' AND `mode` = '{$mode}'  AND `status` = 'unpaid' AND id_cart ='{$cart_id}'";
 		
 		return  Db::getInstance()->getRow($sql);
     }
@@ -178,7 +178,7 @@ class Database
 
         $table = _DB_PREFIX_."conekta_order_checkout";
         
-        if (empty(Database::get_conekta_order($user_id, $cart_id, $mode))) {
+        if (empty(Database::get_conekta_order($user_id, $mode, $cart_id))) {
             $sql = "INSERT INTO $table(id_user,	id_cart, mode, id_conekta_order, `status`) VALUES ('{$user_id}','{$cart_id}','{$mode}','{$id_conekta_order}', '{$status}')";
         } else {
 			$sql = "UPDATE $table SET `status` = '{$status}' WHERE id_user = '{$user_id}' AND id_cart = '{$cart_id}' AND id_conekta_order = '{$id_conekta_order}' AND `mode` = '{$mode}'";
@@ -186,4 +186,5 @@ class Database
 
         return Db::getInstance()->Execute($sql);
     }
+
 }
