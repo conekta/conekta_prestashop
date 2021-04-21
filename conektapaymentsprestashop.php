@@ -74,6 +74,7 @@ class ConektaPaymentsPrestashop extends PaymentModule {
             'TEST_PUBLIC_KEY',
             'LIVE_PRIVATE_KEY',
             'LIVE_PUBLIC_KEY',
+            'PRE_AUTHORIZE_CONEKTA',
             'CHARGE_ON_DEMAND_ENABLE'
         );
         $order_elements = array_keys(get_class_vars('Cart'));
@@ -136,6 +137,10 @@ class ConektaPaymentsPrestashop extends PaymentModule {
 
         if (isset($config['LIVE_PUBLIC_KEY'])) {
             $this->live_public_key = $config['LIVE_PUBLIC_KEY'];
+        }
+
+        if (isset($config['PRE_AUTHORIZE_CONEKTA'])) {
+            $this->pre_authorize = $config['PRE_AUTHORIZE_CONEKTA'];
         }
 
         if (isset($config['CHARGE_ON_DEMAND_ENABLE'])) {
@@ -480,11 +485,15 @@ class ConektaPaymentsPrestashop extends PaymentModule {
             if ((Configuration::get('PAYMENT_METHS_INSTALLMET'))) {
                 $msi = true;
             }
-    
+
+            if (Configuration::get('PRE_AUTHORIZE_CONEKTA')) {
+                $pre_authorize = true;
+            }
+
             if (Configuration::get('CHARGE_ON_DEMAND_ENABLE')) {
                 $on_demand_enabled = true;
             }
-           
+
             $taxlines = Config::getTaxLines($items);
 
             $order_details = [
@@ -494,6 +503,7 @@ class ConektaPaymentsPrestashop extends PaymentModule {
                 'discount_lines' => Config::getDiscountLines($discounts),
                 'shipping_lines' => $shippingLines,
                 'shipping_contact' => $shippingContact,
+                'pre_authorize' => $pre_authorize,
                 'metadata' => [
                     "plugin" => "Prestashop",
                     "plugin_version" => _PS_VERSION_,
@@ -785,6 +795,7 @@ class ConektaPaymentsPrestashop extends PaymentModule {
             Configuration::updateValue('TEST_PUBLIC_KEY', Tools::getValue('TEST_PUBLIC_KEY'));
             Configuration::updateValue('LIVE_PRIVATE_KEY', Tools::getValue('LIVE_PRIVATE_KEY'));
             Configuration::updateValue('LIVE_PUBLIC_KEY', Tools::getValue('LIVE_PUBLIC_KEY'));
+            Configuration::updateValue('PRE_AUTHORIZE_CONEKTA', Tools::getValue('PRE_AUTHORIZE_CONEKTA'));
             Configuration::updateValue('CHARGE_ON_DEMAND_ENABLE', Tools::getValue('CHARGE_ON_DEMAND_ENABLE'));
             $order_elements = array_keys(get_class_vars('Cart'));
             foreach ($order_elements as $element) {
@@ -819,6 +830,7 @@ class ConektaPaymentsPrestashop extends PaymentModule {
             'TEST_PUBLIC_KEY' => Tools::getValue('TEST_PUBLIC_KEY', Configuration::get('TEST_PUBLIC_KEY')),
             'LIVE_PRIVATE_KEY' => Tools::getValue('LIVE_PRIVATE_KEY', Configuration::get('LIVE_PRIVATE_KEY')),
             'LIVE_PUBLIC_KEY' => Tools::getValue('LIVE_PUBLIC_KEY', Configuration::get('LIVE_PUBLIC_KEY')),
+            'PRE_AUTHORIZE_CONEKTA' => Tools::getValue('PRE_AUTHORIZE_CONEKTA', Configuration::get('PRE_AUTHORIZE_CONEKTA')),
             'CHARGE_ON_DEMAND_ENABLE' => Tools::getValue('CHARGE_ON_DEMAND_ENABLE', Configuration::get('CHARGE_ON_DEMAND_ENABLE'))
 
         );
@@ -1017,7 +1029,24 @@ class ConektaPaymentsPrestashop extends PaymentModule {
                             'id' => 'id',
                             'name' => 'name',
                         )
+                    ),
+                    array(
+                        'type' => 'checkbox',
+                        'label' => $this->l('Preauthorize'),
+                        'name' => 'PRE_AUTHORIZE',
+                        'values' => array(
+                            'query' => array(
+                                array(
+                                    'id' => 'CONEKTA',
+                                    'name' => $this->l('Enable Preauthorization'),
+                                    'val' => 'pre_authorize'
+                                ),
+                            ),
+                            'id' => 'id',
+                            'name' => 'name',
+                        )
                     )
+
                 ),
                 'submit' => array(
                     'title' => $this->trans('Save', array(), 'Admin.Actions')
