@@ -747,7 +747,8 @@ class ConektaPaymentsPrestashop extends PaymentModule {
                 }
                 $i++;
             }
-            if ($attributes_count > METADATA_LIMIT){
+
+            if ($attributes_count > METADATA_LIMIT) {
                 $this->postErrors[] = $this->trans('No more than 12 attributes can be sent as metadata', array(), 'Modules.ConektaPaymentsPrestashop.Admin');
             }
 
@@ -770,7 +771,9 @@ class ConektaPaymentsPrestashop extends PaymentModule {
     }
 
     private function postProcess() {
-        if (Tools::isSubmit('btnSubmit') && Tools::getValue('TEST_PUBLIC_KEY') && Tools::getValue('TEST_PRIVATE_KEY')) {
+
+        if (Tools::isSubmit('btnSubmit')) {
+            
             Configuration::updateValue('PAYEE_NAME', Tools::getValue('PAYEE_NAME'));
             Configuration::updateValue('PAYEE_ADDRESS', Tools::getValue('PAYEE_ADDRESS'));
             Configuration::updateValue('MODE', Tools::getValue('MODE'));
@@ -782,11 +785,18 @@ class ConektaPaymentsPrestashop extends PaymentModule {
             Configuration::updateValue('PAYMENT_METHS_SPEI', Tools::getValue('PAYMENT_METHS_SPEI'));
             Configuration::updateValue('EXPIRATION_DATE_TYPE', Tools::getValue('EXPIRATION_DATE_TYPE'));
             Configuration::updateValue('EXPIRATION_DATE_LIMIT', Tools::getValue('EXPIRATION_DATE_LIMIT'));
-            Configuration::updateValue('TEST_PRIVATE_KEY', Tools::getValue('TEST_PRIVATE_KEY'));
-            Configuration::updateValue('TEST_PUBLIC_KEY', Tools::getValue('TEST_PUBLIC_KEY'));
-            Configuration::updateValue('LIVE_PRIVATE_KEY', Tools::getValue('LIVE_PRIVATE_KEY'));
-            Configuration::updateValue('LIVE_PUBLIC_KEY', Tools::getValue('LIVE_PUBLIC_KEY'));
             Configuration::updateValue('CHARGE_ON_DEMAND_ENABLE', Tools::getValue('CHARGE_ON_DEMAND_ENABLE'));
+
+            if (Tools::getValue('TEST_PUBLIC_KEY') && Tools::getValue('TEST_PRIVATE_KEY')) {
+                Configuration::updateValue('TEST_PRIVATE_KEY', Tools::getValue('TEST_PRIVATE_KEY'));
+                Configuration::updateValue('TEST_PUBLIC_KEY', Tools::getValue('TEST_PUBLIC_KEY'));
+            }
+
+            if (Tools::getValue('LIVE_PUBLIC_KEY') && Tools::getValue('LIVE_PUBLIC_KEY')) {
+                Configuration::updateValue('LIVE_PRIVATE_KEY', Tools::getValue('LIVE_PRIVATE_KEY'));
+                Configuration::updateValue('LIVE_PUBLIC_KEY', Tools::getValue('LIVE_PUBLIC_KEY'));
+            }
+
             $order_elements = array_keys(get_class_vars('Cart'));
             foreach ($order_elements as $element) {
                 Configuration::updateValue('ORDER_'.strtoupper($element), Tools::getValue('ORDER_'.strtoupper($element)));
@@ -795,10 +805,12 @@ class ConektaPaymentsPrestashop extends PaymentModule {
             foreach ($product_elements as $element) {
                 Configuration::updateValue('PRODUCT_'.strtoupper($element), Tools::getValue('PRODUCT_'.strtoupper($element)));
             }
+
         }
 
         $this->html .= $this->displayConfirmation($this->trans('Settings updated', array(), 'Admin.Notifications.Success'));
     }
+    
     private function displayCheck() {
         return $this->display(__FILE__, './views/templates/hook/infos.tpl');
     }
@@ -1131,7 +1143,6 @@ class ConektaPaymentsPrestashop extends PaymentModule {
         $this->smarty->assign("mode", Configuration::get('MODE'));
         $url = Configuration::get('WEB_HOOK');
 
-
         if (empty($url)) {
             $url = _PS_BASE_URL_ . __PS_BASE_URI__ . "modules/conektapaymentsprestashop/notification.php";
         }
@@ -1140,9 +1151,7 @@ class ConektaPaymentsPrestashop extends PaymentModule {
             $configuration_values = array(
                 'CONEKTA_MODE' => Tools::getValue('MODE'),
                 'CONEKTA_PUBLIC_KEY_TEST' => rtrim(Tools::getValue('TEST_PUBLIC_KEY')),
-                'CONEKTA_PUBLIC_KEY_LIVE' => rtrim(Tools::getValue('LIVE_PUBLIC_KEY')),
                 'CONEKTA_PRIVATE_KEY_TEST' => rtrim(Tools::getValue('TEST_PRIVATE_KEY')),
-                'CONEKTA_PRIVATE_KEY_LIVE' => rtrim(Tools::getValue('LIVE_PRIVATE_KEY')),
                 'CONEKTA_CARDS' => rtrim(Tools::getValue('PAYMENT_METHS_CARD')),
                 'CONEKTA_MSI' => rtrim(Tools::getValue('PAYMENT_METHS_INSTALLMET')),
                 'PAYMENT_METHS_CASH' => rtrim(Tools::getValue('PAYMENT_METHS_CASH')),
@@ -1152,10 +1161,18 @@ class ConektaPaymentsPrestashop extends PaymentModule {
                 
             );
 
+            if (Tools::getValue('LIVE_PUBLIC_KEY') && Tools::getValue('LIVE_PRIVATE_KEY')) {
+
+                $configuration_values = array_merge($configuration_values, array(
+                    'CONEKTA_PUBLIC_KEY_LIVE' => rtrim(Tools::getValue('LIVE_PUBLIC_KEY')),
+                    'CONEKTA_PRIVATE_KEY_LIVE' => rtrim(Tools::getValue('LIVE_PRIVATE_KEY')),
+                ));
+            }
+         
             foreach ($configuration_values as $configuration_key => $configuration_value) {
-                //echo $configuration_key."\t=>   ".$configuration_value.'<br>';
                 Configuration::updateValue($configuration_key, $configuration_value);
             }
+
             $this->createWebhook();
 
             $webhook_message = Configuration::get('CONEKTA_WEBHOOK_ERROR_MESSAGE');
