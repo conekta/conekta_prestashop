@@ -538,9 +538,9 @@ class ConektaPaymentsPrestashop extends PaymentModule {
                     $amount = $amount - $discount['amount'];
                 }
             }
-    
+
             try {
-                
+
                 // Validate, create and update the customer in conekta
 
                 $cust_db = Database::get_conekta_metadata($customerPrestashop->id, "conekta_customer_id");
@@ -578,7 +578,7 @@ class ConektaPaymentsPrestashop extends PaymentModule {
 
                 if (isset($ord_db) && $ord_db['status'] == 'unpaid') {
                     $order = \Conekta\Order::find($ord_db['id_conekta_order']);
-    
+
                     if (isset($order->charges[0]->status) && $order->charges[0]->status == 'paid') {
                         Database::update_conekta_order($customerPrestashop->id, $this->context->cart->id, $order->id, $order->charges[0]->status);
                     }
@@ -1467,7 +1467,4 @@ class ConektaPaymentsPrestashop extends PaymentModule {
             return $this->fetchTemplate("admin-order.tpl");
         }
     }
-
-
 }
-
