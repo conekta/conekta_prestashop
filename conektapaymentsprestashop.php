@@ -466,13 +466,13 @@ class ConektaPaymentsPrestashop extends PaymentModule {
         $shippingContact = Config::getShippingContact($customer, $address_delivery, $state, $country);
         $customerInfo = Config::getCustomerInfo($customer, $address_delivery);
 
-        // if (empty($result['meta_value'])) {
+        if (empty($result['meta_value'])) {
             $customer_id = $this->createCustomer($customer->id, $customerInfo );
-        // } else {
-        //     $customer_id = $result['meta_value'];
-        //     $customerConekta = \Conekta\Customer::find($customer_id);
-        //     $customerConekta->update($customerInfo);
-        // }
+        } else {
+            $customer_id = $result['meta_value'];
+            $customerConekta = \Conekta\Customer::find($customer_id);
+            $customerConekta->update($customerInfo);
+        }
 
         if (count($payment_options) > 0 && !empty($customer_id) && !empty($shippingContact['address']['postal_code']) && !empty($shippingLines)) {
             $order_details = array();
@@ -525,9 +525,7 @@ class ConektaPaymentsPrestashop extends PaymentModule {
             $amount = 0;
 
             if (isset($taxlines)) {
-                // $i = 0;
                 foreach ($taxlines as $tax) {
-                    // $order_details['tax_lines'][$i] = $tax;
                     $amount = $amount + $tax['amount'];
                 }
             }
