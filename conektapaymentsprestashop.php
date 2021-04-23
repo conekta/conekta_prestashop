@@ -492,13 +492,36 @@ class ConektaPaymentsPrestashop extends PaymentModule {
                 'shipping_lines' => array(),
                 'shipping_contact' => $shippingContact,
                 'tax_lines' => array(),
-                'metadata' => ["reference_id" => $this->context->cart->id],
+                'metadata' => [
+                    "plugin" => "Prestashop",
+                    "plugin_version" => _PS_VERSION_,
+                    "reference_id" => $this->context->cart->id
+                ],
                 'checkout' => [
                     "type" => 'Integration',
                     "allowed_payment_methods" => $payment_options,
                     "on_demand_enabled" => $on_demand_enabled
                 ]
+
             ];
+            $order_elements = array_keys(get_class_vars('Cart'));
+            foreach ($order_elements as $element) {
+                if(!empty(Configuration::get('ORDER_'.strtoupper($element))) && property_exists($this->context->cart, $element)){
+                    $order_details['metadata'][$element] = $this->context->cart->$element;
+                }
+            }
+
+            $product_elements = self::CART_PRODUCT_ATTR;
+            foreach($items as $item){
+                $index ='product-'.$item['id_product'];
+                $order_details['metadata'][$index] = '';
+                foreach ($product_elements as $element) {
+                    if(!empty(Configuration::get('PRODUCT_'.strtoupper($element))) && array_key_exists($element, $item)){
+                        $order_details['metadata'][$index] .= $this->buildRecursiveMetadata($item[$element], $element);
+                    }
+                }
+                $order_details['metadata'][$index] = substr($order_details['metadata'][$index], 0, -2);
+            }
 
             $amount = 0;
 
@@ -561,14 +584,14 @@ class ConektaPaymentsPrestashop extends PaymentModule {
                 } elseif (empty($order->charges[0]->status) || $order->charges[0]->status != 'paid') {
                     unset($order_details['customer_info']);
                     $order->update($order_details);
-                    
+
                 } else {
                   
                     $order = \Conekta\Order::create($order_details);
 
                     Database::update_conekta_order($customer->id, $this->context->cart->id, $order->id, 'unpaid');
                 }
-                
+
             }  catch (\Exception $e) {
                 $log_message = $e->getMessage() . ' ';
     
@@ -590,6 +613,27 @@ class ConektaPaymentsPrestashop extends PaymentModule {
             $this->smarty->assign("orderID", "");
         }
         return $this->fetchTemplate("hook-header.tpl");
+    }
+
+    public function buildRecursiveMetadata($data_object, $key){
+        $string = '';
+        if(gettype($data_object) == 'array'){
+            foreach(array_keys($data_object) as $data_key){
+                $key_concat = strval($key).'-'.strval($data_key);
+                if(empty($data_object[$data_key])){
+                    $string .= strval($key_concat) . ': NULL | ';
+                }else{
+                    $string .= $this->buildRecursiveMetadata($data_object[$data_key], $key_concat);
+                }
+            }
+        }else{
+            if(empty($data_object)){
+                $string .= strval($key) . ': NULL | ';
+            }else{
+                $string .= strval($key) . ': ' . strval($data_object) . ' | ';
+            }
+        }
+        return $string;
     }
 
     public function hookAdminOrder($params) {
