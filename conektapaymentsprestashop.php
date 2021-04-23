@@ -585,23 +585,27 @@ class ConektaPaymentsPrestashop extends PaymentModule
             $amount = 0;
 
             if (isset($shippingLines)) {
-                foreach($shippingLines as $shipping) {
-                    array_push ($order_details['shipping_lines'], array (
-                        'amount' => $shipping['amount'],
-                        'tracking_number' => $this->removeSpecialCharacter($shipping['tracking_number']),
-                        'carrier' => $this->removeSpecialCharacter($shipping['carrier']),
-                        'method' => $this->removeSpecialCharacter($shipping['method'])
-                    ));
+                foreach ($shippingLines as $shipping) {
+                    array_push(
+                        $order_details['shipping_lines'], array (
+                            'amount' => $shipping['amount'],
+                            'tracking_number' => $this->removeSpecialCharacter($shipping['tracking_number']),
+                            'carrier' => $this->removeSpecialCharacter($shipping['carrier']),
+                            'method' => $this->removeSpecialCharacter($shipping['method'])
+                        )
+                    );
                     $amount = $amount + $shipping['amount'];
                 }
             }
            
             if (isset($taxlines)) {
                 foreach ($taxlines as $tax) {
-                    array_push ($order_details['tax_lines'], array (
-                        'description' => $this->removeSpecialCharacter($tax['description']),
-                        'amount' => $tax['amount']
-                    ));
+                    array_push(
+                        $order_details['tax_lines'], array (
+                            'description' => $this->removeSpecialCharacter($tax['description']),
+                            'amount' => $tax['amount']
+                        )
+                    );
                     $amount = $amount + $tax['amount'];
                 }
             }
@@ -680,7 +684,6 @@ class ConektaPaymentsPrestashop extends PaymentModule
      * Generates the metadata of the order attributes.
      * 
      * @param array  $data_object Object to generate metadata
-     * 
      * @param string $key         Key the data_object
      * 
      * @return string
@@ -707,6 +710,13 @@ class ConektaPaymentsPrestashop extends PaymentModule
         return $string;
     }
 
+    /**
+     * Generates the metadata of the order attributes.
+     * 
+     * @param array $params 
+     * 
+     * @return
+     */
     public function hookAdminOrder($params) {
         $id_order = (int) $params['id_order'];
         $status   = $this->getTransactionStatus($id_order);
