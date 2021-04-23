@@ -74,7 +74,8 @@ class ConektaPaymentsPrestashop extends PaymentModule {
             'TEST_PUBLIC_KEY',
             'LIVE_PRIVATE_KEY',
             'LIVE_PUBLIC_KEY',
-            'CHARGE_ON_DEMAND_ENABLE'
+            'CHARGE_ON_DEMAND_ENABLE',
+            '3DS_FORCE'
         );
         $order_elements = array_keys(get_class_vars('Cart'));
         foreach ($order_elements as $element) {
@@ -142,6 +143,10 @@ class ConektaPaymentsPrestashop extends PaymentModule {
 
         if (isset($config['CHARGE_ON_DEMAND_ENABLE'])) {
             $this->charge_on_demand = $config['CHARGE_ON_DEMAND_ENABLE'];
+        }
+
+        if (isset($config['3DS_FORCE'])) {
+            $this->charge_on_demand = $config['3DS_FORCE'];
         }
 
         $this->bootstrap = true;
@@ -438,6 +443,7 @@ class ConektaPaymentsPrestashop extends PaymentModule {
         }
 
         $msi = false;
+        $force_3ds = false;
         $on_demand_enabled = false;
         $address_delivery = new Address((int) $cart->id_address_delivery);
         $state            = State::getNameById($address_delivery->id_state);
@@ -485,6 +491,10 @@ class ConektaPaymentsPrestashop extends PaymentModule {
             if (Configuration::get('CHARGE_ON_DEMAND_ENABLE')) {
                 $on_demand_enabled = true;
             }
+
+            if (Configuration::get('3DS_FORCE')) {
+                $force_3ds = true;
+            }
            
             $taxlines = Config::getTaxLines($items);
 
@@ -504,10 +514,12 @@ class ConektaPaymentsPrestashop extends PaymentModule {
                 'checkout' => [
                     "type" => 'Integration',
                     "allowed_payment_methods" => $payment_options,
-                    "on_demand_enabled" => $on_demand_enabled
+                    "on_demand_enabled" => $on_demand_enabled,
+                    "force_3ds_flow" => Configuration::get('CONEKTA_MODE') ? $force_3ds : false
                 ]
 
             ];
+
             $order_elements = array_keys(get_class_vars('Cart'));
             foreach ($order_elements as $element) {
                 if(!empty(Configuration::get('ORDER_'.strtoupper($element))) && property_exists($this->context->cart, $element)){
@@ -560,8 +572,8 @@ class ConektaPaymentsPrestashop extends PaymentModule {
                     $amount = $amount - $discount['amount'];
                 }
             }
-    
-            $result = Database::get_conekta_order($customer->id, $this->conekta_mode, $this->context->cart->id);
+
+            $result = Database::get_conekta_order($customer->id, $this->context->cart->id);
 
             try {
             
@@ -797,6 +809,8 @@ class ConektaPaymentsPrestashop extends PaymentModule {
             Configuration::updateValue('LIVE_PRIVATE_KEY', Tools::getValue('LIVE_PRIVATE_KEY'));
             Configuration::updateValue('LIVE_PUBLIC_KEY', Tools::getValue('LIVE_PUBLIC_KEY'));
             Configuration::updateValue('CHARGE_ON_DEMAND_ENABLE', Tools::getValue('CHARGE_ON_DEMAND_ENABLE'));
+            Configuration::updateValue('3DS_FORCE', Tools::getValue('3DS_FORCE'));
+
             $order_elements = array_keys(get_class_vars('Cart'));
             foreach ($order_elements as $element) {
                 Configuration::updateValue('ORDER_'.strtoupper($element), Tools::getValue('ORDER_'.strtoupper($element)));
@@ -830,7 +844,8 @@ class ConektaPaymentsPrestashop extends PaymentModule {
             'TEST_PUBLIC_KEY' => Tools::getValue('TEST_PUBLIC_KEY', Configuration::get('TEST_PUBLIC_KEY')),
             'LIVE_PRIVATE_KEY' => Tools::getValue('LIVE_PRIVATE_KEY', Configuration::get('LIVE_PRIVATE_KEY')),
             'LIVE_PUBLIC_KEY' => Tools::getValue('LIVE_PUBLIC_KEY', Configuration::get('LIVE_PUBLIC_KEY')),
-            'CHARGE_ON_DEMAND_ENABLE' => Tools::getValue('CHARGE_ON_DEMAND_ENABLE', Configuration::get('CHARGE_ON_DEMAND_ENABLE'))
+            'CHARGE_ON_DEMAND_ENABLE' => Tools::getValue('CHARGE_ON_DEMAND_ENABLE', Configuration::get('CHARGE_ON_DEMAND_ENABLE')),
+            '3DS_FORCE' => Tools::getValue('3DS_FORCE', Configuration::get('3DS_FORCE'))
 
         );
         $order_elements = array_keys(get_class_vars('Cart'));
@@ -1023,6 +1038,22 @@ class ConektaPaymentsPrestashop extends PaymentModule {
                                     'id' => 'ENABLE',
                                     'name' => $this->l('Enable card save'),
                                     'val' => 'charge_on_demand_enabled'
+                                ),
+                            ),
+                            'id' => 'id',
+                            'name' => 'name',
+                        )
+                    ),
+                    array(
+                        'type' => 'checkbox',
+                        'label' => $this->l('3DS'),
+                        'name' => '3DS',
+                        'values' => array(
+                            'query' => array(
+                                array(
+                                    'id' => 'FORCE',
+                                    'name' => $this->l('Activar 3DS'),
+                                    'val' => 'force_3ds'
                                 ),
                             ),
                             'id' => 'id',
