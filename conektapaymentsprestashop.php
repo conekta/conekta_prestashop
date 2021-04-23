@@ -27,7 +27,7 @@ require_once __DIR__ . '/lib/conekta-php/lib/Conekta.php';
 if (!defined('_PS_VERSION_')) {
     exit;
 }
-define("METADATA_LIMIT",12);
+define("METADATA_LIMIT", 12);
 
 /**
  * ConektaPaymentsPrestashop Class Doc Comment
@@ -282,7 +282,7 @@ class ConektaPaymentsPrestashop extends PaymentModule {
             $conekta_tran_details = Database::getOrderById($id_order);
 
             //only credit card refund
-            if(!$conekta_tran_details['barcode'] && !(isset($conekta_tran_details['reference']) && !empty($conekta_tran_details['reference']))){
+            if (!$conekta_tran_details['barcode'] && !(isset($conekta_tran_details['reference']) && !empty($conekta_tran_details['reference']))) {
                 $order = \Conekta\Order::find($conekta_tran_details['id_conekta_order']);
                 $order->refund(['reason' => 'requested_by_client']);
             }      
@@ -871,6 +871,7 @@ class ConektaPaymentsPrestashop extends PaymentModule {
                 "val" => $val
             );
         }
+
         $fields_form = array(
             'form' => array(
                 'legend' => array(
@@ -1007,9 +1008,6 @@ class ConektaPaymentsPrestashop extends PaymentModule {
                             'name' => 'name',
                         )
                     )
-                ),
-                'submit' => array(
-                    'title' => $this->trans('Save', array(), 'Admin.Actions')
                 )
             )
         );  
@@ -1025,7 +1023,7 @@ class ConektaPaymentsPrestashop extends PaymentModule {
             'form' => array(
                 'legend' => array(
                     'title' => $this->trans('KEYS', array(), 'Modules.ConektaPaymentsPrestashop.Admin'),
-                    'icon' => 'icon-envelope'
+                    'icon' => 'icon-key'
                 ),
                 'input' => array(
                     array(
@@ -1038,7 +1036,7 @@ class ConektaPaymentsPrestashop extends PaymentModule {
                         'type' => 'text',
                         'label' => $this->trans('Test Public Key', array(), 'Modules.ConektaPaymentsPrestashop.Admin'),
                         'name' => 'TEST_PUBLIC_KEY',
-                        'required' => true
+                        'required' => true,
                     ),
                     array(
                         'type' => 'password',
@@ -1054,7 +1052,7 @@ class ConektaPaymentsPrestashop extends PaymentModule {
                     ),
                 ),
                 'submit' => array(
-                    'title' => $this->trans('Save keys', array(), 'Admin.Actions')
+                    'title' => $this->trans('Save', array(), 'Admin.Actions')
                 )
             )
         );
@@ -1215,6 +1213,7 @@ class ConektaPaymentsPrestashop extends PaymentModule {
 
         return $this->html;
     }
+
     public function createCustomer($user_id, $params) {
 
         try {
