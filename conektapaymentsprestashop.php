@@ -6,6 +6,7 @@
  * Title   : Conekta Card Payment Gateway for Prestashop
  * Author  : Conekta.io
  * URL     : https://www.conekta.io/es/docs/plugins/prestashop.
+ * PHP Version 7.0.0
  * 
  * ConektaPaymentsPrestashop File Doc Comment
  * 
@@ -14,7 +15,7 @@
  * @author    Conekta <support@conekta.io>
  * @copyright 2012-2017 Conekta
  * @license   http://opensourec.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
- * @version   v 1.1.0
+ * @version   GIT: @1.1.0@
  * @link      https://conekta.com/
  */
 
@@ -519,7 +520,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
             }
         }
 
-        $result = Database::get_conekta_metadata($customer->id, "conekta_customer_id");
+        $result = Database::getConektaMetadata($customer->id, "conekta_customer_id");
        
         $shippingContact = Config::getShippingContact($customer, $address_delivery, $state, $country);
         $customerInfo = Config::getCustomerInfo($customer, $address_delivery);
@@ -632,7 +633,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 }
             }
 
-            $result = Database::get_conekta_order($customer->id, $this->context->cart->id);
+            $result = Database::getConektaOrder($customer->id, $this->context->cart->id);
 
             try {
             
@@ -649,14 +650,14 @@ class ConektaPaymentsPrestashop extends PaymentModule
                     $order = \Conekta\Order::find($result['id_conekta_order']);
     
                     if (isset($order->charges[0]->status) && $order->charges[0]->status == 'paid') {
-                        Database::update_conekta_order($customer->id, $this->context->cart->id, $order->id, $order->charges[0]->status);
+                        Database::updateConektaOrder($customer->id, $this->context->cart->id, $order->id, $order->charges[0]->status);
                     }
                 }
 
                 if (empty($order)) {
                     $order = \Conekta\Order::create($order_details);
 
-                    Database::update_conekta_order($customer->id, $this->context->cart->id, $order->id, 'unpaid');
+                    Database::updateConektaOrder($customer->id, $this->context->cart->id, $order->id, 'unpaid');
 
                 } elseif (empty($order->charges[0]->status) || $order->charges[0]->status != 'paid') {
                     unset($order_details['customer_info']);
@@ -666,7 +667,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                   
                     $order = \Conekta\Order::create($order_details);
 
-                    Database::update_conekta_order($customer->id, $this->context->cart->id, $order->id, 'unpaid');
+                    Database::updateConektaOrder($customer->id, $this->context->cart->id, $order->id, 'unpaid');
                 }
 
             }  catch (\Exception $e) {
@@ -1377,7 +1378,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
 
         try {
             $customer = \conekta\customer::create($params);
-            Database::update_conekta_metadata($user_id, "conekta_customer_id", $customer->id);
+            Database::updateConektaMetadata($user_id, "conekta_customer_id", $customer->id);
             return $customer->id;
 
         } catch (\Exception $e) {
@@ -1481,10 +1482,10 @@ class ConektaPaymentsPrestashop extends PaymentModule
     }
 
     /**
-     * Create Webhook ok conekta
+     * Insert monthly fees
      * 
-     * @param $total
-     * @param $jumps
+     * @param $total Total price of order
+     * @param $jumps monthly fees
      * 
      * @return array
      */
@@ -1506,7 +1507,13 @@ class ConektaPaymentsPrestashop extends PaymentModule
         return $jumps;
     }
 
-    protected function generateCardPaymentForm() {
+    /**
+     * Generate Payment form
+     * 
+     * @return string HTML generate payment form
+     */
+    protected function generateCardPaymentForm() 
+    {
         //value by default
         $msi   = 0;
         $jumps = array( 1 );
@@ -1525,23 +1532,32 @@ class ConektaPaymentsPrestashop extends PaymentModule
             $years[] = date('Y', strtotime('+' . $i . ' years'));
         }
 
-        $this->context->smarty->assign(array(
-            'action' => $this->context->link->getModuleLink($this->name, 'validation', array(), true),
-            'months' => $months,
-            'years' => $years,
-            'msi' => $msi,
-            'msi_jumps' => $jumps[0],
-            'test_private_key' => Configuration::get('TEST_PRIVATE_KEY'),
-            'charge_on_demand' => $this->charge_on_demand,
-            'path' => $this->_path
-        ));
+        $this->context->smarty->assign(
+            array(
+                'action' => $this->context->link->getModuleLink($this->name, 'validation', array(), true),
+                'months' => $months,
+                'years' => $years,
+                'msi' => $msi,
+                'msi_jumps' => $jumps[0],
+                'test_private_key' => Configuration::get('TEST_PRIVATE_KEY'),
+                'charge_on_demand' => $this->charge_on_demand,
+                'path' => $this->_path
+            )
+        );
       
         
         return $this->context->smarty->fetch('module:conektapaymentsprestashop/views/templates/front/payment_form.tpl');
     }
 
-    public function processPayment ($conektaOrderId) {
-        
+    /**
+     * Payment process and validates if the payment was made correctly
+     * 
+     * @param $conektaOrderId The id of the order to pay
+     * 
+     * @return string link redirect
+     */
+    public function processPayment($conektaOrderId)
+    {
         $key = Configuration::get('CONEKTA_MODE') ? Configuration::get('CONEKTA_PRIVATE_KEY_LIVE') : Configuration::get('CONEKTA_PRIVATE_KEY_TEST');
         $iso_code = $this->context->language->iso_code;
 
@@ -1577,14 +1593,16 @@ class ConektaPaymentsPrestashop extends PaymentModule
             } elseif (isset($charge_response->id)) {
                 Database::insertCardPayment($order, $charge_response, $this->currentOrder, $this->context->cart->id);
             }
-            Database::update_conekta_order($this->context->customer->id,$this->context->cart->id, $order->id, $order->charges[0]->status);
+            Database::updateConektaOrder($this->context->customer->id, $this->context->cart->id, $order->id, $order->charges[0]->status);
 
-            $redirect = $this->context->link->getPageLink('order-confirmation', true, null, array(
-                'id_order' => (int) $this->currentOrder,
-                'id_cart' => (int) $this->context->cart->id,
-                'key' => $this->context->customer->secure_key,
-                'id_module' => (int) $this->id
-            ));
+            $redirect = $this->context->link->getPageLink(
+                'order-confirmation', true, null, array(
+                    'id_order' => (int) $this->currentOrder,
+                    'id_cart' => (int) $this->context->cart->id,
+                    'key' => $this->context->customer->secure_key,
+                    'id_module' => (int) $this->id
+                )
+            );
             Tools::redirect($redirect);
         } catch (\Exception $e) {
             $log_message = $e->getMessage() . ' ';
@@ -1601,7 +1619,16 @@ class ConektaPaymentsPrestashop extends PaymentModule
             Tools::redirectLink($location);
         }
     }
-    public function fetchTemplate($name) {
+
+    /**
+     * Fetch template with the name
+     * 
+     * @param $name Name of template
+     * 
+     * @return string link template
+     */
+    public function fetchTemplate($name) 
+    {
         $views = 'views/templates/';
         if (@filemtime(dirname(__FILE__) . '/' . $name)) {
             return $this->display(__FILE__, $name);
@@ -1615,7 +1642,16 @@ class ConektaPaymentsPrestashop extends PaymentModule
 
         return $this->display(__FILE__, $name);
     }
-    public function getTransactionStatus($order_id) {
+
+    /**
+     * Returns a template with the order status
+     * 
+     * @param $order_id The id of order
+     * 
+     * @return string HTML 
+     */
+    public function getTransactionStatus($order_id)
+    {
         if (Database::getOrderConekta($order_id) == $this->name) {
             $conekta_tran_details = Database::getConektaTransaction($order_id);
 
@@ -1654,7 +1690,4 @@ class ConektaPaymentsPrestashop extends PaymentModule
             return $this->fetchTemplate("admin-order.tpl");
         }
     }
-
-
 }
-
