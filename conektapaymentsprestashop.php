@@ -573,7 +573,7 @@ class ConektaPaymentsPrestashop extends PaymentModule {
                 }
             }
 
-            $result = Database::get_conekta_order($customer->id, $this->context->cart->id);
+            $result = Database::get_conekta_order($customer->id, $this->conekta_mode, $this->context->cart->id);
 
             try {
             
