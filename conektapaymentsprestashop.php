@@ -225,6 +225,12 @@ class ConektaPaymentsPrestashop extends PaymentModule {
         && Configuration::deleteByName('CONEKTA_WEBHOOK_FAILED_URL')
         && Db::getInstance()->Execute(
             'DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'conekta_transaction`'
+            )
+        && Db::getInstance()->Execute(
+            'DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'conekta_metadata`'
+        )
+        && Db::getInstance()->Execute(
+            'DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'conekta_order_checkout`'
         );
     }
 
