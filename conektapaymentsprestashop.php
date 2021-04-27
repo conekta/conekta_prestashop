@@ -106,6 +106,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
 
         if (isset($config['MODE'])) {
             $this->mode = $config['MODE'];
+            $this->conekta_mode = ($this->mode) ? 'live' : 'test';
         }
         if (isset($config['WEB_HOOK'])) {
             $this->web_hook = $config['WEB_HOOK'];
@@ -244,7 +245,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
         && Configuration::deleteByName('CONEKTA_WEBHOOK_FAILED_URL')
         && Db::getInstance()->Execute(
             'DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'conekta_transaction`'
-            )
+        )
         && Db::getInstance()->Execute(
             'DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'conekta_metadata`'
         )
@@ -316,8 +317,9 @@ class ConektaPaymentsPrestashop extends PaymentModule
         if ($params['newOrderStatus']->id == 7) {
             //order refunded
             $key = Configuration::get('CONEKTA_MODE') ?
-            Configuration::get('CONEKTA_PRIVATE_KEY_LIVE') :
-            Configuration::get('CONEKTA_PRIVATE_KEY_TEST');
+                Configuration::get('CONEKTA_PRIVATE_KEY_LIVE') :
+                Configuration::get('CONEKTA_PRIVATE_KEY_TEST');
+
             $iso_code = $this->context->language->iso_code;
 
             \Conekta\Conekta::setApiKey($key);
@@ -529,7 +531,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
         $shippingContact = Config::getShippingContact($customer, $address_delivery, $state, $country);
         $customerInfo = Config::getCustomerInfo($customer, $address_delivery);
 
-        $result = Database::get_conekta_metadata($customer->id, $this->conekta_mode, "conekta_customer_id");
+        $result = Database::getConektaMetadata($customer->id, $this->conekta_mode, "conekta_customer_id");
 
         if (count($payment_options) > 0 && !empty($shippingContact['address']['postal_code']) && !empty($shippingLines)) {
             
@@ -537,13 +539,13 @@ class ConektaPaymentsPrestashop extends PaymentModule
             $taxlines = array();
 
             if (empty($result['meta_value'])) {
-                $customer_id = $this->createCustomer($customer, $customerInfo );
+                $customer_id = $this->createCustomer($customer, $customerInfo);
             } else {
                 $customer_id = $result['meta_value'];
                 $customerConekta = \Conekta\Customer::find($customer_id);
                 $customerConekta->update($customerInfo);
             }
-  
+
             if ((Configuration::get('PAYMENT_METHS_INSTALLMET'))) {
                 $msi = true;
             }
@@ -640,7 +642,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 }
             }
 
-            $result = Database::get_conekta_order($customer->id, $this->conekta_mode, $this->context->cart->id);
+            $result = Database::getConektaOrder($customer->id, $this->conekta_mode, $this->context->cart->id);
 
             try {
             
@@ -657,14 +659,14 @@ class ConektaPaymentsPrestashop extends PaymentModule
                     $order = \Conekta\Order::find($result['id_conekta_order']);
     
                     if (isset($order->charges[0]->status) && $order->charges[0]->status == 'paid') {
-                        Database::update_conekta_order($customer->id, $this->context->cart->id, $this->conekta_mode, $order->id, $order->charges[0]->status);
+                        Database::updateConektaOrder($customer->id, $this->context->cart->id, $this->conekta_mode, $order->id, $order->charges[0]->status);
                     }
                 }
 
                 if (empty($order)) {
                     $order = \Conekta\Order::create($order_details);
 
-                    Database::update_conekta_order($customer->id, $this->context->cart->id, $this->conekta_mode, $order->id, 'unpaid');
+                    Database::updateConektaOrder($customer->id, $this->context->cart->id, $this->conekta_mode, $order->id, 'unpaid');
 
                 } elseif (empty($order->charges[0]->status) || $order->charges[0]->status != 'paid') {
                     unset($order_details['customer_info']);
@@ -674,7 +676,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                   
                     $order = \Conekta\Order::create($order_details);
 
-                    Database::update_conekta_order($customer->id, $this->context->cart->id, $this->conekta_mode, $order->id, 'unpaid');
+                    Database::updateConektaOrder($customer->id, $this->context->cart->id, $this->conekta_mode, $order->id, 'unpaid');
                 }
 
             }  catch (\Exception $e) {
@@ -1375,19 +1377,18 @@ class ConektaPaymentsPrestashop extends PaymentModule
     /**
      * Create customer of Conekta
      * 
-     * @param $user_id The ID of user in Prestashop
-     * @param $params  Info of user
+     * @param $customer Info user in Prestashop
+     * @param $params   Info of user
      * 
      * @return string
      */
-    public function createCustomer($user_id, $params) 
+    public function createCustomer($customer, $params) 
     {
-
         try {
-            $customerConekta = \conekta\customer::create($params);
+            $customerConekta = \Conekta\Customer::create($params);
 
-            Database::update_conekta_metadata($customer->id, $this->conekta_mode, "conekta_customer_id", $customerConekta->id);
-            
+            Database::updateConektaMetadata($customer->id, $this->conekta_mode, "conekta_customer_id", $customerConekta->id);
+
             return $customerConekta->id;
 
         } catch (\Exception $e) {
@@ -1602,7 +1603,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
             } elseif (isset($charge_response->id)) {
                 Database::insertCardPayment($order, $charge_response, $this->currentOrder, $this->context->cart->id);
             }
-            Database::update_conekta_order($this->context->customer->id,$this->context->cart->id, $this->conekta_mode, $order->id, $order->charges[0]->status);
+            Database::updateConektaOrder($this->context->customer->id, $this->context->cart->id, $this->conekta_mode, $order->id, $order->charges[0]->status);
 
             $redirect = $this->context->link->getPageLink(
                 'order-confirmation', true, null, array(

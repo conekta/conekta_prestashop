@@ -240,6 +240,7 @@ class Database
      * Returns the order information
      * 
      * @param int    $user_id      Order ID
+     * @param string $mode         Mode (Production or Test)
      * @param string $meta_options Metadata option to be searched 
      * 
      * @return array|string
@@ -248,15 +249,16 @@ class Database
     {
         $table = _DB_PREFIX_."conekta_metadata";
 
-		$sql = "SELECT meta_value FROM  $table WHERE id_user = '{$user_id}' AND meta_option = '{$meta_options}' AND `mode` = '{$mode}'";
-		
-		return  Db::getInstance()->getRow($sql);
+        $sql = "SELECT meta_value FROM  $table WHERE id_user = '{$user_id}' AND meta_option = '{$meta_options}' AND `mode` = '{$mode}'";
+
+        return  Db::getInstance()->getRow($sql);
     }
 
     /**
      * Save or update value.
      * 
      * @param int    $user_id      User ID
+     * @param string $mode         Mode (Production or Test)
      * @param string $meta_options Metadata option to save
      * @param string $meta_value   Value to be saved
      * 
@@ -267,9 +269,9 @@ class Database
         $table = _DB_PREFIX_."conekta_metadata";
 
         if (empty(Database::getConektaMetadata($user_id, $mode, $meta_options))) {
-            $sql = "INSERT INTO $table(id_user, meta_option, meta_value) VALUES ('{$user_id}','{$meta_options}','{$meta_value}')";
+            $sql = "INSERT INTO $table(id_user, mode, meta_option, meta_value) VALUES ('{$user_id}','{$mode}','{$meta_options}','{$meta_value}')";
         } else {
-			$sql ="UPDATE $table SET id_user = '{$user_id}', meta_option = '{$meta_options}', meta_value = '{$meta_value}' WHERE id_user = '{$user_id}' AND meta_option = '{$meta_options}' AND `mode` = '{$mode}'";
+            $sql ="UPDATE $table SET id_user = '{$user_id}', meta_option = '{$meta_options}', meta_value = '{$meta_value}' WHERE id_user = '{$user_id}' AND meta_option = '{$meta_options}' AND `mode` = '{$mode}'";
         }
 
         return Db::getInstance()->Execute($sql);
@@ -278,8 +280,9 @@ class Database
     /**
      * Returns the id of the order created by conekta
      * 
-     * @param int $user_id User ID
-     * @param int $cart_id Cart ID
+     * @param int    $user_id User ID
+     * @param string $mode    Mode (Production or Test)
+     * @param int    $cart_id Cart ID
      * 
      * @return array|string
      */
@@ -287,9 +290,9 @@ class Database
     {
         $table = _DB_PREFIX_."conekta_order_checkout";
 
-		$sql = "SELECT id_conekta_order, `status` FROM  $table WHERE id_user = '{$user_id}' AND `mode` = '{$mode}'  AND `status` = 'unpaid' AND id_cart ='{$cart_id}'";
-		
-		return  Db::getInstance()->getRow($sql);
+        $sql = "SELECT id_conekta_order, `status` FROM  $table WHERE id_user = '{$user_id}' AND `mode` = '{$mode}'  AND `status` = 'unpaid' AND id_cart ='{$cart_id}'";
+        
+        return  Db::getInstance()->getRow($sql);
     }
 
     /**
@@ -297,6 +300,7 @@ class Database
      * 
      * @param int    $user_id          User ID
      * @param int    $cart_id          Cart ID
+     * @param string $mode             Mode (Production or Test)
      * @param string $id_conekta_order Order ID generate for Conekta
      * @param string $status           Order status
      * 
@@ -309,7 +313,7 @@ class Database
         if (empty(Database::getConektaOrder($user_id, $mode, $cart_id))) {
             $sql = "INSERT INTO $table(id_user,	id_cart, mode, id_conekta_order, `status`) VALUES ('{$user_id}','{$cart_id}','{$mode}','{$id_conekta_order}', '{$status}')";
         } else {
-			$sql = "UPDATE $table SET `status` = '{$status}' WHERE id_user = '{$user_id}' AND id_cart = '{$cart_id}' AND id_conekta_order = '{$id_conekta_order}' AND `mode` = '{$mode}'";
+            $sql = "UPDATE $table SET `status` = '{$status}' WHERE id_user = '{$user_id}' AND id_cart = '{$cart_id}' AND id_conekta_order = '{$id_conekta_order}' AND `mode` = '{$mode}'";
         }
 
         return Db::getInstance()->Execute($sql);
