@@ -28,6 +28,8 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 define("METADATA_LIMIT",12);
+define("CANCELLED_ID", 6);
+define("REFUNDED_ID", 7);
 
 /**
  * ConektaPaymentsPrestashop Class Doc Comment
@@ -266,7 +268,7 @@ class ConektaPaymentsPrestashop extends PaymentModule {
 
     public function hookUpdateOrderStatus($params) { 
 
-        if ($params['newOrderStatus']->id == 7 || $params['newOrderStatus']->id == 6) {
+        if ($params['newOrderStatus']->id == CANCELLED_ID || $params['newOrderStatus']->id == REFUNDED_ID) {
 
             $key = Configuration::get('CONEKTA_MODE') ?
             Configuration::get('CONEKTA_PRIVATE_KEY_LIVE') :
