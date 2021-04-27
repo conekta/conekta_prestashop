@@ -131,6 +131,7 @@ class Database
         $sql = "CREATE TABLE IF NOT EXISTS $table (
             id_conekta_metadata int(11) NOT NULL AUTO_INCREMENT,
             id_user int(11) unsigned NOT NULL,
+            `mode` enum(\"live\",\"test\") NOT NULL,
             meta_option varchar(32) NOT NULL,
             meta_value varchar(128) NOT NULL,
             PRIMARY KEY (id_conekta_metadata),
@@ -154,6 +155,7 @@ class Database
             id int(11) NOT NULL AUTO_INCREMENT,
             id_user int(11) unsigned NOT NULL,
             id_cart int(11) unsigned NOT NULL,
+            `mode` enum(\"live\",\"test\") NOT NULL,
             id_conekta_order varchar(32) NOT NULL,
             `status` enum(\"paid\",\"unpaid\") NOT NULL,
             PRIMARY KEY (id),
@@ -242,13 +244,13 @@ class Database
      * 
      * @return array|string
      */
-    static public function getConektaMetadata($user_id, $meta_options) 
+    static public function getConektaMetadata($user_id, $mode, $meta_options) 
     {
         $table = _DB_PREFIX_."conekta_metadata";
 
-        $sql = "SELECT meta_value FROM $table WHERE id_user = '{$user_id}' AND meta_option = '{$meta_options}'";
-
-        return Db::getInstance()->getRow($sql);
+		$sql = "SELECT meta_value FROM  $table WHERE id_user = '{$user_id}' AND meta_option = '{$meta_options}' AND `mode` = '{$mode}'";
+		
+		return  Db::getInstance()->getRow($sql);
     }
 
     /**
@@ -260,14 +262,14 @@ class Database
      * 
      * @return boolean
      */
-    static public function updateConektaMetadata($user_id, $meta_options, $meta_value) 
+    static public function updateConektaMetadata($user_id, $mode, $meta_options, $meta_value) 
     {
         $table = _DB_PREFIX_."conekta_metadata";
 
-        if (empty(Database::getConektaMetadata($user_id, $meta_options))) {
+        if (empty(Database::getConektaMetadata($user_id, $mode, $meta_options))) {
             $sql = "INSERT INTO $table(id_user, meta_option, meta_value) VALUES ('{$user_id}','{$meta_options}','{$meta_value}')";
         } else {
-            $sql = "UPDATE $table SET id_user = '{$user_id}', meta_option = '{$meta_options}', meta_value = '{$meta_value}' WHERE id_user = '{$user_id}' AND meta_option = '{$meta_options}'";
+			$sql ="UPDATE $table SET id_user = '{$user_id}', meta_option = '{$meta_options}', meta_value = '{$meta_value}' WHERE id_user = '{$user_id}' AND meta_option = '{$meta_options}' AND `mode` = '{$mode}'";
         }
 
         return Db::getInstance()->Execute($sql);
@@ -281,13 +283,13 @@ class Database
      * 
      * @return array|string
      */
-    static public function getConektaOrder($user_id, $cart_id) 
+    static public function getConektaOrder($user_id, $mode, $cart_id) 
     {
         $table = _DB_PREFIX_."conekta_order_checkout";
 
-        $sql = "SELECT id_conekta_order, `status` FROM  $table WHERE id_user = '{$user_id}' AND `status` = \"unpaid\" AND id_cart ='{$cart_id}'";
-
-        return  Db::getInstance()->getRow($sql);
+		$sql = "SELECT id_conekta_order, `status` FROM  $table WHERE id_user = '{$user_id}' AND `mode` = '{$mode}'  AND `status` = 'unpaid' AND id_cart ='{$cart_id}'";
+		
+		return  Db::getInstance()->getRow($sql);
     }
 
     /**
@@ -300,14 +302,14 @@ class Database
      * 
      * @return boolean
      */
-    static public function updateConektaOrder($user_id, $cart_id, $id_conekta_order, $status) 
+    static public function updateConektaOrder($user_id, $cart_id, $mode, $id_conekta_order, $status) 
     {
         $table = _DB_PREFIX_."conekta_order_checkout";
         
-        if (empty(Database::getConektaOrder($user_id, $cart_id))) {
-            $sql = "INSERT INTO $table(id_user,	id_cart, id_conekta_order, `status`) VALUES ('{$user_id}','{$cart_id}','{$id_conekta_order}', '{$status}')";
+        if (empty(Database::getConektaOrder($user_id, $mode, $cart_id))) {
+            $sql = "INSERT INTO $table(id_user,	id_cart, mode, id_conekta_order, `status`) VALUES ('{$user_id}','{$cart_id}','{$mode}','{$id_conekta_order}', '{$status}')";
         } else {
-            $sql = "UPDATE $table SET `status` = '{$status}' WHERE id_user = '{$user_id}' AND id_cart = '{$cart_id}' AND id_conekta_order = '{$id_conekta_order}'";
+			$sql = "UPDATE $table SET `status` = '{$status}' WHERE id_user = '{$user_id}' AND id_cart = '{$cart_id}' AND id_conekta_order = '{$id_conekta_order}' AND `mode` = '{$mode}'";
         }
 
         return Db::getInstance()->Execute($sql);
