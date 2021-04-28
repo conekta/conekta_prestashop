@@ -696,12 +696,12 @@ class ConektaPaymentsPrestashop extends PaymentModule
                     unset($order_details['customer_info']);
                     $order->update($order_details);
 
-                } /*else {
+                } else {
                   
                     $order = \Conekta\Order::create($order_details);
 
                     Database::updateConektaOrder($customerPrestashop->id, $this->context->cart->id, $this->conekta_mode, $order->id, 'unpaid');
-                }*/
+                }
 
             }  catch (\Exception $e) {
                 $log_message = $e->getMessage() . ' ';
