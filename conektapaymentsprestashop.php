@@ -509,6 +509,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
             array_push($payment_options, 'card');
         }
 
+        $pre_authorize = false;
         $msi = false;
         $force_3ds = false;
         $on_demand_enabled = false;
@@ -659,11 +660,11 @@ class ConektaPaymentsPrestashop extends PaymentModule
   
                 if (empty($cust_db['meta_value'])) {
                     
-                    $customerConekta = \conekta\customer::create($customerInfo);
+                    $customerConekta = \Conekta\Customer::create($customerInfo);
                     $customerConekta_id = $customerConekta->id;
                     
                     Database::updateConektaMetadata($customerPrestashop->id, $this->conekta_mode, "conekta_customer_id", $customerConekta_id);
-    
+
                 } else {
 
                     $customerConekta_id = $cust_db['meta_value'];
