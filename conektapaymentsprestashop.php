@@ -682,7 +682,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 if (isset($ord_db) && $ord_db['status'] == 'unpaid') {
                     $order = \Conekta\Order::find($ord_db['id_conekta_order']);
 
-                    if (isset($order->charges[0]->status) && $order->charges[0]->status == 'paid') {
+                    if (isset($order->charges[0]->status) && $order->charges[0]->status != 'unpaid') {
                         Database::updateConektaOrder($customerPrestashop->id, $this->context->cart->id, $this->conekta_mode, $order->id, $order->charges[0]->status);
                     }
                 }
