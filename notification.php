@@ -7,9 +7,9 @@
  * Author  : Conekta.io
  * Url     : https://www.conekta.io/es/docs/plugins/prestashop.
  * PHP Version 7.0.0
- * 
+ *
  * Notification File Doc Comment
- * 
+ *
  * @category  Notification
  * @package   Notification
  * @author    Conekta <support@conekta.io>
@@ -25,19 +25,16 @@ require_once dirname(__FILE__) . '/../../init.php';
 if (!defined('_PS_VERSION_')) {
     exit;
 }
-/*
-    To configure, add webhook in account 
-    storename.com/modules/conektaefectivo/notification.php
-*/
+
+// To configure, add webhook in account
+// storename.com/modules/conektaefectivo/notification.php
+
 $body = Tools::file_get_contents('php://input');
 authenticateEvent($body, $_SERVER['HTTP_DIGEST']);
 $event_json = Tools::jsonDecode($body);
 
-
 if ($event_json->type == 'order.paid' && isset($event_json->data)) {
-
     $conekta_order = $event_json->data->object;
-    
     $reference_id = (integer) $conekta_order->metadata->reference_id;
     $id_order = OrderPayment::getByOrderReference($reference_id);
     $order = new Order($id_order);
@@ -48,7 +45,7 @@ if ($event_json->type == 'order.paid' && isset($event_json->data)) {
     );
     $total_order_amount = $order->getOrdersTotalPaid();
     $str_total_order_amount = (string) $total_order_amount * 100;
-    
+
     if ($currency_payment[0]['iso_code'] === $conekta_order->currency) {
         if ($str_total_order_amount == $conekta_order->amount) {
             $orderHistory           = new OrderHistory();
@@ -60,7 +57,7 @@ if ($event_json->type == 'order.paid' && isset($event_json->data)) {
             $orderHistory->addWithEmail();
             Db::getInstance()->Execute(
                 'UPDATE ' . _DB_PREFIX_
-                .'conekta_transaction SET status = "paid" WHERE id_order = ' 
+                .'conekta_transaction SET status = "paid" WHERE id_order = '
                 . pSQL($id_order)
             );
         }
@@ -71,41 +68,36 @@ if ($event_json->type == 'order.paid' && isset($event_json->data)) {
     $reference_id           = (integer) $conekta_order->metadata->reference_id;
     $id_order               = OrderPayment::getByOrderReference($reference_id);
     Db::getInstance()->Execute(
-        'UPDATE ' . _DB_PREFIX_ 
-        . 'orders SET current_state = 6 WHERE id_order = ' 
+        'UPDATE ' . _DB_PREFIX_
+        . 'orders SET current_state = 6 WHERE id_order = '
         . pSQL($id_order)
     );
-
 } elseif ($event_json->type == 'order.canceled' && isset($event_json->data)) {
     $conekta_order = $event_json->data->object;
-      
     $reference_id           = (integer) $conekta_order->metadata->reference_id;
     $id_order               = OrderPayment::getByOrderReference($reference_id);
     Db::getInstance()->Execute(
-        'UPDATE ' . _DB_PREFIX_ 
-        . 'orders SET current_state = 6 WHERE id_order = ' 
+        'UPDATE ' . _DB_PREFIX_
+        . 'orders SET current_state = 6 WHERE id_order = '
         . pSQL($id_order)
     );
-  
 } elseif ($event_json->type == 'order.refunded' && isset($event_json->data)) {
     $conekta_order = $event_json->data->object;
-      
     $reference_id           = (integer) $conekta_order->metadata->reference_id;
     $id_order               = OrderPayment::getByOrderReference($reference_id);
     Db::getInstance()->Execute(
-        'UPDATE ' . _DB_PREFIX_ 
-        . 'orders SET current_state = 7 WHERE id_order = ' 
+        'UPDATE ' . _DB_PREFIX_
+        . 'orders SET current_state = 7 WHERE id_order = '
         . pSQL($id_order)
     );
-
 }
 
 /**
  * Aunthenticate events
- * 
+ *
  * @param $body   inputs
- * @param $digest methods a web server can use to negotiate credentials 
- * 
+ * @param $digest methods a web server can use to negotiate credentials
+ *
  * @return void
  */
 function authenticateEvent($body, $digest)
@@ -136,9 +128,9 @@ function authenticateEvent($body, $digest)
 
 /**
  * Aunthenticate logger
- * 
+ *
  * @param $log_message message log
- * 
+ *
  * @return void
  */
 function authenticateLogger($log_message)
