@@ -7,9 +7,9 @@
  * Author  : Conekta.io
  * URL     : https://www.conekta.io/es/docs/plugins/prestashop.
  * PHP Version 7.0.0
- * 
+ *
  * Database File Doc Comment
- * 
+ *
  * @category  Database
  * @package   Database
  * @author    Conekta <support@conekta.io>
@@ -28,14 +28,15 @@
  * @license  http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  * @link     https://conekta.com/
  */
+
 class Database
 {
     /**
      * Returns the module that the payment of the order was made.
-     * 
+     *
      * @param $order_id Order id
-     * 
-     * @return array|string 
+     *
+     * @return array|string
      */
     public static function getOrderConekta($order_id)
     {
@@ -47,9 +48,9 @@ class Database
 
     /**
      * Returns information of the order paid.
-     * 
+     *
      * @param $order_id The order id
-     * 
+     *
      * @return array
      */
     public static function getConektaTransaction($order_id)
@@ -63,13 +64,13 @@ class Database
 
     /**
      * Insert payment with oxxo
-     * 
-     * @param Order  $order           Object order               
+     *
+     * @param Order  $order           Object order
      * @param array  $charge_response Charges made on the order
      * @param string $reference       Payment reference code
      * @param int    $currentOrder    Order ID
      * @param int    $cartId          Cart ID
-     * 
+     *
      * @return boolean
      */
     public static function insertOxxoPayment($order, $charge_response, $reference, $currentOrder, $cartId)
@@ -91,7 +92,7 @@ class Database
 
     /**
      * Create table ps_conekta_transaction
-     * 
+     *
      * @return boolean
      */
     public static function installDb()
@@ -122,10 +123,10 @@ class Database
 
     /**
      * Create table ps_conekta_metadata
-     * 
+     *
      * @return boolean
      */
-    public static function createTableMetaData() 
+    public static function createTableMetaData()
     {
         $table = _DB_PREFIX_."conekta_metadata";
         $sql = "CREATE TABLE IF NOT EXISTS $table (
@@ -145,10 +146,10 @@ class Database
 
     /**
      * Create table ps_conekta_order_checkout
-     * 
+     *
      * @return boolean
      */
-    public static function createTableConektaOrder() 
+    public static function createTableConektaOrder()
     {
         $table = _DB_PREFIX_."conekta_order_checkout";
         $sql = "CREATE TABLE IF NOT EXISTS $table (
@@ -171,13 +172,13 @@ class Database
 
     /**
      * Insert payment with spei
-     * 
-     * @param Order  $order           Object order               
+     *
+     * @param Order  $order           Object order
      * @param array  $charge_response Charges made on the order
      * @param string $reference       Payment reference code
      * @param int    $currentOrder    Order ID
      * @param int    $cartId          Cart ID
-     * 
+     *
      * @return boolean
      */
     public static function insertSpeiPayment($order, $charge_response, $reference, $currentOrder, $cartId)
@@ -198,12 +199,12 @@ class Database
 
     /**
      * Insert payment with card
-     * 
-     * @param Order $order           Object order               
+     *
+     * @param Order $order           Object order
      * @param array $charge_response Charges made on the order
      * @param int   $currentOrder    Order ID
      * @param int   $cartId          Cart ID
-     * 
+     *
      * @return boolean
      */
     public static function insertCardPayment($order, $charge_response, $currentOrder, $cartId)
@@ -223,9 +224,9 @@ class Database
 
     /**
      * Returns the order information
-     * 
+     *
      * @param int $id_order Order ID
-     * 
+     *
      * @return array
      */
     public static function getOrderById($id_order)
@@ -238,14 +239,14 @@ class Database
 
     /**
      * Returns the order information
-     * 
+     *
      * @param int    $user_id      Order ID
      * @param string $mode         Mode (Production or Test)
-     * @param string $meta_options Metadata option to be searched 
-     * 
+     * @param string $meta_options Metadata option to be searched
+     *
      * @return array|string
      */
-    static public function getConektaMetadata($user_id, $mode, $meta_options) 
+    public static function getConektaMetadata($user_id, $mode, $meta_options)
     {
         $table = _DB_PREFIX_."conekta_metadata";
 
@@ -256,15 +257,15 @@ class Database
 
     /**
      * Save or update value.
-     * 
+     *
      * @param int    $user_id      User ID
      * @param string $mode         Mode (Production or Test)
      * @param string $meta_options Metadata option to save
      * @param string $meta_value   Value to be saved
-     * 
+     *
      * @return boolean
      */
-    static public function updateConektaMetadata($user_id, $mode, $meta_options, $meta_value) 
+    public static function updateConektaMetadata($user_id, $mode, $meta_options, $meta_value)
     {
         $table = _DB_PREFIX_."conekta_metadata";
 
@@ -279,14 +280,14 @@ class Database
 
     /**
      * Returns the id of the order created by conekta
-     * 
+     *
      * @param int    $user_id User ID
      * @param string $mode    Mode (Production or Test)
      * @param int    $cart_id Cart ID
-     * 
+     *
      * @return array|string
      */
-    static public function getConektaOrder($user_id, $mode, $cart_id) 
+    public static function getConektaOrder($user_id, $mode, $cart_id)
     {
         $table = _DB_PREFIX_."conekta_order_checkout";
 
@@ -297,16 +298,16 @@ class Database
 
     /**
      * Add or update placed orders
-     * 
+     *
      * @param int    $user_id          User ID
      * @param int    $cart_id          Cart ID
      * @param string $mode             Mode (Production or Test)
      * @param string $id_conekta_order Order ID generate for Conekta
      * @param string $status           Order status
-     * 
+     *
      * @return boolean
      */
-    static public function updateConektaOrder($user_id, $cart_id, $mode, $id_conekta_order, $status) 
+    public static function updateConektaOrder($user_id, $cart_id, $mode, $id_conekta_order, $status)
     {
         $table = _DB_PREFIX_."conekta_order_checkout";
         
