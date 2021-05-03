@@ -1,6 +1,6 @@
 <?php
 /**
- * 2007-2017 PrestaShop
+ * 2007-2019 PrestaShop
  *
  * NOTICE OF LICENSE
  * Title   : Conekta Card Payment Gateway for Prestashop
@@ -14,13 +14,13 @@
  * @package   Notification
  * @author    Conekta <support@conekta.io>
  * @copyright 2012-2017 Conekta
- * @license   http://opensourec.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  * @version   GIT: @1.1.0@
  * @link      https://conekta.com/
  */
 
-require_once dirname(__FILE__) . '/../../config/config.inc.php';
-require_once dirname(__FILE__) . '/../../init.php';
+require_once __DIR__ . '/../../config/config.inc.php';
+require_once __DIR__ . '/../../init.php';
 
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -30,7 +30,7 @@ if (!defined('_PS_VERSION_')) {
     storename.com/modules/conektaefectivo/notification.php
 */
 $body = Tools::file_get_contents('php://input');
-authenticateEvent($body, $_SERVER['HTTP_DIGEST']);
+authenticateEvent($body, filter_input(INPUT_SERVER, 'HTTP_DIGEST'));
 $event_json = Tools::jsonDecode($body);
 
 

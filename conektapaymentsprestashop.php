@@ -43,7 +43,11 @@ define("METADATA_LIMIT", 12);
 class ConektaPaymentsPrestashop extends PaymentModule
 {
     protected $html = '', $postErrors = array();
-    public $details ,$owner,$address, $extra_mail_vars;
+
+    public $details;
+    public $owner;
+    public $address;
+    public $extra_mail_vars;
 
     /**
      * Implement the configuration of the Conekta Prestashop module
@@ -837,6 +841,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
     private function _postValidation() 
     {
         if (Tools::isSubmit('btnSubmit')) {
+
             if (!Tools::getValue('PAYEE_NAME')) {
                 $this->postErrors[] = $this->trans('The "Payee" field is required.', array(), 'Modules.ConektaPaymentsPrestashop.Admin');
             } elseif (!Tools::getValue('PAYEE_ADDRESS')) {
@@ -1059,10 +1064,27 @@ class ConektaPaymentsPrestashop extends PaymentModule
                         'name' => 'PAYMENT_METHS',
                         'values' => array(
                             'query' => array(
-                                array( 'id' => 'CARD', 'name' => $this->l('Card'), 'val' => 'card_payment_method'),
-                                array( 'id' => 'INSTALLMET', 'name' => $this->l('Monthly Installents'), 'val' => 'installment_payment_method' ),
-                                array( 'id' => 'CASH', 'name' => $this->l('Cash'), 'val' => 'cash_payment_method' ),
-                                array( 'id' => 'SPEI', 'name' => $this->l('SPEI'), 'val' => 'spei_payment_method' )
+                                array(
+                                    'id' => 'CARD',
+                                    'name' => $this->l('Card'),
+                                    'val' => 'card_payment_method'
+                                ),
+                                array(
+                                    'id' => 'INSTALLMET',
+                                    'name' => $this->l('Monthly Installents'),
+                                    'val' => 'installment_payment_method'
+                                ),
+                                array(
+                                    'id' => 'CASH',
+                                    'name' => $this->l('Cash'),
+                                    'val' => 'cash_payment_method',                                    
+                                ),
+                                array(
+                                    'id' => 'SPEI',
+                                    'name' => $this->l('SPEI'),
+                                    'val' => 'spei_payment_method'
+                                )
+
                             ),
                             'id' => 'id',
                             'name' => 'name'
@@ -1328,7 +1350,6 @@ class ConektaPaymentsPrestashop extends PaymentModule
             );
 
             foreach ($configuration_values as $configuration_key => $configuration_value) {
-                //echo $configuration_key."\t=>   ".$configuration_value.'<br>';
                 Configuration::updateValue($configuration_key, $configuration_value);
             }
             $this->_createWebhook();
@@ -1348,6 +1369,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
         $this->smarty->assign("_path", $this->_path);
         $this->smarty->assign("requirements", $requirements);
         $this->smarty->assign("config_check", $requirements['result']);
+
         if ($requirements['result']) {
             $this->smarty->assign("msg_show", $this->l('All the checks were successfully performed. You can now start using your module.'));
         } else {
@@ -1700,4 +1722,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
             return $this->fetchTemplate("admin-order.tpl");
         }
     }
+
+
 }
+

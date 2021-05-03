@@ -23,6 +23,7 @@
 *  @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
+
 if ( $.mobile ) {
 	//jq mobile loaded
 	 $(document).on('pageinit', function() {
@@ -46,11 +47,12 @@ function callBack(token){
 	}
 }
  
-function conektaSetup() {
-	if (!$('#conekta-payment-form').length){
+function conektaSetup()
+{
+	if (!$('#conekta-payment-form').length) {
 		return false;
 	}
-	 
+	
 	var cardComponent = {
 		idElement: 'cardNumber',
 		style: {
