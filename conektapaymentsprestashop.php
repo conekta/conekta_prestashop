@@ -1,6 +1,6 @@
 <?php
 /**
- * 2007-2017 PrestaShop
+ * 2007-2019 PrestaShop
  *
  * NOTICE OF LICENSE
  * Title   : Conekta Card Payment Gateway for Prestashop
@@ -13,8 +13,8 @@
  * @category  ConektaPaymentsPrestashop
  * @package   ConektaPaymentsPrestashop
  * @author    Conekta <support@conekta.io>
- * @copyright 2012-2017 Conekta
- * @license   http://opensourec.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright 2012-2019 Conekta
+ * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  * @version   GIT: @1.1.0@
  * @link      https://conekta.com/
  */
@@ -36,7 +36,7 @@ define("METADATA_LIMIT", 12);
  * @category Class
  * @package  ConektaPaymentsPrestashop
  * @author   Conekta <support@conekta.io>
- * @license  http://opensourec.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @license  http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  * @link     https://conekta.com/
  */
 

@@ -25,6 +25,10 @@ require_once __DIR__ . '/../../init.php';
 if (!defined('_PS_VERSION_')) {
     exit;
 }
+
+define("ORDER_CANCELED", 6);
+define("ORDER_REFUNDED", 7);
+
 /*
     To configure, add webhook in account 
     storename.com/modules/conektaefectivo/notification.php
@@ -72,7 +76,7 @@ if ($event_json->type == 'order.paid' && isset($event_json->data)) {
     $id_order               = Order::getOrderByCartId($reference_id);
     Db::getInstance()->Execute(
         'UPDATE ' . _DB_PREFIX_ 
-        . 'orders SET current_state = 6 WHERE id_order = ' 
+        . 'orders SET current_state = '. ORDER_CANCELED .' WHERE id_order = ' 
         . pSQL($id_order)
     );
 
@@ -83,7 +87,7 @@ if ($event_json->type == 'order.paid' && isset($event_json->data)) {
     $id_order               = Order::getOrderByCartId($reference_id);
     Db::getInstance()->Execute(
         'UPDATE ' . _DB_PREFIX_ 
-        . 'orders SET current_state = 6 WHERE id_order = ' 
+        . 'orders SET current_state = '. ORDER_CANCELED .' WHERE id_order = ' 
         . pSQL($id_order)
     );
   
@@ -94,7 +98,7 @@ if ($event_json->type == 'order.paid' && isset($event_json->data)) {
     $id_order               = Order::getOrderByCartId($reference_id);
     Db::getInstance()->Execute(
         'UPDATE ' . _DB_PREFIX_ 
-        . 'orders SET current_state = 7 WHERE id_order = ' 
+        . 'orders SET current_state = '. ORDER_REFUNDED .' WHERE id_order = ' 
         . pSQL($id_order)
     );
 
