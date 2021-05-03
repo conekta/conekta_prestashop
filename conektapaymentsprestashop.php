@@ -475,7 +475,6 @@ class ConektaPaymentsPrestashop extends PaymentModule
     {
         $key = Configuration::get('CONEKTA_MODE') ? Configuration::get('CONEKTA_PRIVATE_KEY_LIVE') : Configuration::get('CONEKTA_PRIVATE_KEY_TEST');
         $iso_code = $this->context->language->iso_code;
-
         \Conekta\Conekta::setApiKey($key);
         \Conekta\Conekta::setPlugin("Prestashop1.7");
         \Conekta\Conekta::setApiVersion("2.0.0");
@@ -1654,7 +1653,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
         if (Database::getOrderConekta($order_id) == $this->name) {
             $conekta_tran_details = Database::getConektaTransaction($order_id);
 
-            $this->smarty->assign('conekta_transaction_details', $conekta_tran_details);
+            $this->smarty->assign('conekta_tran_details', $conekta_tran_details);
             
             if ($conekta_tran_details['status'] === 'paid') {
                 $this->smarty->assign("color_status", "green");

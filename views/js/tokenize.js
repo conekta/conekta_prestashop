@@ -24,59 +24,6 @@
 *  International Registered Trademark & Property of PrestaShop SA
 */
 
-if ( $.mobile ) {
-	//jq mobile loaded
-	 $(document).on('pageinit', function() {
-		 conektaSetup();
-	 });
-	 $(document).ready(function() {
-		 conektaSetup();
-	 });
- } else {
-   // not jqm
-	 $(document).ready(function() {
-		 conektaSetup();
-	 });
- }
-
-function callBack(token){
-	if(!token.id) {
-		conektaErrorResponseHandler(token);
-	} else {
-		conektaSuccessResponseHandler(token);
-	}
-}
- 
-function conektaSetup()
-{
-	if (!$('#conekta-payment-form').length) {
-		return false;
-	}
-	
-	var cardComponent = {
-		idElement: 'cardNumber',
-		style: {
-			'width': '210px',
-			'padding': '5px 10px',
-			'font-size': '15px',
-			'border': '1px solid rgb(204, 204, 204)'
-		},
-		placeholder: ' '
-	};
-
-	var cvcComponent = {
-		idElement: 'cardVerificationValue',
-		style: {
-			'padding': '5px 10px',
-			'font-size': '15px',
-			'border': '1px solid rgb(204, 204, 204)'
-		},
-		placeholder: ' '
-	};
-
-	renderComponents(conekta_public_key, cardComponent, cvcComponent);
-}
-
 var conektaSuccessResponseHandler = function(response) {
 	console.log(response);
 	var $form = $('#conekta-payment-form');
@@ -116,8 +63,8 @@ $(document).ready (function($) {
 			conektaErrorResponseHandler(error);
 		},
 		onFinalizePayment: function(event) {
-		  	var $form = $('#conekta-payment-form');
-		  	$form.append($('<input type="hidden" name="conektaOrdenID" id="conektaOrdenID" />').val(conekta_order_id));
+			var $form = $('#conekta-payment-form');
+			$form.append($('<input type="hidden" name="conektaOrdenID" id="conektaOrdenID" />').val(conekta_order_id));
 			$form.get(0).submit();
 			console.log("Pago exitoso.")
 		},
@@ -126,21 +73,4 @@ $(document).ready (function($) {
 			alert("Pago declinado.")
 		}
 	})
-
-});
-$('#conekta-payment-form').submit(function(event) {
-	var $form = $('#conekta-payment-form');
-	if ($form.find('[name=conektaToken]').length) {
-		return true;
-	} else {
-		var month = $('#cardExpMonth').val();
-		var year = $('#cardExpYear').val();
-		var owner = $('.cardNumber').val();
-		createToken('cardNumber', callBack, {
-			name: owner,
-			expMonth: month,
-			expYear: year
-		});
-		return false;
-	}
 });

@@ -57,7 +57,7 @@ class ConektaPaymentsPrestashopValidationModuleFrontController extends ModuleFro
                 Tools::redirect('index.php?controller=order&step=1');
             }
             
-            $conektaToken = pSQL(Tools::getValue('conektaToken'));
+            $conektaOrderId = pSQL(Tools::getValue('conektaOrdenID'));
             
             $conekta->processPayment($conektaOrderId);
             
