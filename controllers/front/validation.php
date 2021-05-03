@@ -7,9 +7,9 @@
  * Author  : Conekta.io
  * URL     : https://www.conekta.io/es/docs/plugins/prestashop.
  * PHP Version 7.0.0
- * 
+ *
  * Validation File Doc Comment
- * 
+ *
  * @category  Validation
  * @package   Validation
  * @author    Conekta <support@conekta.io>
@@ -28,11 +28,12 @@
  * @license  http://opensourec.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  * @link     https://conekta.com/
  */
+
 class ConektaPaymentsPrestashopValidationModuleFrontController extends ModuleFrontController
 {
     /**
      * Returns the module that the payment of the order was made.
-     * 
+     *
      * @return void
      */
     public function postProcess()
