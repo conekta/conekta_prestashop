@@ -1,6 +1,6 @@
 <?php
 /**
- * 2007-2017 PrestaShop
+ * 2007-2019 PrestaShop
  *
  * NOTICE OF LICENSE
  * Title   : Conekta Card Payment Gateway for Prestashop
@@ -13,8 +13,8 @@
  * @category  ConektaPaymentsPrestashop
  * @package   ConektaPaymentsPrestashop
  * @author    Conekta <support@conekta.io>
- * @copyright 2012-2017 Conekta
- * @license   http://opensourec.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright 2012-2019 Conekta
+ * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  * @version   GIT: @1.1.0@
  * @link      https://conekta.com/
  */
@@ -37,7 +37,7 @@ define("METADATA_LIMIT", 12);
  * @category Class
  * @package  ConektaPaymentsPrestashop
  * @author   Conekta <support@conekta.io>
- * @license  http://opensourec.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @license  http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  * @link     https://conekta.com/
  */
 
@@ -475,7 +475,6 @@ class ConektaPaymentsPrestashop extends PaymentModule
     {
         $key = Configuration::get('CONEKTA_MODE') ? Configuration::get('CONEKTA_PRIVATE_KEY_LIVE') : Configuration::get('CONEKTA_PRIVATE_KEY_TEST');
         $iso_code = $this->context->language->iso_code;
-
         \Conekta\Conekta::setApiKey($key);
         \Conekta\Conekta::setPlugin("Prestashop1.7");
         \Conekta\Conekta::setApiVersion("2.0.0");
@@ -1325,7 +1324,6 @@ class ConektaPaymentsPrestashop extends PaymentModule
             );
 
             foreach ($configuration_values as $configuration_key => $configuration_value) {
-                //echo $configuration_key."\t=>   ".$configuration_value.'<br>';
                 Configuration::updateValue($configuration_key, $configuration_value);
             }
             $this->createWebhook();
@@ -1655,7 +1653,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
         if (Database::getOrderConekta($order_id) == $this->name) {
             $conekta_tran_details = Database::getConektaTransaction($order_id);
 
-            $this->smarty->assign('conekta_transaction_details', $conekta_tran_details);
+            $this->smarty->assign('conekta_tran_details', $conekta_tran_details);
             
             if ($conekta_tran_details['status'] === 'paid') {
                 $this->smarty->assign("color_status", "green");
