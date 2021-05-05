@@ -8,11 +8,11 @@ Features
 --------
 Current version features:
 
-* Online and offline payments.
-* Automatic order status management.
-* Sandbox testing capability.
-* Client side validation for credit cards.
-* All card data is sent directly to Conekta's servers so you don't have to be PCI compliant.
+*   Online and offline payments.
+*   Automatic order status management.
+*   Sandbox testing capability.
+*   Client side validation for credit cards.
+*   All card data is sent directly to Conekta's servers so you don't have to be PCI compliant.
 
 Installation
 -----------
@@ -21,14 +21,13 @@ Installation
 
 There is no custom installation for this plugin, just the default:
 
-
-  * Compress the folder conektapaymentsprestashop.
-  * Go to the modules section and clic on 'Add a new module'.
-  * Select the compressed folder.
-  * Search for conektapaymentsprestashop in the modules list.
-  * Clic on 'install'.
-  * Add your API keys.
-  * Modify if necessary your webhook url.
+*   Compress the folder conektapaymentsprestashop.
+*   Go to the modules section and clic on 'Add a new module'.
+*   Select the compressed folder.
+*   Search for conektapaymentsprestashop in the modules list.
+*   Clic on 'install'.
+*   Add your API keys.
+*   Modify if necessary your webhook url.
 
 License
 -------
