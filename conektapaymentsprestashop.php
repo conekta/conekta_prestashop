@@ -383,7 +383,11 @@ class ConektaPaymentsPrestashop extends PaymentModule
             ) {
                 $order = \Conekta\Order::find($conekta_tran_details['id_conekta_order']);
                 if (!empty($order) && $order->charges[0]->payment_method->object == "card_payment") {
-                    $order->refund(['reason' => 'requested_by_client']);
+                    if ($order->payment_status == 'pre_authorized') {
+                        $order->void();
+                    } else {
+                        $order->refund(['reason' => 'requested_by_client']);
+                    }
                 }
             }
         }
