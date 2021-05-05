@@ -325,4 +325,18 @@ class Database
         }
         return Db::getInstance()->Execute($sql);
     }
+
+    /**
+     * Returns the id of the order related to the reference_id
+     *
+     * @param string $reference_id Alphabetical reference code assigned to the order.
+     *
+     * @return array|string
+     */
+    public static function getOrderByReferenceId($reference_id)
+    {
+        $table = _DB_PREFIX_."orders";
+        $sql = "SELECT id_order FROM $table WHERE reference = '{$reference_id}'";
+        return Db::getInstance()->getRow($sql);
+    }
 }

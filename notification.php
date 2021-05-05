@@ -21,6 +21,7 @@
 
 require_once __DIR__ . '/../../config/config.inc.php';
 require_once __DIR__ . '/../../init.php';
+require_once __DIR__ . '/model/Database.php';
 
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -42,7 +43,8 @@ if ($event_json->type == 'order.paid' && isset($event_json->data)) {
     $conekta_order = $event_json->data->object;
     
     $reference_id = (string) $conekta_order->metadata->reference_id;
-    $id_order = OrderPayment::getByOrderReference($reference_id);
+    $result = Database::getOrderByReferenceId($reference_id);
+    $id_order = $result['id_order'];
     $order = new Order($id_order);
     $order_fields = $order->getFields();
     $currency_payment = Currency::getPaymentCurrencies(
@@ -72,7 +74,8 @@ if ($event_json->type == 'order.paid' && isset($event_json->data)) {
     $conekta_order = $event_json->data->object;
       
     $reference_id           = (string) $conekta_order->metadata->reference_id;
-    $id_order               = OrderPayment::getByOrderReference($reference_id);
+    $result                 = Database::getOrderByReferenceId($reference_id);
+    $id_order               = $result['id_order'];
     Db::getInstance()->Execute(
         'UPDATE ' . _DB_PREFIX_
         . 'orders SET current_state = '. ORDER_CANCELED .' WHERE id_order = '
@@ -81,7 +84,8 @@ if ($event_json->type == 'order.paid' && isset($event_json->data)) {
 } elseif ($event_json->type == 'order.canceled' && isset($event_json->data)) {
     $conekta_order = $event_json->data->object;
     $reference_id           = (string) $conekta_order->metadata->reference_id;
-    $id_order               = OrderPayment::getByOrderReference($reference_id);
+    $result                 = Database::getOrderByReferenceId($reference_id);
+    $id_order               = $result['id_order'];
     Db::getInstance()->Execute(
         'UPDATE ' . _DB_PREFIX_
         . 'orders SET current_state = '. ORDER_CANCELED .' WHERE id_order = '
@@ -90,7 +94,8 @@ if ($event_json->type == 'order.paid' && isset($event_json->data)) {
 } elseif ($event_json->type == 'order.refunded' && isset($event_json->data)) {
     $conekta_order = $event_json->data->object;
     $reference_id           = (string) $conekta_order->metadata->reference_id;
-    $id_order               = OrderPayment::getByOrderReference($reference_id);
+    $result                 = Database::getOrderByReferenceId($reference_id);
+    $id_order               = $result['id_order'];
     Db::getInstance()->Execute(
         'UPDATE ' . _DB_PREFIX_
         . 'orders SET current_state = '. ORDER_REFUNDED .' WHERE id_order = '
