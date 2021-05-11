@@ -1,6 +1,6 @@
 <?php
 /**
- * 2007-2017 PrestaShop
+ * 2007-2019 PrestaShop
  *
  * NOTICE OF LICENSE
  * Title   : Conekta Card Payment Gateway for Prestashop
@@ -13,8 +13,8 @@
  * @category  ConektaPaymentsPrestashop
  * @package   ConektaPaymentsPrestashop
  * @author    Conekta <support@conekta.io>
- * @copyright 2012-2017 Conekta
- * @license   http://opensourec.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright 2012-2019 Conekta
+ * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  * @version   GIT: @1.1.0@
  * @link      https://conekta.com/
  */
@@ -28,6 +28,7 @@ require_once __DIR__ . '/lib/conekta-php/lib/Conekta.php';
 if (!defined('_PS_VERSION_')) {
     exit;
 }
+
 define("METADATA_LIMIT", 12);
 define("CANCELLED_ID", 6);
 define("REFUNDED_ID", 7);
@@ -38,7 +39,7 @@ define("REFUNDED_ID", 7);
  * @category Class
  * @package  ConektaPaymentsPrestashop
  * @author   Conekta <support@conekta.io>
- * @license  http://opensourec.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @license  http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  * @link     https://conekta.com/
  */
 
@@ -46,7 +47,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
 {
     protected $html = '';
     protected $postErrors = array();
-    
+
     public $details;
     public $owner;
     public $address;
@@ -254,6 +255,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
             try {
                 $order = \Conekta\Order::find(filter_input(INPUT_GET, 'conektaOrdenID'));
                 $params['order']->reference = $order->metadata['reference_id'];
+
                 return true;
             } catch (\Exception $e) {
                 return false;
@@ -512,7 +514,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
      */
     public function hookHeader()
     {
-        $key      = Configuration::get('CONEKTA_MODE') ? Configuration::get('CONEKTA_PRIVATE_KEY_LIVE') : Configuration::get('CONEKTA_PRIVATE_KEY_TEST');
+        $key = Configuration::get('CONEKTA_MODE') ? Configuration::get('CONEKTA_PRIVATE_KEY_LIVE') : Configuration::get('CONEKTA_PRIVATE_KEY_TEST');
         $iso_code = $this->context->language->iso_code;
 
         \Conekta\Conekta::setApiKey($key);
@@ -580,7 +582,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
         $shippingContact = Config::getShippingContact($customerPrestashop, $address_delivery, $state, $country);
         $customerInfo = Config::getCustomerInfo($customerPrestashop, $address_delivery);
 
-        if (count($payment_options) > 0  && !empty($shippingContact['address']['postal_code']) && !empty($shippingLines)) {
+        if (count($payment_options) > 0 && !empty($shippingContact['address']['postal_code']) && !empty($shippingLines)) {
             $order_details = array();
             $taxlines = array();
     
@@ -693,12 +695,11 @@ class ConektaPaymentsPrestashop extends PaymentModule
 
                 $message = $this->checkedFields($customerInfo['phone'], $order_details, $amount);
 
-                if ($message !== true) {
-                    $this->context->smarty->assign(
-                        array(
-                            'message' =>  $message,
-                        )
-                    );
+                if( $message !== true) {
+                    
+                    $this->context->smarty->assign(array(
+                        'message' =>  $message,
+                    ));
                     return false;
                 }
   
@@ -1042,6 +1043,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
         foreach ($product_elements as $element) {
             $ret['PRODUCT_'.strtoupper($element)] = Configuration::get('PRODUCT_'.strtoupper($element));
         }
+        
         return $ret;
     }
 
@@ -1565,6 +1567,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                             $events
                         )
                     );
+
                     Configuration::updateValue('CONEKTA_WEBHOOK', $url);
 
                     // delete error variables
@@ -1759,7 +1762,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
         if (Database::getOrderConekta($order_id) == $this->name) {
             $conekta_tran_details = Database::getConektaTransaction($order_id);
 
-            $this->smarty->assign('conekta_transaction_details', $conekta_tran_details);
+            $this->smarty->assign('conekta_tran_details', $conekta_tran_details);
             
             if ($conekta_tran_details['status'] === 'paid') {
                 $this->smarty->assign("color_status", "green");
