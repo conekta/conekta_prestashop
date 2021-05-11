@@ -905,13 +905,15 @@ class ConektaPaymentsPrestashop extends PaymentModule
             if (!Tools::getValue('WEB_HOOK')) {
                 $this->postErrors[] = $this->trans('The "Web Hook" field is required.', array(), 'Modules.ConektaPaymentsPrestashop.Admin');
             }
-            
+
             if (Tools::getValue('PAYMENT_METHS_CASH') && !Tools::getValue('EXPIRATION_DATE_LIMIT')) {
                 $this->postErrors[] = $this->trans('The "Expiration date limit" field is required.', array(), 'Modules.ConektaPaymentsPrestashop.Admin');
             }
+
             if (Tools::getValue('PAYMENT_METHS_CASH') && ( (Tools::getValue('EXPIRATION_DATE_TYPE')==0 && (Tools::getValue('EXPIRATION_DATE_LIMIT')<0 || Tools::getValue('EXPIRATION_DATE_LIMIT')>31)) || (Tools::getValue('EXPIRATION_DATE_TYPE')==1 && (Tools::getValue('EXPIRATION_DATE_LIMIT')<0 || Tools::getValue('EXPIRATION_DATE_LIMIT')>24)) )) {
                 $this->postErrors[] = $this->trans('The "Expiration date limit" is out of range.', array(), 'Modules.ConektaPaymentsPrestashop.Admin');
             }
+
             if (Tools::getValue('PAYMENT_METHS_CASH') && !is_numeric(Tools::getValue('EXPIRATION_DATE_LIMIT'))) {
                 $this->postErrors[] = $this->trans('The "Expiration date limit" must be a number.', array(), 'Modules.ConektaPaymentsPrestashop.Admin');
             }
@@ -933,6 +935,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 }
                 $i++;
             }
+
             if ($attributes_count > METADATA_LIMIT) {
                 $this->postErrors[] = $this->trans('No more than '. METADATA_LIMIT .' attributes can be sent as metadata', array(), 'Modules.ConektaPaymentsPrestashop.Admin');
             }
@@ -1570,6 +1573,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                             $events
                         )
                     );
+
                     Configuration::updateValue('CONEKTA_WEBHOOK', $url);
 
                     // delete error variables
@@ -1654,6 +1658,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 'path' => $this->_path
             )
         );
+
         return $this->context->smarty->fetch('module:conektapaymentsprestashop/views/templates/front/payment_form.tpl');
     }
 
