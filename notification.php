@@ -1,41 +1,44 @@
 <?php
 /**
- * 2007-2017 PrestaShop
+ * 2007-2019 PrestaShop
  *
  * NOTICE OF LICENSE
  * Title   : Conekta Card Payment Gateway for Prestashop
  * Author  : Conekta.io
  * Url     : https://www.conekta.io/es/docs/plugins/prestashop.
  * PHP Version 7.0.0
- * 
+ *
  * Notification File Doc Comment
- * 
+ *
  * @category  Notification
  * @package   Notification
  * @author    Conekta <support@conekta.io>
- * @copyright 2012-2017 Conekta
- * @license   http://opensourec.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright 2012-2019 Conekta
+ * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  * @version   GIT: @1.1.0@
  * @link      https://conekta.com/
  */
 
-require_once dirname(__FILE__) . '/../../config/config.inc.php';
-require_once dirname(__FILE__) . '/../../init.php';
+require_once __DIR__ . '/../../config/config.inc.php';
+require_once __DIR__ . '/../../init.php';
 
 if (!defined('_PS_VERSION_')) {
     exit;
 }
+
+define("ORDER_CANCELED", 6);
+define("ORDER_REFUNDED", 7);
+
 /*
-    To configure, add webhook in account 
+    To configure, add webhook in account
     storename.com/modules/conektaefectivo/notification.php
 */
 $body = Tools::file_get_contents('php://input');
-authenticateEvent($body, $_SERVER['HTTP_DIGEST']);
+authenticateEvent($body, filter_input(INPUT_SERVER, 'HTTP_DIGEST'));
 $event_json = Tools::jsonDecode($body);
 
 
 if ($event_json->type == 'order.paid' && isset($event_json->data)) {
-
     $conekta_order = $event_json->data->object;
     
     $reference_id = (integer) $conekta_order->metadata->reference_id;
@@ -60,7 +63,7 @@ if ($event_json->type == 'order.paid' && isset($event_json->data)) {
             $orderHistory->addWithEmail();
             Db::getInstance()->Execute(
                 'UPDATE ' . _DB_PREFIX_
-                .'conekta_transaction SET status = "paid" WHERE id_order = ' 
+                .'conekta_transaction SET status = "paid" WHERE id_order = '
                 . pSQL($id_order)
             );
         }
@@ -71,41 +74,38 @@ if ($event_json->type == 'order.paid' && isset($event_json->data)) {
     $reference_id           = (integer) $conekta_order->metadata->reference_id;
     $id_order               = Order::getOrderByCartId($reference_id);
     Db::getInstance()->Execute(
-        'UPDATE ' . _DB_PREFIX_ 
-        . 'orders SET current_state = 6 WHERE id_order = ' 
+        'UPDATE ' . _DB_PREFIX_
+        . 'orders SET current_state = '. ORDER_CANCELED .' WHERE id_order = '
         . pSQL($id_order)
     );
-
 } elseif ($event_json->type == 'order.canceled' && isset($event_json->data)) {
     $conekta_order = $event_json->data->object;
       
     $reference_id           = (integer) $conekta_order->metadata->reference_id;
     $id_order               = Order::getOrderByCartId($reference_id);
     Db::getInstance()->Execute(
-        'UPDATE ' . _DB_PREFIX_ 
-        . 'orders SET current_state = 6 WHERE id_order = ' 
+        'UPDATE ' . _DB_PREFIX_
+        . 'orders SET current_state = '. ORDER_CANCELED .' WHERE id_order = '
         . pSQL($id_order)
     );
-  
 } elseif ($event_json->type == 'order.refunded' && isset($event_json->data)) {
     $conekta_order = $event_json->data->object;
       
     $reference_id           = (integer) $conekta_order->metadata->reference_id;
     $id_order               = Order::getOrderByCartId($reference_id);
     Db::getInstance()->Execute(
-        'UPDATE ' . _DB_PREFIX_ 
-        . 'orders SET current_state = 7 WHERE id_order = ' 
+        'UPDATE ' . _DB_PREFIX_
+        . 'orders SET current_state = '. ORDER_REFUNDED .' WHERE id_order = '
         . pSQL($id_order)
     );
-
 }
 
 /**
  * Aunthenticate events
- * 
+ *
  * @param $body   inputs
- * @param $digest methods a web server can use to negotiate credentials 
- * 
+ * @param $digest methods a web server can use to negotiate credentials
+ *
  * @return void
  */
 function authenticateEvent($body, $digest)
@@ -136,9 +136,9 @@ function authenticateEvent($body, $digest)
 
 /**
  * Aunthenticate logger
- * 
+ *
  * @param $log_message message log
- * 
+ *
  * @return void
  */
 function authenticateLogger($log_message)
