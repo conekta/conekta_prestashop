@@ -79,7 +79,7 @@ class Config
                     array(
                         array(
                             'code' => (string) $discount['name'],
-                            'amount' => str_replace(',','',number_format(($discount['value_real'] * 100))),
+                            'amount' => str_replace(',', '', number_format(($discount['value_real'] * 100))),
                             'type'=>'coupon'
                         )
                     )
@@ -91,7 +91,7 @@ class Config
 
     public static function getShippingLines($shipping_service, $shipping_carrier = '', $shipping_price = '')
     {
-        $shipping_price = str_replace(',','',number_format(($shipping_price * 100)));
+        $shipping_price = str_replace(',', '', number_format(($shipping_price * 100)));
         $shipping_lines = array(
             array(
                 "amount"          => $shipping_price,

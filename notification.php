@@ -10,17 +10,17 @@
  *
  * Notification File Doc Comment
  *
- * @category  Notification
- * @package   Notification
  * @author    Conekta <support@conekta.io>
  * @copyright 2012-2019 Conekta
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @category  Notification
+ * @package   Notification
  * @version   GIT: @1.1.0@
  * @link      https://conekta.com/
  */
 
-require_once __DIR__ . '/../../config/config.inc.php';
-require_once __DIR__ . '/../../init.php';
+require_once dirname(__FILE__) . '/../../config/config.inc.php';
+require_once dirname(__FILE__) . '/../../init.php';
 
 if (!defined('_PS_VERSION_')) {
     exit;

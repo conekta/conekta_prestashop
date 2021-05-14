@@ -1,5 +1,5 @@
 /**
-* 2007-2016 Conekta
+* 2012-2021 Conekta
 *
 * NOTICE OF LICENSE
 *
@@ -18,7 +18,7 @@
 * needs please refer to http://www.prestashop.com for more information.
 *
 *  @author Conekta <support@conekta.io>
-*  @copyright  2012-2016 Conekta
+*  @copyright  2012-2021 Conekta
 *  @version  v2.0.0
 *  @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
