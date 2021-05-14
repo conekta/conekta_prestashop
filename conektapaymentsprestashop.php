@@ -478,6 +478,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
         \Conekta\Conekta::setApiKey($key);
         \Conekta\Conekta::setPlugin("Prestashop1.7");
         \Conekta\Conekta::setApiVersion("2.0.0");
+        \Conekta\Conekta::setLocale($iso_code);
 
         if (Tools::getValue('controller') != 'order-opc' && (!($_SERVER['PHP_SELF'] == __PS_BASE_URI__ . 'order.php' || $_SERVER['PHP_SELF'] == __PS_BASE_URI__ . 'order-opc.php' || Tools::getValue('controller') == 'order' || Tools::getValue('controller') == 'orderopc' || Tools::getValue('step') == 3))) {
             return;
@@ -513,7 +514,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
             array_push($payment_options, 'card');
         }
 
-        $msi = false;
+        // $msi = false;
         $force_3ds = false;
         $on_demand_enabled = false;
         $address_delivery = new Address((int) $cart->id_address_delivery);
@@ -537,7 +538,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
         }
        
         $shippingContact = Config::getShippingContact($customer, $address_delivery, $state, $country);
-        $customerInfo = Config::getCustomerInfo($customer, $address_delivery);
+        $customerInfo = Config::getCustomerInfo($customer);
 
         $result = Database::getConektaMetadata($customer->id, $this->conekta_mode, "conekta_customer_id");
 
@@ -1561,7 +1562,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
         \Conekta\Conekta::setApiVersion("2.0.0");
         \Conekta\Conekta::setPluginVersion($this->version);
         \Conekta\Conekta::setLocale($iso_code);
-        $cart = $this->context->cart;
+        // $cart = $this->context->cart;
         try {
             $order = \Conekta\Order::find($conektaOrderId);
             $charge_response = $order->charges[0];
@@ -1581,6 +1582,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 }
             }
 
+            $reference = $charge_response->payment_method->reference;
             if (isset($charge_response->id) && $charge_response->payment_method->type == "cash") {
                 Database::insertOxxoPayment($order, $charge_response, $reference, $this->currentOrder, $this->context->cart->id);
             } elseif (isset($charge_response->id) && $charge_response->payment_method->type == "spei") {
