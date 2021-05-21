@@ -575,7 +575,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 "force_3ds_flow" => Configuration::get('CONEKTA_MODE') ? $force_3ds : false
             ];
 
-            if (in_array('cash', $payment_options)){
+            if (in_array('cash', $payment_options)) {
                 $checkout["expires_at"] = time() + (Configuration::get('EXPIRATION_DATE_LIMIT') * (Configuration::get('EXPIRATION_DATE_TYPE') == 0 ? 86400 : 3600));
             }
 
