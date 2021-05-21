@@ -568,6 +568,17 @@ class ConektaPaymentsPrestashop extends PaymentModule
            
             $taxlines = Config::getTaxLines($items);
 
+            $checkout = [
+                "type" => 'Integration',
+                "allowed_payment_methods" => $payment_options,
+                "on_demand_enabled" => $on_demand_enabled,
+                "force_3ds_flow" => Configuration::get('CONEKTA_MODE') ? $force_3ds : false
+            ];
+
+            if (in_array('cash', $payment_options)){
+                $checkout["expires_at"] = time() + (Configuration::get('EXPIRATION_DATE_LIMIT') * (Configuration::get('EXPIRATION_DATE_TYPE') == 0 ? 86400 : 3600));
+            }
+
             $order_details = [
                 'currency' => $this->context->currency->iso_code,
                 'line_items' => Config::getLineItems($items),
@@ -581,13 +592,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                     "plugin_version" => _PS_VERSION_,
                     "reference_id" => $this->context->cart->id
                 ],
-                'checkout' => [
-                    "type" => 'Integration',
-                    "allowed_payment_methods" => $payment_options,
-                    "on_demand_enabled" => $on_demand_enabled,
-                    "force_3ds_flow" => Configuration::get('CONEKTA_MODE') ? $force_3ds : false
-                ]
-
+                'checkout' => $checkout
             ];
 
             $order_elements = array_keys(get_class_vars('Cart'));
