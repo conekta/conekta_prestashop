@@ -79,7 +79,7 @@ class Config
                     array(
                         array(
                             'code' => (string) $discount['name'],
-                            'amount' => str_replace(',','',number_format(($discount['value_real'] * 100))),
+                            'amount' => str_replace(',', '', number_format(($discount['value_real'] * 100))),
                             'type'=>'coupon'
                         )
                     )
@@ -91,7 +91,7 @@ class Config
 
     public static function getShippingLines($shipping_service, $shipping_carrier = '', $shipping_price = '')
     {
-        $shipping_price = str_replace(',','',number_format(($shipping_price * 100)));
+        $shipping_price = str_replace(',', '', number_format(($shipping_price * 100)));
         $shipping_lines = array(
             array(
                 "amount"          => $shipping_price,
@@ -122,11 +122,11 @@ class Config
         return $shipping_contact;
     }
 
-    public static function getCustomerInfo($customer = '', $address_delivery = '')
+    public static function getCustomerInfo($customer = '')
     {
         $customer_info = array(
             "name"     => $customer->firstname . " " . $customer->lastname,
-            "phone"    => $address_delivery->phone,
+            // "phone"    => $address_delivery->phone,
             "email"    => $customer->email,
             "metadata" => array("soft_validations" => true)
             );

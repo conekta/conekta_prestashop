@@ -1,5 +1,5 @@
 {*
- * 2007-2019 PrestaShop and Contributors
+ * 2007-2021 PrestaShop and Contributors
  *
  * NOTICE OF LICENSE
  *
@@ -18,15 +18,20 @@
  * needs please refer to https://www.prestashop.com for more information.
  *
  * @author    Conekta <support@conekta.io>
- * @copyright 2007-2019 PrestaShop SA and Contributors
+ * @copyright 2007-2021 PrestaShop SA and Contributors
  * @version v1.0.0
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  * International Registered Trademark & Property of PrestaShop SA
  *}
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 <script type="text/javascript" src="https://cdn.conekta.io/js/latest/conekta.min.js"></script>
-<script type="text/javascript" src="https://cdn.conekta.io/iframe/latest/conekta-iframe.js"></script>
+<script type="text/javascript" src="https://cdn.conekta.io/iframe/latest/conekta-iframe.js"></script> 
+<script type="text/javascript" src="https://pay.conekta.com/v1.0/js/conekta-checkout.min.js"></script> 
 <script type="text/javascript" src="{$path|escape:'htmlall':'UTF-8'}views/js/tokenize.js"></script>
+
+
 <script type="text/javascript">
 	var conekta_public_key = "{$api_key|escape:'htmlall':'UTF-8'}";
-</script>
+	var conekta_checkout_id = "{$checkoutRequestId|escape:'htmlall':'UTF-8'}";
+	var conekta_order_id = "{$orderID|escape:'htmlall':'UTF-8'}";
+</script> 

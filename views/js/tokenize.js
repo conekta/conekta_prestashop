@@ -1,5 +1,5 @@
 /**
-* 2007-2016 Conekta
+* 2012-2021 Conekta
 *
 * NOTICE OF LICENSE
 *
@@ -18,95 +18,59 @@
 * needs please refer to http://www.prestashop.com for more information.
 *
 *  @author Conekta <support@conekta.io>
-*  @copyright  2012-2016 Conekta
+*  @copyright  2012-2021 Conekta
 *  @version  v2.0.0
 *  @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
 
 var conektaSuccessResponseHandler = function(response) {
-	var $form = $("#conekta-payment-form");
-	$form.append($("<input type='hidden' name='conektaToken' id='conektaToken' />").val(response.id));
-	$form.get(0).submit();
+	console.log(response);
+	var $form = $('#conekta-payment-form');
+	$form.append($('<input type="hidden" name="conektaToken" id="conektaToken" />').val(response.id));
 };
-
+ 
 var conektaErrorResponseHandler = function(token) {
-	if ($(".conekta-payment-errors").length) {
-		$(".conekta-payment-errors").fadeIn(1000);
+	if ($('.conekta-payment-errors').length) {
+		$('.conekta-payment-errors').fadeIn(1000);
 	} else {
-		$("#conekta-payment-form").prepend("<div class='conekta-payment-errors'>" + token +"</div>");
-		$(".conekta-payment-errors").fadeIn(1000);
+		$('#conekta-payment-form').prepend('<div class="conekta-payment-errors">' + token +'</div>');
+		$('.conekta-payment-errors').fadeIn(1000);
 	}
 };
 
-function callBack(token) {
-	if(!token.id) {
-		conektaErrorResponseHandler(token);
-	} else {
-		conektaSuccessResponseHandler(token);
-	}
-}
 
-function conektaSetup() {
-	if (!$("#conekta-payment-form").length){
-		return false;
-	}
-	
-	var cardComponent = {
-		idElement: "conekta-card-number",
-		style: {
-			"width": "210px",
-			"padding": "5px 10px",
-			"font-size": "15px",
-			"border": "1px solid rgb(204, 204, 204)"
+$(document).ready (function($) {
+	window.ConektaCheckoutComponents.Integration ({
+		targetIFrame: "#conektaIframeContainer", 
+		checkoutRequestId: conekta_checkout_id,
+		publicKey: conekta_public_key,
+		options: {
+			theme: 'default',
+			styles: {
+				fontSize: 'baseline',
+				inputType: 'rounded',
+				buttonType: 'sharp'
+			}
 		},
-		placeholder: " "
-	};
-	var cvcComponent = {
-		idElement: "conekta-card-cvc",
-		style: {
-			"padding": "5px 10px",
-			"font-size": "15px",
-			"border": "1px solid rgb(204, 204, 204)"
+		onCreateTokenSucceeded: function (token) {
+			console.log("Token creado ");
+			document.getElementById('conektaIframeContainer').remove();
+			conektaSuccessResponseHandler(token);
 		},
-		placeholder: " "
-	};
-
-	renderComponents(conekta_public_key, cardComponent, cvcComponent);
-	
-	//since we are using smarty html_select_date custom function
-	$("#conekta-card-expiry-month").removeAttr("name");
-	$("#conekta-card-expiry-year").removeAttr("name");	
-
-	$("#conekta-payment-form").submit(function(event) {
-		var $form = $("#conekta-payment-form");
-		if( $form.find("[name=conektaToken]").length) {
-			return true;
-		} else {
-			var month = $("#conekta-card-expiry-month").val();
-			var year = $("#conekta-card-expiry-year").val();
-			var owner = $(".conekta-card-name").val();
-			createToken("conekta-card-number", callBack, {
-				name: owner,
-				expMonth: month,
-				expYear: year
-				});
-			return false;
+		onCreateTokenError: function (error) {
+			console.log(error);
+			conektaErrorResponseHandler(error);
+		},
+		onFinalizePayment: function(event) {
+			var $form = $('#conekta-payment-form');
+			$form.append($('<input type="hidden" name="conektaOrdenID" id="conektaOrdenID" />').val(conekta_order_id));
+			$form.get(0).submit();
+			console.log("Pago exitoso.")
+		},
+		onErrorPayment: function(event) {
+			console.log(event)
+			alert("Pago declinado.")
 		}
-	});
-}
-
-if ( $.mobile ) {
-	//jq mobile loaded
-	$(document).on("pageinit", function() {
-		conektaSetup();
-	});
-	$(document).ready(function() {
-		conektaSetup();
-	});
-} else {
-	// not jqm
-	$(document).ready(function() {
-		conektaSetup();
-	});
-}
+	})
+});

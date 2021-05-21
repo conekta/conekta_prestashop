@@ -175,3 +175,67 @@ p.conekta-payment-module.payment_module.spei-option a.conekta_title {
 p.conekta-payment-module.payment_module.banorte-option a.conekta_title {
   background: url(../img/banorte.png) 20px 30px no-repeat #fbfbfb;
 }
+p.conekta-payment-module.payment_module.banorte-option a.conekta_title{
+background: url(../img/banorte.png) 20px 30px no-repeat #fbfbfb;
+}
+div.conekta-payment-module.payment_module.active a, p.conekta-payment-module.payment_module.active a:after {
+content:"\f078";
+padding-right: 20px;
+}
+
+.conekta_delete_card {
+    float:right;
+    cursor:pointer;
+}
+.info_card {
+    border-bottom: 0.15rem dotted #dedfdf;
+    padding:1rem;
+}
+.customer-payment-sources {
+	border-top: 0.2rem solid #dedfdf;
+    border-bottom: 0.2rem solid #dedfdf;
+
+    margin: 2rem 0;
+}
+#new_payment_card {
+    background-color:transparent;
+    color:#cd2653;
+    font-size: 1rem;
+    width:100%; 
+    cursor:pointer;
+    text-decoration:none;
+}
+@media (max-width:615px){
+    #new_payment_card {
+        font-size: 1.3rem;
+    }
+}
+#new_payment_card:hover {
+	text-decoration:underline;
+	color:#cd2653;
+}
+.content_new_card{
+	text-align: center;
+	margin-bottom: 1rem;
+}
+.card_details {
+	display: flex;
+	margin-top: 0.8rem;
+}
+#ckpg_checkout_delete_loader-gif{
+    float:right;
+    display: none;
+}
+.radio_payment_source{
+	float:left;
+	margin-right: 0.4rem;
+}
+.source_card {
+    box-shadow: 1px 1px 15px 0px grey;
+    height: 70px;
+    margin-bottom: 10px;
+    padding: 0.5rem;
+    border-radius: 7px 7px 7px 7px;
+    position: relative;
+    opacity: 1
+}
