@@ -122,7 +122,7 @@ class Config
         return $shipping_contact;
     }
 
-    public static function getCustomerInfo($customer = '')
+    public static function getCustomerInfo($customer = '', $address_delivery = '')
     {
         $customer_info = array(
             "name"     => $customer->firstname . " " . $customer->lastname,
