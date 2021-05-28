@@ -642,7 +642,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                     $amount = $amount - $discount['amount'];
                 }
             }
-            
+
             try {
 
                 // Validate, create and update the customer in conekta
@@ -660,7 +660,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 }
   
                 if (empty($cust_db['meta_value'])) {
-                    
+
                     $customerConekta = \conekta\customer::create($customerInfo);
                     $customerConekta_id = $customerConekta->id;
                     
@@ -1399,15 +1399,19 @@ class ConektaPaymentsPrestashop extends PaymentModule
 
         if(!empty($phone)) {
             if (strpos($phone, '+') !== false) {
-                return   $this->trans('The phone number must not contain "+"', array(), 'Modules.ConektaPaymentsPrestashop.Admin');
-            } elseif(strlen($phone) > 10) {
-                return  $this->trans('The phone number must be smaller than 10', array(), 'Modules.ConektaPaymentsPrestashop.Admin');
+                return $this->trans('The phone number must not contain "+"', array(), 'Modules.ConektaPaymentsPrestashop.Admin');
+            } elseif (strlen($phone) > 10) {
+                return $this->trans('The phone number must be smaller than 10', array(), 'Modules.ConektaPaymentsPrestashop.Admin');
+            } elseif (!is_numeric($phone)) {
+                return $this->trans('The Phone field is not a valid phone number', array(), 'Modules.ConektaPaymentsPrestashop.Admin');
             }
+        } else {
+            return $this->trans('The phone number is empty', array(), 'Modules.ConektaPaymentsPrestashop.Admin');
         }
 
         if(!empty($order_details)) {
             if ( $order_details['currency'] == 'MXN' && $amount < $this->amount_min) {
-                return  $this->trans('The minimum purchase amount with Conekta must be greater than $ 20.00', array(), 'Modules.ConektaPaymentsPrestashop.Admin');
+                return $this->trans('The minimum purchase amount with Conekta must be greater than $ 20.00', array(), 'Modules.ConektaPaymentsPrestashop.Admin');
             }
         }
 
