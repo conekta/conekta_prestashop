@@ -10,11 +10,11 @@
  *
  * Database File Doc Comment
  *
- * @category  Database
- * @package   Database
  * @author    Conekta <support@conekta.io>
  * @copyright 2012-2019 Conekta
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @category  Database
+ * @package   Database
  * @version   GIT: @1.1.0@
  * @link      https://conekta.com/
  */
@@ -22,9 +22,9 @@
 /**
  * Database Class Doc Comment
  *
+ * @author   Conekta <support@conekta.io>
  * @category Class
  * @package  Database
- * @author   Conekta <support@conekta.io>
  * @license  http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  * @link     https://conekta.com/
  */

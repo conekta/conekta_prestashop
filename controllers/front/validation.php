@@ -10,11 +10,11 @@
  *
  * Validation File Doc Comment
  *
- * @category  Validation
- * @package   Validation
  * @author    Conekta <support@conekta.io>
  * @copyright 2012-2019 Conekta
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @category  Validation
+ * @package   Validation
  * @version   GIT: @1.1.0@
  * @link      https://conekta.com/
  */
@@ -22,9 +22,9 @@
 /**
  * ConektaPaymentsPrestashopValidationModuleFrontController Class Doc Comment
  *
+ * @author   Conekta <support@conekta.io>
  * @category Class
  * @package  ConektaPaymentsPrestashopValidationModuleFrontController
- * @author   Conekta <support@conekta.io>
  * @license  http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  * @link     https://conekta.com/
  */
@@ -50,9 +50,8 @@ class ConektaPaymentsPrestashopValidationModuleFrontController extends ModuleFro
             }
         }
         if (!$authorized) {
-            print_r ($this->getTranslator()->trans('This payment method is not available.', array(), 'Modules.ConektaPaymentsPrestashop.Shop'));
+            print_r($this->getTranslator()->trans('This payment method is not available.', array(), 'Modules.ConektaPaymentsPrestashop.Shop'));
         } else {
-
             if (!Validate::isLoadedObject($customer)) {
                 Tools::redirect('index.php?controller=order&step=1');
             }

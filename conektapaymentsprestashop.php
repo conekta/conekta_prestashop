@@ -10,20 +10,20 @@
  *
  * ConektaPaymentsPrestashop File Doc Comment
  *
- * @category  ConektaPaymentsPrestashop
- * @package   ConektaPaymentsPrestashop
  * @author    Conekta <support@conekta.io>
  * @copyright 2012-2019 Conekta
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @category  ConektaPaymentsPrestashop
+ * @package   ConektaPaymentsPrestashop
  * @version   GIT: @1.1.0@
  * @link      https://conekta.com/
  */
 
 use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
 
-require_once __DIR__ . '/model/Config.php';
-require_once __DIR__ . '/model/Database.php';
-require_once __DIR__ . '/lib/conekta-php/lib/Conekta.php';
+require_once dirname(__FILE__) . '/model/Config.php';
+require_once dirname(__FILE__) . '/model/Database.php';
+require_once dirname(__FILE__) . '/lib/conekta-php/lib/Conekta.php';
 
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -97,11 +97,11 @@ class ConektaPaymentsPrestashop extends PaymentModule
         );
         $order_elements = array_keys(get_class_vars('Cart'));
         foreach ($order_elements as $element) {
-            $settings[] = 'ORDER_'.strtoupper($element);
+            $settings[] = 'ORDER_'.Tools::strtoupper($element);
         }
         $product_elements = self::CART_PRODUCT_ATTR;
         foreach ($product_elements as $element) {
-            $settings[] = 'PRODUCT_'.strtoupper($element);
+            $settings[] = 'PRODUCT_'.Tools::strtoupper($element);
         }
 
         $config = Configuration::getMultiple($settings);
@@ -522,6 +522,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
         \Conekta\Conekta::setApiKey($key);
         \Conekta\Conekta::setPlugin("Prestashop1.7");
         \Conekta\Conekta::setApiVersion("2.0.0");
+        \Conekta\Conekta::setLocale($iso_code);
 
         if (Tools::getValue('controller') != 'order-opc' && (!($_SERVER['PHP_SELF'] == __PS_BASE_URI__ . 'order.php' || $_SERVER['PHP_SELF'] == __PS_BASE_URI__ . 'order-opc.php' || Tools::getValue('controller') == 'order' || Tools::getValue('controller') == 'orderopc' || Tools::getValue('step') == 3))) {
             return;
@@ -558,7 +559,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
         }
 
         $pre_authorize = false;
-        $msi = false;
+        // $msi = false;
         $force_3ds = false;
         $on_demand_enabled = false;
         $address_delivery = new Address((int) $cart->id_address_delivery);
@@ -606,6 +607,17 @@ class ConektaPaymentsPrestashop extends PaymentModule
            
             $taxlines = Config::getTaxLines($items);
 
+            $checkout = [
+                "type" => 'Integration',
+                "allowed_payment_methods" => $payment_options,
+                "on_demand_enabled" => $on_demand_enabled,
+                "force_3ds_flow" => Configuration::get('CONEKTA_MODE') ? $force_3ds : false
+            ];
+
+            if (in_array('cash', $payment_options)) {
+                $checkout["expires_at"] = time() + (Configuration::get('EXPIRATION_DATE_LIMIT') * (Configuration::get('EXPIRATION_DATE_TYPE') == 0 ? 86400 : 3600));
+            }
+
             $order_details = [
                 'currency' => $this->context->currency->iso_code,
                 'line_items' => Config::getLineItems($items),
@@ -620,18 +632,12 @@ class ConektaPaymentsPrestashop extends PaymentModule
                     "plugin_version" => _PS_VERSION_,
                     "reference_id" => Order::generateReference()
                 ],
-                'checkout' => [
-                    "type" => 'Integration',
-                    "allowed_payment_methods" => $payment_options,
-                    "on_demand_enabled" => $on_demand_enabled,
-                    "force_3ds_flow" => Configuration::get('CONEKTA_MODE') ? $force_3ds : false
-                ]
-
+                'checkout' => $checkout
             ];
 
             $order_elements = array_keys(get_class_vars('Cart'));
             foreach ($order_elements as $element) {
-                if (!empty(Configuration::get('ORDER_'.strtoupper($element))) && property_exists($this->context->cart, $element)) {
+                if (!empty(Configuration::get('ORDER_'.Tools::strtoupper($element))) && property_exists($this->context->cart, $element)) {
                     $order_details['metadata'][$element] = $this->context->cart->$element;
                 }
             }
@@ -641,13 +647,13 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 $index ='product-'.$item['id_product'];
                 $order_details['metadata'][$index] = '';
                 foreach ($product_elements as $element) {
-                    if (!empty(Configuration::get('PRODUCT_'.strtoupper($element)))
+                    if (!empty(Configuration::get('PRODUCT_'.Tools::strtoupper($element)))
                         && array_key_exists($element, $item)
                     ) {
                         $order_details['metadata'][$index] .= $this->buildRecursiveMetadata($item[$element], $element);
                     }
                 }
-                $order_details['metadata'][$index] = substr($order_details['metadata'][$index], 0, -2);
+                $order_details['metadata'][$index] = Tools::substr($order_details['metadata'][$index], 0, -2);
             }
 
             $amount = 0;
@@ -775,18 +781,18 @@ class ConektaPaymentsPrestashop extends PaymentModule
         $string = '';
         if (gettype($data_object) == 'array') {
             foreach (array_keys($data_object) as $data_key) {
-                $key_concat = strval($key).'-'.strval($data_key);
+                $key_concat = (string)($key).'-'.(string)($data_key);
                 if (empty($data_object[$data_key])) {
-                    $string .= strval($key_concat) . ': NULL | ';
+                    $string .= (string)($key_concat) . ': NULL | ';
                 } else {
                     $string .= $this->buildRecursiveMetadata($data_object[$data_key], $key_concat);
                 }
             }
         } else {
             if (empty($data_object)) {
-                $string .= strval($key) . ': NULL | ';
+                $string .= (string)($key) . ': NULL | ';
             } else {
-                $string .= strval($key) . ': ' . strval($data_object) . ' | ';
+                $string .= (string)($key) . ': ' . (string)($data_object) . ' | ';
             }
         }
         return $string;
@@ -922,7 +928,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
             $i = 0;
             $attributes_count = 0;
             while ($i < count($order_elements) && $attributes_count <= METADATA_LIMIT) {
-                if (!empty(Tools::getValue('ORDER_'.strtoupper($order_elements[$i])))) {
+                if (!empty(Tools::getValue('ORDER_'.Tools::strtoupper($order_elements[$i])))) {
                     $attributes_count++;
                 }
                 $i++;
@@ -930,7 +936,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
             $i = 0;
             $product_elements = self::CART_PRODUCT_ATTR;
             while ($i < count($product_elements) && $attributes_count <= METADATA_LIMIT) {
-                if (!empty(Tools::getValue('PRODUCT_'.strtoupper($product_elements[$i])))) {
+                if (!empty(Tools::getValue('PRODUCT_'.Tools::strtoupper($product_elements[$i])))) {
                     $attributes_count++;
                 }
                 $i++;
@@ -993,11 +999,11 @@ class ConektaPaymentsPrestashop extends PaymentModule
 
             $order_elements = array_keys(get_class_vars('Cart'));
             foreach ($order_elements as $element) {
-                Configuration::updateValue('ORDER_'.strtoupper($element), Tools::getValue('ORDER_'.strtoupper($element)));
+                Configuration::updateValue('ORDER_'.Tools::strtoupper($element), Tools::getValue('ORDER_'.Tools::strtoupper($element)));
             }
             $product_elements = self::CART_PRODUCT_ATTR;
             foreach ($product_elements as $element) {
-                Configuration::updateValue('PRODUCT_'.strtoupper($element), Tools::getValue('PRODUCT_'.strtoupper($element)));
+                Configuration::updateValue('PRODUCT_'.Tools::strtoupper($element), Tools::getValue('PRODUCT_'.Tools::strtoupper($element)));
             }
         }
 
@@ -1043,17 +1049,17 @@ class ConektaPaymentsPrestashop extends PaymentModule
         );
         $order_elements = array_keys(get_class_vars('Cart'));
         foreach ($order_elements as $element) {
-            $ret['ORDER_'.strtoupper($element)] = Configuration::get('ORDER_'.strtoupper($element));
+            $ret['ORDER_'.Tools::strtoupper($element)] = Configuration::get('ORDER_'.Tools::strtoupper($element));
         }
         $product_elements = self::CART_PRODUCT_ATTR;
         foreach ($product_elements as $element) {
-            $ret['PRODUCT_'.strtoupper($element)] = Configuration::get('PRODUCT_'.strtoupper($element));
+            $ret['PRODUCT_'.Tools::strtoupper($element)] = Configuration::get('PRODUCT_'.Tools::strtoupper($element));
         }
         
         return $ret;
     }
 
-    private const CART_PRODUCT_ATTR = array("id_product_attribute", "id_product", "cart_quantity", "id_shop", "id_customization", "name", "is_virtual", "description_short", "available_now", "available_later", "id_category_default", "id_supplier", "id_manufacturer", "manufacturer_name", "on_sale", "ecotax", "additional_shipping_cost", "available_for_order", "show_price", "price", "active", "unity", "unit_price_ratio", "quantity_available", "width", "height", "depth", "out_of_stock", "weight", "available_date", "date_add", "date_upd", "quantity", "link_rewrite", "category", "unique_id", "id_address_delivery", "advanced_stock_management", "supplier_reference", "customization_quantity", "price_attribute", "ecotax_attr", "reference", "weight_attribute", "ean13", "isbn", "upc", "minimal_quantity", "wholesale_price", "id_image", "legend", "reduction_type", "is_gift", "reduction", "reduction_without_tax", "price_without_reduction", "attributes", "attributes_small", "rate", "tax_name", "stock_quantity", "price_without_reduction_without_tax", "price_with_reduction", "price_with_reduction_without_tax", "total", "total_wt", "price_wt", "reduction_applies", "quantity_discount_applies", "allow_oosp");
+    const CART_PRODUCT_ATTR = array("id_product_attribute", "id_product", "cart_quantity", "id_shop", "id_customization", "name", "is_virtual", "description_short", "available_now", "available_later", "id_category_default", "id_supplier", "id_manufacturer", "manufacturer_name", "on_sale", "ecotax", "additional_shipping_cost", "available_for_order", "show_price", "price", "active", "unity", "unit_price_ratio", "quantity_available", "width", "height", "depth", "out_of_stock", "weight", "available_date", "date_add", "date_upd", "quantity", "link_rewrite", "category", "unique_id", "id_address_delivery", "advanced_stock_management", "supplier_reference", "customization_quantity", "price_attribute", "ecotax_attr", "reference", "weight_attribute", "ean13", "isbn", "upc", "minimal_quantity", "wholesale_price", "id_image", "legend", "reduction_type", "is_gift", "reduction", "reduction_without_tax", "price_without_reduction", "attributes", "attributes_small", "rate", "tax_name", "stock_quantity", "price_without_reduction_without_tax", "price_with_reduction", "price_with_reduction_without_tax", "total", "total_wt", "price_wt", "reduction_applies", "quantity_discount_applies", "allow_oosp");
 
     /**
      * Build Admin Content
@@ -1068,7 +1074,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
         $order_meta =  array();
         foreach ($order_elements as $val) {
             $order_meta[] = array(
-                "id" => strtoupper($val),
+                "id" => Tools::strtoupper($val),
                 "name" => $val,
                 "val" => $val
             );
@@ -1078,7 +1084,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
         $product_meta =  array();
         foreach ($product_elements as $val) {
             $product_meta[] = array(
-                "id" => strtoupper($val),
+                "id" => Tools::strtoupper($val),
                 "name" => $val,
                 "val" => $val
             );
@@ -1679,7 +1685,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
         \Conekta\Conekta::setApiVersion("2.0.0");
         \Conekta\Conekta::setPluginVersion($this->version);
         \Conekta\Conekta::setLocale($iso_code);
-        $cart = $this->context->cart;
+        // $cart = $this->context->cart;
         try {
             $order = \Conekta\Order::find($conektaOrderId);
             $charge_response = $order->charges[0];
@@ -1699,10 +1705,11 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 }
             }
 
-            if (isset($charge_response->id) && strtolower($charge_response->payment_method->type) == "oxxo") {
-                Database::insertOxxoPayment($order, $charge_response, $charge_response->payment_method->reference, $this->currentOrder, $this->context->cart->id);
-            } elseif (isset($charge_response->id) && strtolower($charge_response->payment_method->type) == "spei") {
-                Database::insertSpeiPayment($order, $charge_response, $charge_response->payment_method->reference, $this->currentOrder, $this->context->cart->id);
+            $reference = strtolower($charge_response->payment_method->reference);
+            if (isset($charge_response->id) && $charge_response->payment_method->type == "oxxo") {
+                Database::insertOxxoPayment($order, $charge_response, $reference, $this->currentOrder, $this->context->cart->id);
+            } elseif (isset($charge_response->id) && $charge_response->payment_method->type == "spei") {
+                Database::insertSpeiPayment($order, $charge_response, $reference, $this->currentOrder, $this->context->cart->id);
             } elseif (isset($charge_response->id)) {
                 Database::insertCardPayment($order, $charge_response, $this->currentOrder, $this->context->cart->id);
             }
