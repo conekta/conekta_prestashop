@@ -702,7 +702,6 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 $cust_db = Database::getConektaMetadata($customerPrestashop->id, $this->conekta_mode, "conekta_customer_id");
 
                 $message = $this->checkedFields($customerInfo['phone'], $order_details, $amount);
-
                 if ($message !== true) {
                     $this->context->smarty->assign(
                         array(
@@ -711,10 +710,9 @@ class ConektaPaymentsPrestashop extends PaymentModule
                     );
                     return false;
                 }
-  
-                if (empty($cust_db['meta_value'])) {
 
-                    $customerConekta = \conekta\customer::create($customerInfo);
+                if (empty($cust_db['meta_value'])) {
+                    $customerConekta = \conekta\Customer::create($customerInfo);
                     $customerConekta_id = $customerConekta->id;
                     Database::updateConektaMetadata($customerPrestashop->id, $this->conekta_mode, "conekta_customer_id", $customerConekta_id);
                 } else {
@@ -741,6 +739,9 @@ class ConektaPaymentsPrestashop extends PaymentModule
                     $order = \Conekta\Order::create($order_details);
                     Database::updateConektaOrder($customerPrestashop->id, $this->context->cart->id, $this->conekta_mode, $order->id, 'unpaid');
                 } elseif (empty($order->charges[0]->status) || $order->charges[0]->status == 'unpaid') {
+                    $order->update([
+                        'customer_info' => $customerInfo
+                    ]);
                     unset($order_details['customer_info']);
                     $order->update($order_details);
                 } else {
@@ -1507,8 +1508,8 @@ class ConektaPaymentsPrestashop extends PaymentModule
         if (!empty($phone)) {
             if (strpos($phone, '+') !== false) {
                 return $this->trans('The phone number must not contain "+"', array(), 'Modules.ConektaPaymentsPrestashop.Admin');
-            } elseif (strlen($phone) > 10) {
-                return $this->trans('The phone number must be smaller than 10', array(), 'Modules.ConektaPaymentsPrestashop.Admin');
+            } elseif (strlen($phone) != 10) {
+                return $this->trans('The field Phone must be a string with a maximum length of 10. (Example: 52XXXXXXXX)', array(), 'Modules.ConektaPaymentsPrestashop.Admin');
             } elseif (!is_numeric($phone)) {
                 return $this->trans('The Phone field is not a valid phone number', array(), 'Modules.ConektaPaymentsPrestashop.Admin');
             }
