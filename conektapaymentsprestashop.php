@@ -1292,7 +1292,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                     ),
                 ),
                 'submit' => array(
-                    'title' => $this->trans('Save', array(), 'Admin.Actions')
+                    'title' => $this->trans('Save All', array(), 'Admin.Actions')
                 )
             )
         );
