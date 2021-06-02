@@ -518,7 +518,6 @@ class ConektaPaymentsPrestashop extends PaymentModule
     {
         $key = Configuration::get('CONEKTA_MODE') ? Configuration::get('CONEKTA_PRIVATE_KEY_LIVE') : Configuration::get('CONEKTA_PRIVATE_KEY_TEST');
         $iso_code = $this->context->language->iso_code;
-
         \Conekta\Conekta::setApiKey($key);
         \Conekta\Conekta::setPlugin("Prestashop1.7");
         \Conekta\Conekta::setApiVersion("2.0.0");
@@ -544,6 +543,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
 
         $cart = $this->context->cart;
         $customerPrestashop = $this->context->customer;
+        $address_delivery = new Address((int) $cart->id_address_delivery);
         $payment_options = array();
 
         if (Configuration::get('PAYMENT_METHS_SPEI')) {
@@ -559,10 +559,8 @@ class ConektaPaymentsPrestashop extends PaymentModule
         }
 
         $pre_authorize = false;
-        // $msi = false;
         $force_3ds = false;
         $on_demand_enabled = false;
-        $address_delivery = new Address((int) $cart->id_address_delivery);
         $state            = State::getNameById($address_delivery->id_state);
         $country          = Country::getIsoById($address_delivery->id_country);
         $carrier          = new Carrier((int) $cart->id_carrier);
@@ -913,7 +911,6 @@ class ConektaPaymentsPrestashop extends PaymentModule
             if (!Tools::getValue('WEB_HOOK')) {
                 $this->postErrors[] = $this->trans('The "Web Hook" field is required.', array(), 'Modules.ConektaPaymentsPrestashop.Admin');
             }
-
             if (Tools::getValue('PAYMENT_METHS_CASH') && !Tools::getValue('EXPIRATION_DATE_LIMIT')) {
                 $this->postErrors[] = $this->trans('The "Expiration date limit" field is required.', array(), 'Modules.ConektaPaymentsPrestashop.Admin');
             }
@@ -1490,7 +1487,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
 
         $this->html .= $this->displayCheck();
         $this->html .= $this->renderForm();
-
+        
         return $this->html;
     }
 
@@ -1562,7 +1559,9 @@ class ConektaPaymentsPrestashop extends PaymentModule
         if ($is_valid_url && ($config_url != $url) && ($failed_attempts < 5 && $url != Configuration::get('CONEKTA_WEBHOOK_FAILED_URL'))) {
             try {
                 $webhooks = \Conekta\Webhook::where();
+
                 $urls = array();
+
                 foreach ($webhooks as $webhook) {
                     array_push($urls, $webhook->webhook_url);
                 }
@@ -1737,7 +1736,9 @@ class ConektaPaymentsPrestashop extends PaymentModule
             if (class_exists('Logger')) {
                 Logger::addLog($this->l('Payment transaction failed') . ' ' . $log_message, 2, null, 'Cart', (int) $this->context->cart->id, true);
             }
+
             $message = $e->getMessage() . ' ';
+
             $controller = Configuration::get('PS_ORDER_PROCESS_TYPE') ? 'order-opc.php' : 'order.php';
             $location   = $this->context->link->getPageLink($controller, true) . (strpos($controller, '?') !== false ? '&' : '?') . 'step=3&conekta_error=1&message=' . $message . '#conekta_error';
             Tools::redirectLink($location);
