@@ -543,6 +543,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
 
         $cart = $this->context->cart;
         $customerPrestashop = $this->context->customer;
+        $address_delivery = new Address((int) $cart->id_address_delivery);
         $payment_options = array();
 
         if (Configuration::get('PAYMENT_METHS_SPEI')) {
@@ -559,6 +560,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
 
         $pre_authorize = false;
         $force_3ds = false;
+        $on_demand_enabled = false;
         $state            = State::getNameById($address_delivery->id_state);
         $country          = Country::getIsoById($address_delivery->id_country);
         $carrier          = new Carrier((int) $cart->id_carrier);
