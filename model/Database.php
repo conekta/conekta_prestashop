@@ -158,7 +158,11 @@ class Database
             id_cart int(11) unsigned NOT NULL,
             `mode` enum(\"live\",\"test\") NOT NULL,
             id_conekta_order varchar(32) NOT NULL,
-            `status` enum(\"paid\",\"pre_authorized\",\"unpaid\",\"pending_payment\",\"expired\",\"voided\",\"fraudulent\",\"preauthorized\",\"canceled\",\"pending_confirmation\",\"charged_back\",\"partially_refunded\",\"refunded\",\"reversed\",\"approved\",\"declined\",\"in_review\",\"insufficient_funds\",\"card_declined\",\"stolen_card\",\"suspected_fraud\",\"unprocessable_card_type\") NOT NULL,
+            `status` enum(\"paid\",\"pre_authorized\",\"unpaid\",\"pending_payment\",\"expired\",\"voided\","
+            . "\"fraudulent\",\"preauthorized\",\"canceled\",\"pending_confirmation\",\"charged_back\","
+            . "\"partially_refunded\",\"refunded\",\"reversed\",\"approved\",\"declined\",\"in_review\","
+            . "\"insufficient_funds\",\"card_declined\",\"stolen_card\",\"suspected_fraud\","
+            . "\"unprocessable_card_type\") NOT NULL,
             PRIMARY KEY (id),
             KEY id_user (id_user),
             KEY id_cart (id_cart),

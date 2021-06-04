@@ -46,7 +46,7 @@
 					<br>
 					<strong>{l s='Processed on:' mod='conektapaymentsprestashop'}</strong> {$processed_on|escape:'htmlall':'UTF-8'}
 					<br>
-					<strong>{l s='Mode:' mod='conektapaymentsprestashop'}</strong> <span style="font-weight: bold; color: {$color_mode|escape:'htmlall':'UTF-8'}};">{$txt_mode|unescape:"htmlall"}</span>
+					<strong>{l s='Mode:' mod='conektapaymentsprestashop'}</strong> <span style="font-weight: bold; color: {$color_mode|escape:'htmlall':'UTF-8'}};">{addslashes($txt_mode)}</span>
 				</p>
 			{else}
 				<span style="color: #CC0000;"><strong>{l s='Warning:' mod='conektapaymentsprestashop'}</strong></span> {l s='The customer paid using Conekta and an error occured (check details at the bottom of this page)' mod='conektapaymentsprestashop'}
