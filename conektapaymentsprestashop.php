@@ -216,6 +216,8 @@ class ConektaPaymentsPrestashop extends PaymentModule
             || !$this->registerHook('paymentReturn')
             || !$this->registerHook('adminOrder')
             || !$this->registerHook('updateOrderStatus')
+            || !$this->registerHook('actionProductSave')
+            || !$this->registerHook('displayAdminProductsMainStepLeftColumnMiddle')
             || !$this->registerHook('actionValidateOrder')
             && Configuration::updateValue('PAYMENT_METHS_CARD', 1)
             && Configuration::updateValue('PAYMENT_METHS_INSTALLMET', 1)
@@ -224,6 +226,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
             && Configuration::updateValue('MODE', 0) || !Database::installDb()
             || !Database::createTableConektaOrder()
             || !Database::createTableMetaData()
+            || !Database::createTableProductData()
         ) {
             return false;
         }
@@ -294,7 +297,44 @@ class ConektaPaymentsPrestashop extends PaymentModule
         )
         && Db::getInstance()->Execute(
             'DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'conekta_order_checkout`'
+        )
+        && Db::getInstance()->Execute(
+            'DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'conekta_product_data`'
         );
+    }
+
+    public function hookActionProductSave($params) {
+        $product_id = $params['id_product'];
+        if (empty($_POST['is_subscription'])){
+            Database::updateConektaProductData($product_id, 'is_subscription', 'false');
+            Database::updateConektaProductData($product_id, 'subscription_plan', '');
+        } else {
+            Database::updateConektaProductData($product_id, 'is_subscription', 'true');
+            Database::updateConektaProductData($product_id, 'subscription_plan', $_POST['subscription_plan']);
+        }
+    }
+
+    public function hookDisplayAdminProductsMainStepLeftColumnMiddle($params) {
+        $id_product = $params['id_product'];
+        $key = Configuration::get('CONEKTA_MODE') ? Configuration::get('CONEKTA_PRIVATE_KEY_LIVE') : Configuration::get('CONEKTA_PRIVATE_KEY_TEST');
+        $iso_code = $this->context->language->iso_code;
+        \Conekta\Conekta::setApiKey($key);
+        \Conekta\Conekta::setPlugin("Prestashop1.7");
+        \Conekta\Conekta::setApiVersion("2.0.0");
+        \Conekta\Conekta::setLocale($iso_code);
+        $result  = Database::getConektaProductData($id_product, 'is_subscription');
+        $is_subscription = empty($result) ? 'false' : $result['product_value'];
+        $result = Database::getConektaProductData($id_product, 'subscription_plan');
+        $subscription_plan = empty($result) ? '' : $result['product_value'];
+        $this->smarty->assign(
+            array(
+                'plans'                => \Conekta\Plan::all(),
+                'is_subscription_text' => $this->trans('Enable Subscriptions', array(), 'Modules.ConektaPaymentsPrestashop.Admin'),
+                'is_subscription'      => ($is_subscription == 'true') ? 'checked' : '',
+                'subscription_plan'    => $subscription_plan,
+            )
+        );
+        return $this->fetchTemplate('product-subscription.tpl');
     }
 
     /**
