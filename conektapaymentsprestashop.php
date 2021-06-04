@@ -306,12 +306,12 @@ class ConektaPaymentsPrestashop extends PaymentModule
     public function hookActionProductSave($params)
     {
         $product_id = $params['id_product'];
-        if (empty($_POST['is_subscription'])) {
+        if (empty(filter_input(INPUT_POST, 'is_subscription'))) {
             Database::updateConektaProductData($product_id, 'is_subscription', 'false');
             Database::updateConektaProductData($product_id, 'subscription_plan', '');
         } else {
             Database::updateConektaProductData($product_id, 'is_subscription', 'true');
-            Database::updateConektaProductData($product_id, 'subscription_plan', $_POST['subscription_plan']);
+            Database::updateConektaProductData($product_id, 'subscription_plan', filter_input(INPUT_POST, 'subscription_plan'));
         }
     }
 
