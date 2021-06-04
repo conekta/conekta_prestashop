@@ -303,9 +303,10 @@ class ConektaPaymentsPrestashop extends PaymentModule
         );
     }
 
-    public function hookActionProductSave($params) {
+    public function hookActionProductSave($params)
+    {
         $product_id = $params['id_product'];
-        if (empty($_POST['is_subscription'])){
+        if (empty($_POST['is_subscription'])) {
             Database::updateConektaProductData($product_id, 'is_subscription', 'false');
             Database::updateConektaProductData($product_id, 'subscription_plan', '');
         } else {
@@ -314,7 +315,8 @@ class ConektaPaymentsPrestashop extends PaymentModule
         }
     }
 
-    public function hookDisplayAdminProductsMainStepLeftColumnMiddle($params) {
+    public function hookDisplayAdminProductsMainStepLeftColumnMiddle($params)
+    {
         $id_product = $params['id_product'];
         $key = Configuration::get('CONEKTA_MODE') ? Configuration::get('CONEKTA_PRIVATE_KEY_LIVE') : Configuration::get('CONEKTA_PRIVATE_KEY_TEST');
         $iso_code = $this->context->language->iso_code;
