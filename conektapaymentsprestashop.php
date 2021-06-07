@@ -579,11 +579,15 @@ class ConektaPaymentsPrestashop extends PaymentModule
         $items            = $cart->getProducts();
         $shippingLines = null;
         $shippingContact = null;
-        
+
         if (isset($carrier)) {
             if ($carrier->name != null) {
                 $shp_carrier = $carrier->name;
                 $shp_service = implode(",", $carrier->delay);
+                $shippingLines =  Config::getShippingLines($shp_service, $shp_carrier, $shp_price);
+            } elseif ($this->isDigital($items)) {
+                $shp_carrier = "Producto digital";
+                $shp_service = "Digital";
                 $shippingLines =  Config::getShippingLines($shp_service, $shp_carrier, $shp_price);
             }
         }
@@ -1686,6 +1690,31 @@ class ConektaPaymentsPrestashop extends PaymentModule
     }
 
     /**
+     * Check if the product is digital
+     *
+     * @param array $items Products
+     *
+     * @return boolean
+     */
+    private function isDigital($items)
+    {
+        $all_digital = true;
+        if (empty($items)) {
+            return false;
+        }
+
+        $i = 0;
+        do {
+            if (!$items[$i]['is_virtual']) {
+                $all_digital =  false;
+            }
+            $i++;
+        } while ($i < count($items) && $all_digital);
+
+        return $all_digital;
+    }
+
+    /**
      * Validate fields
      *
      * @param string $phone         Customer's phone number
@@ -2091,8 +2120,8 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 $this->smarty->assign(
                     "txt_mode",
                     $this->l(
-                        'Test (No payment has been processed and you will'
-                        .' need to enable the "Live" mode)'
+                        "Test (No payment has been processed and you will"
+                        ." need to enable the ''Live'' mode)"
                     )
                 );
             }
