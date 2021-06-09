@@ -298,6 +298,22 @@ class Database
     }
 
     /**
+     * Returns the ID of products
+     *
+     * @param string $product_value Plan key
+     *
+     * @return array|string
+     */
+    public static function getProductIdProductData($product_value)
+    {
+        $table = _DB_PREFIX_."conekta_product_data";
+
+        $sql = "SELECT id_product FROM $table WHERE product_value = '{$product_value}'";
+
+        return  Db::getInstance()->ExecuteS($sql);
+    }
+
+    /**
      * Save or update value.
      *
      * @param int    $user_id      User ID
