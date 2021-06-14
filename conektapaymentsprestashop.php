@@ -2000,7 +2000,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 Database::insertSpeiPayment(
                     $order,
                     $charge_response,
-                    $charge_response->payment_method->reference,
+                    $charge_response->payment_method->clabe,
                     $this->currentOrder,
                     $this->context->cart->id
                 );
