@@ -42,7 +42,7 @@ class Database
     {
         return Db::getInstance()->getValue(
             'SELECT module FROM ' . _DB_PREFIX_ . 'orders '
-            .'WHERE id_order = ' . pSQL((int) $order_id)
+            . 'WHERE id_order = ' . pSQL((int) $order_id)
         );
     }
 
@@ -57,8 +57,8 @@ class Database
     {
         return Db::getInstance()->getRow(
             'SELECT * FROM ' . _DB_PREFIX_ . 'conekta_transaction '
-            .'WHERE id_order = ' . pSQL((int) $order_id) .
-            ' AND type = \'payment\''
+            . 'WHERE id_order = ' . pSQL((int) $order_id)
+            . ' AND type = \'payment\''
         );
     }
 
@@ -76,10 +76,10 @@ class Database
     public static function insertOxxoPayment($order, $charge_response, $reference, $currentOrder, $cartId)
     {
         return Db::getInstance()->Execute(
-            'INSERT INTO ' . _DB_PREFIX_ . 'conekta_transaction (
-            type, id_cart, id_order, id_conekta_order, id_transaction, amount,
-            status, currency, mode, date_add, reference, barcode, captured)
-            VALUES (\'payment\', ' . pSQL((int) $cartId) . ', ' . pSQL((int) $currentOrder) . ', \''
+            'INSERT INTO ' . _DB_PREFIX_ . 'conekta_transaction ('
+            . 'type, id_cart, id_order, id_conekta_order, id_transaction, amount,'
+            . 'status, currency, mode, date_add, reference, barcode, captured)'
+            . 'VALUES (\'payment\', ' . pSQL((int) $cartId) . ', ' . pSQL((int) $currentOrder) . ', \''
             . pSQL($order->id) . '\', \'' . pSQL($charge_response->id) . '\',\''
             . (float) ($order->amount * 0.01) . '\', \''
             . ($charge_response->status == 'paid' ? 'paid' : 'unpaid') . '\', \''
@@ -158,7 +158,11 @@ class Database
             id_cart int(11) unsigned NOT NULL,
             `mode` enum(\"live\",\"test\") NOT NULL,
             id_conekta_order varchar(32) NOT NULL,
-            `status` enum(\"paid\",\"unpaid\") NOT NULL,
+            `status` enum(\"paid\",\"pre_authorized\",\"unpaid\",\"pending_payment\",\"expired\",\"voided\","
+            . "\"fraudulent\",\"preauthorized\",\"canceled\",\"pending_confirmation\",\"charged_back\","
+            . "\"partially_refunded\",\"refunded\",\"reversed\",\"approved\",\"declined\",\"in_review\","
+            . "\"insufficient_funds\",\"card_declined\",\"stolen_card\",\"suspected_fraud\","
+            . "\"unprocessable_card_type\") NOT NULL,
             PRIMARY KEY (id),
             KEY id_user (id_user),
             KEY id_cart (id_cart),
@@ -184,10 +188,10 @@ class Database
     public static function insertSpeiPayment($order, $charge_response, $reference, $currentOrder, $cartId)
     {
         return Db::getInstance()->Execute(
-            'INSERT INTO ' . _DB_PREFIX_ . 'conekta_transaction(
-            type, id_cart, id_order, id_conekta_order, id_transaction, amount,
-            status, currency, mode, date_add, reference, captured)
-            VALUES (\'payment\', ' . (int) $cartId . ', ' . (int) $currentOrder . ', \''
+            'INSERT INTO ' . _DB_PREFIX_ . 'conekta_transaction('
+            . 'type, id_cart, id_order, id_conekta_order, id_transaction, amount,'
+            . 'status, currency, mode, date_add, reference, captured)'
+            . 'VALUES (\'payment\', ' . (int) $cartId . ', ' . (int) $currentOrder . ', \''
             . pSQL($order->id) . '\', \'' . pSQL($charge_response->id) . '\', \''
             . (float)($charge_response->amount * 0.01) . '\', \''
             . ($charge_response->status == 'paid' ? 'paid' : 'unpaid') . '\', \''
@@ -210,10 +214,10 @@ class Database
     public static function insertCardPayment($order, $charge_response, $currentOrder, $cartId)
     {
         return Db::getInstance()->Execute(
-            'INSERT INTO ' . _DB_PREFIX_ . 'conekta_transaction (
-            type, id_cart, id_order, id_conekta_order, id_transaction,
-            amount, status, currency, mode, date_add, captured)
-            VALUES (\'payment\', ' . (int) $cartId . ', ' . (int) $currentOrder . ', \''
+            'INSERT INTO ' . _DB_PREFIX_ . 'conekta_transaction ('
+            . 'type, id_cart, id_order, id_conekta_order, id_transaction,'
+            . 'amount, status, currency, mode, date_add, captured)'
+            . 'VALUES (\'payment\', ' . (int) $cartId . ', ' . (int) $currentOrder . ', \''
             . pSQL($order->id) . '\', \'' . pSQL($charge_response->id) . '\',\''
             . (float)($charge_response->amount * 0.01) . '\', \''
             . ($charge_response->status == 'paid' ? 'paid' : 'unpaid') . '\', \''
@@ -233,7 +237,7 @@ class Database
     {
         return Db::getInstance()->getRow(
             'SELECT * FROM ' . _DB_PREFIX_ . 'conekta_transaction '
-            .'WHERE id_order = ' . pSQL((int) $id_order) . ';'
+            . 'WHERE id_order = ' . pSQL((int) $id_order) . ';'
         );
     }
 
@@ -250,7 +254,9 @@ class Database
     {
         $table = _DB_PREFIX_."conekta_metadata";
 
-        $sql = "SELECT meta_value FROM  $table WHERE id_user = '{$user_id}' AND meta_option = '{$meta_options}' AND `mode` = '{$mode}'";
+        $sql = "SELECT meta_value FROM  $table WHERE id_user = '{$user_id}' "
+        . "AND meta_option = '{$meta_options}' "
+        . "AND `mode` = '{$mode}'";
 
         return  Db::getInstance()->getRow($sql);
     }
@@ -270,11 +276,13 @@ class Database
         $table = _DB_PREFIX_."conekta_metadata";
 
         if (empty(Database::getConektaMetadata($user_id, $mode, $meta_options))) {
-            $sql = "INSERT INTO $table(id_user, mode, meta_option, meta_value) VALUES ('{$user_id}','{$mode}','{$meta_options}','{$meta_value}')";
+            $sql = "INSERT INTO $table(id_user, mode, meta_option, meta_value) "
+            . "VALUES ('{$user_id}','{$mode}','{$meta_options}','{$meta_value}')";
         } else {
-            $sql ="UPDATE $table SET id_user = '{$user_id}', meta_option = '{$meta_options}', meta_value = '{$meta_value}' WHERE id_user = '{$user_id}' AND meta_option = '{$meta_options}' AND `mode` = '{$mode}'";
+            $sql ="UPDATE $table SET id_user = '{$user_id}', meta_option = '{$meta_options}', "
+            . "meta_value = '{$meta_value}' WHERE id_user = '{$user_id}' AND meta_option = '{$meta_options}' "
+            . "AND `mode` = '{$mode}'";
         }
-
         return Db::getInstance()->Execute($sql);
     }
 
@@ -291,8 +299,9 @@ class Database
     {
         $table = _DB_PREFIX_."conekta_order_checkout";
 
-        $sql = "SELECT id_conekta_order, `status` FROM  $table WHERE id_user = '{$user_id}' AND `mode` = '{$mode}'  AND `status` = 'unpaid' AND id_cart ='{$cart_id}'";
-        
+        $sql = "SELECT id_conekta_order, `status` FROM  $table WHERE id_user = '{$user_id}' "
+        . "AND `mode` = '{$mode}'  AND `status` = 'unpaid' AND id_cart ='{$cart_id}'";
+
         return  Db::getInstance()->getRow($sql);
     }
 
@@ -310,13 +319,28 @@ class Database
     public static function updateConektaOrder($user_id, $cart_id, $mode, $id_conekta_order, $status)
     {
         $table = _DB_PREFIX_."conekta_order_checkout";
-        
-        if (empty(Database::getConektaOrder($user_id, $mode, $cart_id))) {
-            $sql = "INSERT INTO $table(id_user,	id_cart, mode, id_conekta_order, `status`) VALUES ('{$user_id}','{$cart_id}','{$mode}','{$id_conekta_order}', '{$status}')";
-        } else {
-            $sql = "UPDATE $table SET `status` = '{$status}' WHERE id_user = '{$user_id}' AND id_cart = '{$cart_id}' AND id_conekta_order = '{$id_conekta_order}' AND `mode` = '{$mode}'";
-        }
 
+        if (empty(Database::getConektaOrder($user_id, $mode, $cart_id))) {
+            $sql = "INSERT INTO $table(id_user,	id_cart, mode, id_conekta_order, `status`) "
+            . "VALUES ('{$user_id}','{$cart_id}','{$mode}','{$id_conekta_order}', '{$status}')";
+        } else {
+            $sql = "UPDATE $table SET `status` = '{$status}' WHERE id_user = '{$user_id}' "
+            . "AND id_cart = '{$cart_id}' AND id_conekta_order = '{$id_conekta_order}' AND `mode` = '{$mode}'";
+        }
         return Db::getInstance()->Execute($sql);
+    }
+
+    /**
+     * Returns the id of the order related to the reference_id
+     *
+     * @param string $reference_id Alphabetical reference code assigned to the order.
+     *
+     * @return array|string
+     */
+    public static function getOrderByReferenceId($reference_id)
+    {
+        $table = _DB_PREFIX_."orders";
+        $sql = "SELECT id_order FROM $table WHERE reference = '{$reference_id}'";
+        return Db::getInstance()->getRow($sql);
     }
 }
