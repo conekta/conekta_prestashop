@@ -58,3 +58,14 @@
                 <br /><br /><span>
 <div class="conf confirmation">{l s='Por favor de realizar el pago por medio de SPEI.' mod='conektapaymentsprestashop'}</div>
 {/if}
+
+{if isset($subscription)}
+    {if $conekta_order.valid == 1 }
+        <br><br><b>{l s='DETALLE DEL SUBSCRIPCIÓN' mod='conektapaymentsprestashop'}</b>
+        <p><br><br><b>{l s='NOMBRE:' mod='conektapaymentsprestashop'}</b>   {$conekta_subscription.name|escape:'htmlall':'UTF-8' }
+        <br><br><b>{l s='MONTO:' mod='conektapaymentsprestashop'}</b>   ${$conekta_subscription.amount|escape:'htmlall':'UTF-8' } {$conekta_subscription.currency|escape:'htmlall':'UTF-8' }
+        <br><br><b>{l s='INTERVALO:' mod='conektapaymentsprestashop'}</b>   Cada {$conekta_subscription.frequency|escape:'htmlall':'UTF-8' } {$conekta_subscription.interval|escape:'htmlall':'UTF-8' }
+        <br><br><b>{l s='DÍAS DE PRUEBA:' mod='conektapaymentsprestashop'}</b>   {$conekta_subscription.trial_period_days|escape:'htmlall':'UTF-8' }
+        <br><br><b>{l s='NÚMERO DE CARGOS QUE SE HARÁN:' mod='conektapaymentsprestashop'}</b>  {$conekta_subscription.expiry_count|escape:'htmlall':'UTF-8' }</p>
+    {/if}
+{/if}

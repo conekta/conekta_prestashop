@@ -65,7 +65,7 @@ if ($event_json->type == 'order.paid' && isset($event_json->data)) {
             $orderHistory->addWithEmail();
             Db::getInstance()->Execute(
                 'UPDATE ' . _DB_PREFIX_
-                .'conekta_transaction SET status = "paid" WHERE id_order = '
+                .'conekta_transaction SET status = "paid", id_transaction = '. $conekta_order->charges[0]->id .' WHERE id_order = '
                 . pSQL($id_order)
             );
         }

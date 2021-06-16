@@ -346,6 +346,40 @@ class Database
     }
 
     /**
+     * Return if the product is a subscription
+     *
+     * @param int    $id_product        User ID
+     *
+     * @return boolean
+     */
+    public static function isProductSubscription($id_product)
+    {
+        $table = _DB_PREFIX_."conekta_product_data";
+
+        $sql = "SELECT product_value FROM  $table WHERE id_product = '{$id_product}' "
+        . "AND product_attribute = 'is_subscription' ";
+
+        return  Db::getInstance()->getValue($sql);
+    }
+
+    /**
+     * Return the ID plan
+     *
+     * @param int    $id_product        User ID
+     *
+     * @return string
+     */
+    public static function getIdPlan($id_product)
+    {
+        $table = _DB_PREFIX_."conekta_product_data";
+
+        $sql = "SELECT product_value FROM  $table WHERE id_product = '{$id_product}' "
+        . "AND product_attribute = 'subscription_plan' ";
+
+        return  Db::getInstance()->getValue($sql);
+    }
+
+    /**
      * Returns the id of the order created by conekta
      *
      * @param int    $user_id User ID
