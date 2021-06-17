@@ -197,11 +197,12 @@ class HelperGateway
     }
 
     /**
-     * Remove special character
+     * Generate Checkout
      *
-     * @param string $param character string
+     * @param array $items           Items of the order
+     * @param array $payment_options Payment options
      *
-     * @return string
+     * @return array
      */
     public static function generateCheckout($items, $payment_options)
     {
@@ -220,9 +221,10 @@ class HelperGateway
     }
 
     /**
-     * Remove special character
+     * Show inverval of the subscription
      *
-     * @param string $param character string
+     * @param string $option Interval selected for the subscription
+     * @param int $frecuency Frecuency of the subscription
      *
      * @return string
      */
