@@ -63,10 +63,16 @@ if ($event_json->type == 'order.paid' && isset($event_json->data)) {
                 (int) $order->id
             );
             $orderHistory->addWithEmail();
-            Db::getInstance()->Execute(
+            $addIdTransaction = '';
+
+            if (isset($conekta_order->checkout->plan_id)) {
+               $addIdTransaction = ', id_transaction = '. json_encode($conekta_order->charges->data[0]->id);	
+            }
+            
+	        Db::getInstance()->Execute(
                 'UPDATE ' . _DB_PREFIX_
-                .'conekta_transaction SET status = "paid", id_transaction = '. $conekta_order->charges[0]->id .' WHERE id_order = '
-                . pSQL($id_order)
+                .'conekta_transaction SET status = "paid"' . $addIdTransaction . ' WHERE id_order = '
+                . pSQL('411')
             );
         }
     }

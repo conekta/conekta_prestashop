@@ -731,7 +731,10 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 if (!HelperGateway::validateItems($items)) {
                     $this->context->smarty->assign(
                         array(
-                            'message' =>  'Error: Ingresó mas de un producto con "Subscripción" o productos con y sin "Subscripción".',
+                            'message' =>  'El carrito posee productos del tipo "suscripción" y'
+                            . ' "no suscripción", estos no pueden comprarse juntos, o posee distintas'
+                            . ' suscripciones en el carrito, solo puede comprar una suscripción por compra.'
+                            . ' Por favor, revise los productos en el carrito.',
                         )
                     );
                     return false;

@@ -1,8 +1,46 @@
 <?php
+/**
+ * 2007-2019 PrestaShop
+ *
+ * NOTICE OF LICENSE
+ * Title   : Conekta Card Payment Gateway for Prestashop
+ * Author  : Conekta.io
+ * URL     : https://www.conekta.io/es/docs/plugins/prestashop.
+ * PHP Version 7.0.0
+ *
+ * HelperGateway File Doc Comment
+ *
+ * @author    Conekta <support@conekta.io>
+ * @copyright 2012-2019 Conekta
+ * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @category  HelperGateway
+ * @package   HelperGateway
+ * @version   GIT: @1.1.0@
+ * @link      https://conekta.com/
+ */
+
 require_once dirname(__FILE__) . '/model/Database.php';
 
-class HelperGateway {
+/**
+ * HelperGateway Class Doc Comment
+ *
+ * @author   Conekta <support@conekta.io>
+ * @category Class
+ * @package  HelperGateway
+ * @license  http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @link     https://conekta.com/
+ */
 
+class HelperGateway
+{
+
+    /**
+     * Add tax lines
+     *
+     * @param array $taxlines Tax of the Order
+     *
+     * @return array
+     */
     public static function addTaxLines($taxlines = null)
     {
         $tax_lines['tax_lines'] = array();
@@ -21,6 +59,13 @@ class HelperGateway {
         return $tax_lines['tax_lines'];
     }
 
+    /**
+     * Add Shipping lines
+     *
+     * @param array $shippingLines Shipping of the Order
+     *
+     * @return array
+     */
     public static function addShippingLines($shippingLines = null)
     {
         $shippingLinesArray['shipping_lines'] = array();
@@ -41,6 +86,13 @@ class HelperGateway {
         return $shippingLinesArray['shipping_lines'];
     }
 
+    /**
+     * Calculate amount total of the Order
+     *
+     * @param array $order_details Order details
+     *
+     * @return int
+     */
     public static function calculateAmountTotal($order_details = null)
     {
         $amount = 0;
@@ -69,6 +121,13 @@ class HelperGateway {
         return $amount;
     }
 
+    /**
+     * Validates if the product is subscrition
+     *
+     * @param array $items items in the order
+     *
+     * @return boolean
+     */
     public static function validateSubscrition($items)
     {   
         if (count($items) > 1) {
@@ -81,6 +140,13 @@ class HelperGateway {
         return false;
     }
 
+    /**
+     * Validates if the items were entered correctly
+     *
+     * @param array $items items in the order
+     *
+     * @return boolean
+     */
     public static function validateItems($items)
     {   
         if (count($items) > 1) {
@@ -94,6 +160,13 @@ class HelperGateway {
         return true;
     }
 
+    /**
+     * Validate if items are unsubscribed
+     *
+     * @param array $items items in the order
+     *
+     * @return boolean
+     */
     public static function validateItemsProduct($items)
     {
         $i = 0;
@@ -123,6 +196,13 @@ class HelperGateway {
         return $param;
     }
 
+    /**
+     * Remove special character
+     *
+     * @param string $param character string
+     *
+     * @return string
+     */
     public static function generateCheckout($items, $payment_options)
     {
         if (HelperGateway::validateSubscrition($items)) {
@@ -139,6 +219,13 @@ class HelperGateway {
         }
     }
 
+    /**
+     * Remove special character
+     *
+     * @param string $param character string
+     *
+     * @return string
+     */
     public static function getInterval($option, $frecuency)
     {
         $interval = '';
