@@ -651,7 +651,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 $shp_carrier = $carrier->name;
                 $shp_service = implode(",", $carrier->delay);
                 $shippingLines =  Config::getShippingLines($shp_service, $shp_carrier, $shp_price);
-            } elseif (HelperGateway::isDigital($items)) { //Eliminar cuando se termine la tarea
+            } elseif (HelperGateway::isDigital($items)) {
                 $shp_carrier = "Producto digital";
                 $shp_service = "Digital";
                 $shippingLines =  Config::getShippingLines($shp_service, $shp_carrier, $shp_price);
@@ -661,7 +661,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
         $shippingContact = Config::getShippingContact($customerPrestashop, $address_delivery, $state, $country);
         $customerInfo = Config::getCustomerInfo($customerPrestashop, $address_delivery);
 
-        if (count($payment_options) > 0 && !empty($shippingContact['address']['postal_code']) /*&& !empty($shippingLines)*/) {
+        if (count($payment_options) > 0 && !empty($shippingContact['address']['postal_code']) && !empty($shippingLines)) {
             $order_details = array();
             $taxlines = array();
     

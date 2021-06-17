@@ -251,7 +251,7 @@ class HelperGateway
      *
      * @return boolean
      */
-    public static function isDigital($items) // Eliminar cuando se termine la tarea
+    public static function isDigital($items)
     {
         $all_digital = true;
         if (empty($items)) {
