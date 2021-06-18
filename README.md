@@ -17,7 +17,7 @@ Current version features:
 Installation
 -----------
 
-  Clone the module using git clone --recursive git@github.com:conekta/conekta_prestashop.git ./conektapaymentsprestashop
+  Clone the module using <pre>git clone --recursive git@github.com:conekta/conekta_prestashop.git ./conektapaymentsprestashop</pre>
 
 There is no custom installation for this plugin, just the default:
 
