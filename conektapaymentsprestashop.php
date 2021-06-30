@@ -986,7 +986,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
             }
             if (Tools::getValue('PAYMENT_METHS_CASH') && !Tools::getValue('EXPIRATION_DATE_LIMIT')) {
                 $this->postErrors[] = $this->trans(
-                    'The "Expiration date limit" field is required.',
+                    'The "Expiration days" field is required.',
                     array(),
                     'Modules.ConektaPaymentsPrestashop.Admin'
                 );
@@ -1001,7 +1001,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
             || Tools::getValue('EXPIRATION_DATE_LIMIT')>24))
             )) {
                 $this->postErrors[] = $this->trans(
-                    'The "Expiration date limit" is out of range.',
+                    'The "Expiration days" is out of range. It has to be between 3 and 31',
                     array(),
                     'Modules.ConektaPaymentsPrestashop.Admin'
                 );
@@ -1009,7 +1009,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
 
             if (Tools::getValue('PAYMENT_METHS_CASH') && !is_numeric(Tools::getValue('EXPIRATION_DATE_LIMIT'))) {
                 $this->postErrors[] = $this->trans(
-                    'The "Expiration date limit" must be a number.',
+                    'The "Expiration days" must be a number.',
                     array(),
                     'Modules.ConektaPaymentsPrestashop.Admin'
                 );
@@ -1336,7 +1336,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                     ),
                     array(
                         'type' => 'radio',
-                        'label' => $this->l('Expiration date type'),
+                        'label' => $this->l('Expiration Format'),
                         'name' => 'EXPIRATION_DATE_TYPE',
                         'class' => 't',
                         'is_bool' => true,
@@ -1347,7 +1347,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                     array(
                         'type' => 'text',
                         'label' => $this->trans(
-                            'Expiration date limit',
+                            'Expiration (# days)',
                             array(),
                             'Modules.ConektaPaymentsPrestashop.Admin'
                         ),
