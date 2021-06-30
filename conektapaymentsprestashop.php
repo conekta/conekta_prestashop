@@ -994,7 +994,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
 
             if (Tools::getValue('PAYMENT_METHS_CASH')
             && ( (Tools::getValue('EXPIRATION_DATE_TYPE')==0
-            && (Tools::getValue('EXPIRATION_DATE_LIMIT')<0
+            && (Tools::getValue('EXPIRATION_DATE_LIMIT')<3
             || Tools::getValue('EXPIRATION_DATE_LIMIT')>31))
             || (Tools::getValue('EXPIRATION_DATE_TYPE')==1
             && (Tools::getValue('EXPIRATION_DATE_LIMIT')<0
@@ -1341,8 +1341,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                         'class' => 't',
                         'is_bool' => true,
                         'values' => array(
-                            array( 'id' => 'EXPIRATION_DATE_TYPE_DAYS', 'value' => 0, 'label' => $this->l('Days') ),
-                            array( 'id' => 'EXPIRATION_DATE_TYPE_HOURS', 'value' => 1, 'label' => $this->l('Hours') )
+                            array( 'id' => 'EXPIRATION_DATE_TYPE_DAYS', 'value' => 0, 'label' => $this->l('Days') )
                         )
                     ),
                     array(
@@ -1627,8 +1626,6 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 'CONEKTA_MSI' => rtrim(Tools::getValue('PAYMENT_METHS_INSTALLMET')),
                 'PAYMENT_METHS_CASH' => rtrim(Tools::getValue('PAYMENT_METHS_CASH')),
                 'PAYMENT_METHS_SPEI' => rtrim(Tools::getValue('PAYMENT_METHS_SPEI')),
-                'EXPIRATION_DATE_LIMIT' => rtrim(Tools::getValue('EXPIRATION_DATE_LIMIT')),
-                'EXPIRATION_DATE_TYPE' => rtrim(Tools::getValue('EXPIRATION_DATE_TYPE')),
             );
 
             if (Tools::getValue('LIVE_PUBLIC_KEY') && Tools::getValue('LIVE_PRIVATE_KEY')) {
