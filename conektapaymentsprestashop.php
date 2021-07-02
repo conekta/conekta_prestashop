@@ -52,6 +52,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
     public $owner;
     public $address;
     public $extra_mail_vars;
+    public $installments = array(3, 6, 9, 12, 18);
 
     /**
      * Implement the configuration of the Conekta Prestashop module
@@ -82,7 +83,13 @@ class ConektaPaymentsPrestashop extends PaymentModule
             'MODE',
             'WEB_HOOK',
             'PAYMENT_METHS_CARD',
-            'PAYMENT_METHS_INSTALLMET',
+            'INSTALLMENTS_ENABLED',
+            'INSTALLMENTS_3_MONTHS',
+            'INSTALLMENTS_6_MONTHS',
+            'INSTALLMENTS_9_MONTHS',
+            'INSTALLMENTS_12_MONTHS',
+            'INSTALLMENTS_18_MONTHS',
+            'INSTALLMENTS_MINIMUM',
             'PAYMENT_METHS_CASH',
             'PAYMENT_METHS_SPEI',
             'EXPIRATION_DATE_TYPE',
@@ -125,10 +132,6 @@ class ConektaPaymentsPrestashop extends PaymentModule
             $this->paymnt_method_card = $config['PAYMENT_METHS_CARD'];
         }
 
-        if (isset($config['PAYMENT_METHS_INSTALLMET'])) {
-            $this->payment_method_installment = $config['PAYMENT_METHS_INSTALLMET'];
-        }
-
         if (isset($config['PAYMENT_METHS_CASH'])) {
             $this->payment_method_cash = $config['PAYMENT_METHS_CASH'];
         }
@@ -136,6 +139,15 @@ class ConektaPaymentsPrestashop extends PaymentModule
         if (isset($config['PAYMENT_METHS_SPEI'])) {
             $this->payment_method_spei = $config['PAYMENT_METHS_SPEI'];
         }
+
+        if (isset($config['INSTALLMENTS_ENABLED'])) {
+            $this->installments_enabled = $config['INSTALLMENTS_ENABLED'];
+        }
+
+        if (isset($config['INSTALLMENTS_MINIMUM'])) {
+            $this->installments_minimum = $config['INSTALLMENTS_MINIMUM'];
+        }
+
         if (isset($config['EXPIRATION_DATE_TYPE'])) {
             $this->expiration_date_type = $config['EXPIRATION_DATE_TYPE'];
         }
@@ -218,7 +230,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
             || !$this->registerHook('updateOrderStatus')
             || !$this->registerHook('actionValidateOrder')
             && Configuration::updateValue('PAYMENT_METHS_CARD', 1)
-            && Configuration::updateValue('PAYMENT_METHS_INSTALLMET', 1)
+            && Configuration::updateValue('INSTALLMENTS_ENABLED', 1)
             && Configuration::updateValue('PAYMENT_METHS_CASH', 1)
             && Configuration::updateValue('PAYMENT_METHS_SPEI', 1)
             && Configuration::updateValue('MODE', 0) || !Database::installDb()
@@ -271,7 +283,6 @@ class ConektaPaymentsPrestashop extends PaymentModule
     {
         return parent::uninstall()
         && Configuration::deleteByName('CONEKTA_PRESTASHOP_VERSION')
-        && Configuration::deleteByName('CONEKTA_MSI')
         && Configuration::deleteByName('CONEKTA_CARDS')
         && Configuration::deleteByName('PAYMENT_METHS_CASH')
         && Configuration::deleteByName('PAYMENT_METHS_SPEI')
@@ -615,10 +626,43 @@ class ConektaPaymentsPrestashop extends PaymentModule
             }
            
             $taxlines = Config::getTaxLines($items);
+            
+            $allowed_installments = array();
+			if ( $this->installments_enabled && $this->paymnt_method_card ) {
+				$total = (float) $this->context->cart->getOrderTotal(true, Cart::BOTH);
+				foreach ( array(3, 6, 9, 12, 18) as $month ) {
+					if ( ! empty( $this->installments_minimum ) ) {
+						$elegible = $total >= (int) $this->installments_minimum;
+					} else {
+						switch ( $month ) {
+							case 3:
+								$elegible = $total >= 300;
+								break;
+							case 6:
+								$elegible = $total >= 600;
+								break;
+							case 9:
+								$elegible = $total >= 900;
+								break;
+							case 12:
+								$elegible = $total >= 1200;
+								break;
+							case 18:
+								$elegible = $total >= 1800;
+								break;
+						}
+					}
+					if ( Configuration::get('INSTALLMENTS_'.$month.'_MONTHS' ) && $elegible ) {
+						$allowed_installments[] = $month;
+					}
+				}
+			}
 
             $checkout = [
                 "type" => 'Integration',
                 "allowed_payment_methods" => $payment_options,
+                "monthly_installments_enabled" => ! empty( $allowed_installments ),
+				"monthly_installments_options" => $allowed_installments,
                 "on_demand_enabled" => $on_demand_enabled,
                 "force_3ds_flow" => Configuration::get('CONEKTA_MODE') ? $force_3ds : false
             ];
@@ -984,6 +1028,58 @@ class ConektaPaymentsPrestashop extends PaymentModule
                     'Modules.ConektaPaymentsPrestashop.Admin'
                 );
             }
+
+            if (Tools::getValue('INSTALLMENTS_ENABLED')) {
+                $i=0;
+                while ($i<count($this->installments) && !Tools::getValue('INSTALLMENTS_'.$this->installments[$i].'_MONTHS')) {
+                    $i++;
+                }
+                if ( $i<count($this->installments)) {
+                    $minimum = Tools::getValue('INSTALLMENTS_MINIMUM');
+                    if ($minimum) {
+                        if(!is_numeric($minimum)){
+                            $this->postErrors[] = $this->trans(
+                                'The minimum amount must be a number.',
+                                array(),
+                                'Modules.ConektaPaymentsPrestashop.Admin'
+                            );
+                        } else {
+                            switch ($this->installments[$i]) {
+                                case 3:
+                                    $minimum_value = 300;
+                                    break;
+                                case 6:
+                                    $minimum_value = 600;
+                                    break;
+                                case 9:
+                                    $minimum_value = 900;
+                                    break;
+                                case 12:
+                                    $minimum_value = 1200;
+                                    break;
+                                case 18:
+                                    $minimum_value = 1800;
+                                    break;
+                            }
+                            if($minimum < $minimum_value){
+                                $this->postErrors[] = $this->trans(
+                                    'Conekta minimum amount for monthly installments cannot be lower than ' . $minimum_value .
+                                    ' because it is the minimum amount for ' . $this->installments[$i] . ' months.',
+                                    array(),
+                                    'Modules.ConektaPaymentsPrestashop.Admin'
+                                );
+                            }
+                        }
+                    }
+                } else {
+                    $this->postErrors[] = $this->trans(
+                        'Monthly installments are enabled, but no months were chosen.',
+                        array(),
+                        'Modules.ConektaPaymentsPrestashop.Admin'
+                    );
+                }
+            }
+
             if (Tools::getValue('PAYMENT_METHS_CASH') && !Tools::getValue('EXPIRATION_DATE_LIMIT')) {
                 $this->postErrors[] = $this->trans(
                     'The "Expiration days" field is required.',
@@ -1088,7 +1184,8 @@ class ConektaPaymentsPrestashop extends PaymentModule
             Configuration::updateValue('MODE', Tools::getValue('MODE'));
             Configuration::updateValue('WEB_HOOK', Tools::getValue('WEB_HOOK'));
             Configuration::updateValue('PAYMENT_METHS_CARD', Tools::getValue('PAYMENT_METHS_CARD'));
-            Configuration::updateValue('PAYMENT_METHS_INSTALLMET', Tools::getValue('PAYMENT_METHS_INSTALLMET'));
+            Configuration::updateValue('INSTALLMENTS_MINIMUM', Tools::getValue('INSTALLMENTS_MINIMUM'));
+            Configuration::updateValue('INSTALLMENTS_ENABLED', Tools::getValue('INSTALLMENTS_ENABLED'));
             Configuration::updateValue('PAYMENT_METHS_CASH', Tools::getValue('PAYMENT_METHS_CASH'));
             Configuration::updateValue(
                 'PAYMENT_METHS_BANORTE',
@@ -1131,6 +1228,12 @@ class ConektaPaymentsPrestashop extends PaymentModule
                     Tools::getValue('PRODUCT_'.Tools::strtoupper($element))
                 );
             }
+            foreach ($this->installments as $months) {
+                Configuration::updateValue(
+                    'INSTALLMENTS_'.$months.'_MONTHS',
+                    Tools::getValue('INSTALLMENTS_'.$months.'_MONTHS')
+                );
+            }
         }
 
         $this->html .= $this->displayConfirmation(
@@ -1161,9 +1264,13 @@ class ConektaPaymentsPrestashop extends PaymentModule
             'MODE' => Tools::getValue('MODE', Configuration::get('MODE')),
             'WEB_HOOK' => Tools::getValue('WEB_HOOK', Configuration::get('WEB_HOOK')),
             'PAYMENT_METHS_CARD' => Tools::getValue('PAYMENT_METHS_CARD', Configuration::get('PAYMENT_METHS_CARD')),
-            'PAYMENT_METHS_INSTALLMET' => Tools::getValue(
-                'PAYMENT_METHS_INSTALLMET',
-                Configuration::get('PAYMENT_METHS_INSTALLMET')
+            'INSTALLMENTS_MINIMUM' => Tools::getValue(
+                'INSTALLMENTS_MINIMUM',
+                Configuration::get('INSTALLMENTS_MINIMUM')
+            ),
+            'INSTALLMENTS_ENABLED' => Tools::getValue(
+                'INSTALLMENTS_ENABLED',
+                Configuration::get('INSTALLMENTS_ENABLED')
             ),
             'PAYMENT_METHS_CASH' => Tools::getValue('PAYMENT_METHS_CASH', Configuration::get('PAYMENT_METHS_CASH')),
             'PAYMENT_METHS_BANORTE' => Tools::getValue(
@@ -1200,6 +1307,9 @@ class ConektaPaymentsPrestashop extends PaymentModule
         $product_elements = self::CART_PRODUCT_ATTR;
         foreach ($product_elements as $element) {
             $ret['PRODUCT_'.Tools::strtoupper($element)] = Configuration::get('PRODUCT_'.Tools::strtoupper($element));
+        }
+        foreach ($this->installments as $months) {
+            $ret['INSTALLMENTS_'.$months.'_MONTHS'] = Configuration::get('INSTALLMENTS_'.$months.'_MONTHS');
         }
         
         return $ret;
@@ -1316,11 +1426,6 @@ class ConektaPaymentsPrestashop extends PaymentModule
                         'values' => array(
                             'query' => array(
                                 array( 'id' => 'CARD', 'name' => $this->l('Card'), 'val' => 'card_payment_method'),
-                                array(
-                                    'id' => 'INSTALLMET',
-                                    'name' => $this->l('Monthly Installents'),
-                                    'val' => 'installment_payment_method'
-                                ),
                                 array( 'id' => 'CASH', 'name' => $this->l('Cash'), 'val' => 'cash_payment_method' ),
                                 array( 'id' => 'SPEI', 'name' => $this->l('SPEI'), 'val' => 'spei_payment_method' )
                             ),
@@ -1333,6 +1438,62 @@ class ConektaPaymentsPrestashop extends PaymentModule
                             'show' => array( 'text' => $this->l('show'), 'icon' => 'plus-sign-alt' ),
                             'hide' => array( 'text' => $this->l('hide'), 'icon' => 'minus-sign-alt' )
                         )
+                    ),
+                    array(
+                        'type' => 'checkbox',
+                        'label' => $this->l('Monthly Installments'),
+                        'name' => 'INSTALLMENTS',
+                        'values' => array(
+                            'query' => array(
+                                array(
+                                    'id' => 'ENABLED',
+                                    'name' => $this->l('Enable Monthly Installments'),
+                                    'val' => 'installments_enabled'
+                                ),
+                                array(
+                                    'id' => '3_MONTHS',
+                                    'name' => $this->l('3 months'),
+                                    'val' => '3_months'
+                                ),
+                                array(
+                                    'id' => '6_MONTHS',
+                                    'name' => $this->l('6 months'),
+                                    'val' => '6_months'
+                                ),
+                                array(
+                                    'id' => '9_MONTHS',
+                                    'name' => $this->l('9 months'),
+                                    'val' => '9_months'
+                                ),
+                                array(
+                                    'id' => '12_MONTHS',
+                                    'name' => $this->l('12 months'),
+                                    'val' => '12_months'
+                                ),
+                                array(
+                                    'id' => '18_MONTHS',
+                                    'name' => $this->l('18 months (Banamex)'),
+                                    'val' => '18_months'
+                                ),
+                            ),
+                            'id' => 'id',
+                            'name' => 'name',
+                        )
+                    ),
+                    array(
+                        'type' => 'text',
+                        'label' => $this->trans('Minimum amount', array(), 'Modules.ConektaPaymentsPrestashop.Admin'),
+                        'name' => 'INSTALLMENTS_MINIMUM',
+                        'desc' => $this->trans(
+                            'Minimum amount for monthly installments from Conekta</br>
+                                - 300 MXN para 3 meses sin intereses</br>
+                                - 600 MXN para 6 meses sin intereses</br>
+                                - 900 MXN para 9 meses sin intereses</br>
+                                - 1200 MXN para 12 meses sin intereses</br>
+                                - 1800 MXN para 18 meses sin intereses</br>',
+                            array(),
+                            'Modules.ConektaPaymentsPrestashop.Admin'
+                        ),
                     ),
                     array(
                         'type' => 'radio',
@@ -1623,7 +1784,6 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 'CONEKTA_PUBLIC_KEY_TEST' => rtrim(Tools::getValue('TEST_PUBLIC_KEY')),
                 'CONEKTA_PRIVATE_KEY_TEST' => rtrim(Tools::getValue('TEST_PRIVATE_KEY')),
                 'CONEKTA_CARDS' => rtrim(Tools::getValue('PAYMENT_METHS_CARD')),
-                'CONEKTA_MSI' => rtrim(Tools::getValue('PAYMENT_METHS_INSTALLMET')),
                 'PAYMENT_METHS_CASH' => rtrim(Tools::getValue('PAYMENT_METHS_CASH')),
                 'PAYMENT_METHS_SPEI' => rtrim(Tools::getValue('PAYMENT_METHS_SPEI')),
             );
