@@ -628,41 +628,41 @@ class ConektaPaymentsPrestashop extends PaymentModule
             $taxlines = Config::getTaxLines($items);
             
             $allowed_installments = array();
-			if ( $this->installments_enabled && $this->paymnt_method_card ) {
-				$total = (float) $this->context->cart->getOrderTotal(true, Cart::BOTH);
-				foreach ( array(3, 6, 9, 12, 18) as $month ) {
-					if ( ! empty( $this->installments_minimum ) ) {
-						$elegible = $total >= (int) $this->installments_minimum;
-					} else {
-						switch ( $month ) {
-							case 3:
-								$elegible = $total >= 300;
-								break;
-							case 6:
-								$elegible = $total >= 600;
-								break;
-							case 9:
-								$elegible = $total >= 900;
-								break;
-							case 12:
-								$elegible = $total >= 1200;
-								break;
-							case 18:
-								$elegible = $total >= 1800;
-								break;
-						}
-					}
-					if ( Configuration::get('INSTALLMENTS_'.$month.'_MONTHS' ) && $elegible ) {
-						$allowed_installments[] = $month;
-					}
-				}
-			}
+            if ($this->installments_enabled && $this->paymnt_method_card) {
+                $total = (float) $this->context->cart->getOrderTotal(true, Cart::BOTH);
+                foreach (array(3, 6, 9, 12, 18) as $month) {
+                    if (!empty($this->installments_minimum)) {
+                        $elegible = $total >= (int) $this->installments_minimum;
+                    } else {
+                        switch ($month) {
+                            case 3:
+                                $elegible = $total >= 300;
+                                break;
+                            case 6:
+                                $elegible = $total >= 600;
+                                break;
+                            case 9:
+                                $elegible = $total >= 900;
+                                break;
+                            case 12:
+                                $elegible = $total >= 1200;
+                                break;
+                            case 18:
+                                $elegible = $total >= 1800;
+                                break;
+                        }
+                    }
+                    if (Configuration::get('INSTALLMENTS_'.$month.'_MONTHS') && $elegible) {
+                        $allowed_installments[] = $month;
+                    }
+                }
+            }
 
             $checkout = [
                 "type" => 'Integration',
                 "allowed_payment_methods" => $payment_options,
-                "monthly_installments_enabled" => ! empty( $allowed_installments ),
-				"monthly_installments_options" => $allowed_installments,
+                "monthly_installments_enabled" => !empty($allowed_installments),
+                "monthly_installments_options" => $allowed_installments,
                 "on_demand_enabled" => $on_demand_enabled,
                 "force_3ds_flow" => Configuration::get('CONEKTA_MODE') ? $force_3ds : false
             ];
@@ -1031,13 +1031,14 @@ class ConektaPaymentsPrestashop extends PaymentModule
 
             if (Tools::getValue('INSTALLMENTS_ENABLED')) {
                 $i=0;
-                while ($i<count($this->installments) && !Tools::getValue('INSTALLMENTS_'.$this->installments[$i].'_MONTHS')) {
+                while ($i<count($this->installments) &&
+                !Tools::getValue('INSTALLMENTS_'.$this->installments[$i].'_MONTHS')) {
                     $i++;
                 }
-                if ( $i<count($this->installments)) {
+                if ($i<count($this->installments)) {
                     $minimum = Tools::getValue('INSTALLMENTS_MINIMUM');
                     if ($minimum) {
-                        if(!is_numeric($minimum)){
+                        if (!is_numeric($minimum)) {
                             $this->postErrors[] = $this->trans(
                                 'The minimum amount must be a number.',
                                 array(),
@@ -1061,9 +1062,10 @@ class ConektaPaymentsPrestashop extends PaymentModule
                                     $minimum_value = 1800;
                                     break;
                             }
-                            if($minimum < $minimum_value){
+                            if ($minimum < $minimum_value) {
                                 $this->postErrors[] = $this->trans(
-                                    'Conekta minimum amount for monthly installments cannot be lower than ' . $minimum_value .
+                                    'Conekta minimum amount for monthly installments cannot be lower than ' .
+                                    $minimum_value .
                                     ' because it is the minimum amount for ' . $this->installments[$i] . ' months.',
                                     array(),
                                     'Modules.ConektaPaymentsPrestashop.Admin'
