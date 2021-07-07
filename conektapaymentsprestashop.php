@@ -721,7 +721,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                     "on_demand_enabled" => $on_demand_enabled,
                     "force_3ds_flow" => Configuration::get('CONEKTA_MODE') ? $force_3ds : false,
                 ]
-            ];            
+            ];
 
             $amount = HelperGateway::calculateAmountTotal($order_details);
 
@@ -843,7 +843,6 @@ class ConektaPaymentsPrestashop extends PaymentModule
                         $order->id,
                         'unpaid'
                     );
-
                 } elseif (empty($order->charges[0]->status) || $order->charges[0]->status == 'unpaid') {
                     $order->update([
                         'customer_info' => $customerInfo
@@ -860,10 +859,6 @@ class ConektaPaymentsPrestashop extends PaymentModule
                         'unpaid'
                     );
                 }
-                // echo '<pre>';
-                // print_r(json_decode($order));
-                // echo '</pre>';
-
             } catch (\Exception $e) {
                 $log_message = $e->getMessage() . ' ';
     
@@ -1782,9 +1777,8 @@ class ConektaPaymentsPrestashop extends PaymentModule
      *
      * @return boolean
      */
-    public function checkedFields($phone = null, $order_details = null, $amount = null)
+    public function checkedFields($phone = null, $order_details = null)
     {
-        echo $amount;
         if (!empty($phone)) {
             if (strpos($phone, '+') !== false) {
                 return $this->trans(
@@ -1814,9 +1808,15 @@ class ConektaPaymentsPrestashop extends PaymentModule
         }
 
         if (!empty($order_details)) {
-            if ($order_details['currency'] == 'MXN' && $amount < $this->amount_min) {
+            $amount_items = 0;
+
+            foreach ($order_details['line_items'] as $item) {
+                $amount_items = $amount_items + ($item['quantity'] * $item['unit_price']);
+            }
+
+            if ($order_details['currency'] == 'MXN' && $amount_items < $this->amount_min) {
                 return $this->trans(
-                    'The minimum purchase amount with Conekta must be greater than $ 20.00',
+                    'The minimum purchase amount with Conekta must be greater than $ 20.00 + taxes ',
                     array(),
                     'Modules.ConektaPaymentsPrestashop.Admin'
                 );

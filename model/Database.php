@@ -381,7 +381,7 @@ class Database
 
         $result = Db::getInstance()->getValue($sql);
 
-        return ($result == "true");  
+        return ($result == "true");
     }
 
     /**

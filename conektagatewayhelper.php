@@ -123,7 +123,6 @@ class HelperGateway
                 $amount = $amount - $discount['amount'];
             }
         }
-        echo $amount;
         return $amount;
     }
 

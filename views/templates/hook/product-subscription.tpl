@@ -36,7 +36,12 @@
             <label class="form-control-label">Plan</label>
             <select class ="custom-select" name="subscription_plan">
                 {foreach $plans as $plan}
-                    <option value="{$plan['id']|escape:'htmlall':'UTF-8'}" {($subscription_plan == $plan['id']) ? 'selected' : ''}>{$plan['name']|escape:'htmlall':'UTF-8'}</option>
+                    <option 
+                        value="{$plan['id']|escape:'htmlall':'UTF-8'}"
+                        {($subscription_plan == $plan['id']) ? 'selected' : '' |escape:'htmlall':'UTF-8'}
+                    >
+                        {$plan['name']|escape:'htmlall':'UTF-8'}
+                    </option>
                 {/foreach}
             </select>
         </div>
