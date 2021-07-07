@@ -43,7 +43,10 @@ class HelperGateway
      */
     public static function addTaxLines($taxlines = null)
     {
-        $tax_lines['tax_lines'] = array();
+        $tax_lines = array(
+            'tax_lines' => array()
+        );
+
         if (isset($taxlines)) {
             foreach ($taxlines as $tax) {
                 array_push(
@@ -68,8 +71,10 @@ class HelperGateway
      */
     public static function addShippingLines($shippingLines = null)
     {
-        $shippingLinesArray['shipping_lines'] = array();
-
+        $shippingLinesArray = array(
+            'shipping_lines' => array()
+        );
+        
         if (isset($shippingLines)) {
             foreach ($shippingLines as $shipping) {
                 array_push(
@@ -118,6 +123,7 @@ class HelperGateway
                 $amount = $amount - $discount['amount'];
             }
         }
+        echo $amount;
         return $amount;
     }
 
@@ -129,10 +135,9 @@ class HelperGateway
      * @return boolean
      */
     public static function validateSubscrition($items)
-    {   
+    {
         if (count($items) > 1) {
             return false;
-
         } elseif ($items[0]['cart_quantity'] == 1) {
             return Database::isProductSubscription($items[0]['id_product']);
         }
@@ -148,7 +153,7 @@ class HelperGateway
      * @return boolean
      */
     public static function validateItems($items)
-    {   
+    {
         if (count($items) > 1) {
             return HelperGateway::validateItemsProduct($items);
         } elseif ($items[0]['cart_quantity'] > 1) {
@@ -172,14 +177,13 @@ class HelperGateway
         $i = 0;
         $non_subscription = true;
 
-        while(count($items) > $i && $non_subscription) {
-
+        while (count($items) > $i && $non_subscription) {
             if (Database::isProductSubscription($items[$i]['id_product'])) {
                 $non_subscription = false;
             }
             $i++;
         }
-
+        // var_dump($non_subscription);
         return $non_subscription;
     }
 
@@ -206,14 +210,14 @@ class HelperGateway
      */
     public static function generateCheckout($items, $payment_options)
     {
-        if (HelperGateway::validateSubscrition($items)) {
+        $retorno = HelperGateway::validateSubscrition($items);
 
+        if ($retorno) {
             return array(
                 "allowed_payment_methods" => ['card'],
                 "plan_id" => Database::getIdPlan($items[0]['id_product'])
             );
         } elseif (HelperGateway::validateItemsProduct($items)) {
-
             return array(
                 "allowed_payment_methods" => $payment_options,
             );
@@ -232,16 +236,21 @@ class HelperGateway
     {
         $interval = '';
         switch ($option) {
-            case 'minute': ($frecuency > 1)? $interval = 'Minutos': $interval = 'Minuto';
-            break;
-            case 'week':($frecuency > 1)? $interval = 'Semanas': $interval = 'Semana';
-            break;
-            case 'half_month':($frecuency > 1)? $interval = 'Quincenas': $interval = 'Quincena';
-            break;
-            case 'month':($frecuency > 1)? $interval = 'Meses': $interval = 'Mes';
-            break;
-            case 'year': ($frecuency > 1)? $interval = 'Años': $interval = 'Año';
-            break;
+            case 'minute':
+                ($frecuency > 1)? $interval = 'Minutos': $interval = 'Minuto';
+                break;
+            case 'week':
+                ($frecuency > 1)? $interval = 'Semanas': $interval = 'Semana';
+                break;
+            case 'half_month':
+                ($frecuency > 1)? $interval = 'Quincenas': $interval = 'Quincena';
+                break;
+            case 'month':
+                ($frecuency > 1)? $interval = 'Meses': $interval = 'Mes';
+                break;
+            case 'year':
+                ($frecuency > 1)? $interval = 'Años': $interval = 'Año';
+                break;
         }
         return $interval;
     }

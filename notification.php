@@ -17,7 +17,9 @@
  * @package   Notification
  * @version   GIT: @1.1.0@
  * @link      https://conekta.com/
+ *
  */
+
 require_once dirname(__FILE__) . '/../../config/config.inc.php';
 require_once dirname(__FILE__) . '/../../init.php';
 require_once dirname(__FILE__) . '/model/Database.php';
@@ -64,10 +66,10 @@ if ($event_json->type == 'order.paid' && isset($event_json->data)) {
             $addIdTransaction = '';
 
             if (isset($conekta_order->checkout->plan_id)) {
-               $addIdTransaction = ', id_transaction = '. json_encode($conekta_order->charges->data[0]->id);	
+                $addIdTransaction = ', id_transaction = '. json_encode($conekta_order->charges->data[0]->id);
             }
             
-	        Db::getInstance()->Execute(
+            Db::getInstance()->Execute(
                 'UPDATE ' . _DB_PREFIX_
                 .'conekta_transaction SET status = "paid"' . $addIdTransaction . ' WHERE id_order = '
                 . pSQL('411')
@@ -109,7 +111,7 @@ if ($event_json->type == 'order.paid' && isset($event_json->data)) {
     $conekta_plan = $event_json->data->object;
     $result = Database::getProductIdProductData($conekta_plan->id);
 
-    foreach($result as $product) {
+    foreach ($result as $product) {
         Database::updateConektaProductData($product['id_product'], 'is_subscription', 'false');
         Database::updateConektaProductData($product['id_product'], 'subscription_plan', '');
     }

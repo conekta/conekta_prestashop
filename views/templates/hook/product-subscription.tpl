@@ -28,7 +28,7 @@
     <div class="row">
         <div class="col-md-6 checkbox" style="line-height: 3.5rem;">
             <label class="form-control-label">
-                <input type="checkbox" id="is_subscription" name="is_subscription" {$is_subscription} style="margin: 0 1rem">
+                <input type="checkbox" id="is_subscription" name="is_subscription" {$is_subscription|escape:'htmlall':'UTF-8'} style="margin: 0 1rem">
                 Enable subscriptions
             </label>
         </div>
@@ -36,7 +36,7 @@
             <label class="form-control-label">Plan</label>
             <select class ="custom-select" name="subscription_plan">
                 {foreach $plans as $plan}
-                    <option value="{$plan['id']}" {($subscription_plan == $plan['id']) ? 'selected' : ''}>{$plan['name']}</option>
+                    <option value="{$plan['id']|escape:'htmlall':'UTF-8'}" {($subscription_plan == $plan['id']) ? 'selected' : ''}>{$plan['name']|escape:'htmlall':'UTF-8'}</option>
                 {/foreach}
             </select>
         </div>

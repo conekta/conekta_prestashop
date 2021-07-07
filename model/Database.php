@@ -379,7 +379,9 @@ class Database
         $sql = "SELECT product_value FROM  $table WHERE id_product = '{$id_product}' "
         . "AND product_attribute = 'is_subscription' ";
 
-        return  Db::getInstance()->getValue($sql);
+        $result = Db::getInstance()->getValue($sql);
+
+        return ($result == "true");  
     }
 
     /**
