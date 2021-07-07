@@ -182,7 +182,7 @@ class HelperGateway
             }
             $i++;
         }
-        // var_dump($non_subscription);
+
         return $non_subscription;
     }
 
