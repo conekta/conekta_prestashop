@@ -17,6 +17,7 @@
  * @package   Notification
  * @version   GIT: @1.1.0@
  * @link      https://conekta.com/
+ *
  */
 
 require_once dirname(__FILE__) . '/../../config/config.inc.php';
@@ -34,11 +35,10 @@ define("ORDER_REFUNDED", 7);
     To configure, add webhook in account
     storename.com/modules/conektaefectivo/notification.php
 */
+
 $body = Tools::file_get_contents('php://input');
 authenticateEvent($body, filter_input(INPUT_SERVER, 'HTTP_DIGEST'));
 $event_json = Tools::jsonDecode($body);
-
-
 if ($event_json->type == 'order.paid' && isset($event_json->data)) {
     $conekta_order = $event_json->data->object;
     
@@ -63,10 +63,16 @@ if ($event_json->type == 'order.paid' && isset($event_json->data)) {
                 (int) $order->id
             );
             $orderHistory->addWithEmail();
+            $addIdTransaction = '';
+
+            if (isset($conekta_order->checkout->plan_id)) {
+                $addIdTransaction = ', id_transaction = '. json_encode($conekta_order->charges->data[0]->id);
+            }
+            
             Db::getInstance()->Execute(
                 'UPDATE ' . _DB_PREFIX_
-                .'conekta_transaction SET status = "paid" WHERE id_order = '
-                . pSQL($id_order)
+                .'conekta_transaction SET status = "paid"' . $addIdTransaction . ' WHERE id_order = '
+                . pSQL('411')
             );
         }
     }
@@ -101,6 +107,14 @@ if ($event_json->type == 'order.paid' && isset($event_json->data)) {
         . 'orders SET current_state = '. ORDER_REFUNDED .' WHERE id_order = '
         . pSQL($id_order)
     );
+} elseif ($event_json->type == 'plan.deleted' && isset($event_json->data)) {
+    $conekta_plan = $event_json->data->object;
+    $result = Database::getProductIdProductData($conekta_plan->id);
+
+    foreach ($result as $product) {
+        Database::updateConektaProductData($product['id_product'], 'is_subscription', 'false');
+        Database::updateConektaProductData($product['id_product'], 'subscription_plan', '');
+    }
 }
 
 /**
