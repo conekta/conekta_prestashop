@@ -38,7 +38,7 @@
                 {foreach $plans as $plan}
                     <option 
                         value="{$plan['id']|escape:'htmlall':'UTF-8'}"
-                        {($subscription_plan == $plan['id']) ? 'selected' : '' |escape:'htmlall':'UTF-8'}
+                        {($subscription_plan == $plan['id']) ? 'selected' : ''|escape:'htmlall':'UTF-8'}
                     >
                         {$plan['name']|escape:'htmlall':'UTF-8'}
                     </option>

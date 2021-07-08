@@ -764,6 +764,16 @@ class ConektaPaymentsPrestashop extends PaymentModule
                     return false;
                 }
 
+                if (!HelperGateway::validateAmounts($items, $amount)) {
+                    $this->context->smarty->assign(
+                        array(
+                            'message' =>  'El monto total del carrito no coincide con el del'
+                            . ' plan que se pretende pagar',
+                        )
+                    );
+                    return false;
+                }
+
                 $cust_db = Database::getConektaMetadata(
                     $customerPrestashop->id,
                     $this->conekta_mode,

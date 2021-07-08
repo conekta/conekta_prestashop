@@ -165,6 +165,24 @@ class HelperGateway
     }
 
     /**
+     * Validates the plan and order amounts match
+     *
+     * @param array $items items in the order
+     * @param int $amount of the order
+     *
+     * @return boolean
+     */
+    public static function validateAmounts($items, $amount)
+    {
+        if (Database::isProductSubscription($items[0]['id_product'])) {
+            $plan_id = Database::getIdPlan($items[0]['id_product']);
+            $conekta_plan = \Conekta\Plan::find($plan_id);
+            return $conekta_plan->amount == $amount;
+        }
+        return true;
+    }
+
+    /**
      * Validate if items are unsubscribed
      *
      * @param array $items items in the order
