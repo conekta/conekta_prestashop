@@ -23,6 +23,7 @@ use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
 
 require_once dirname(__FILE__) . '/model/Config.php';
 require_once dirname(__FILE__) . '/model/Database.php';
+require_once dirname(__FILE__) . '/conektagatewayhelper.php';
 require_once dirname(__FILE__) . '/lib/conekta-php/lib/Conekta.php';
 
 if (!defined('_PS_VERSION_')) {
@@ -228,6 +229,8 @@ class ConektaPaymentsPrestashop extends PaymentModule
             || !$this->registerHook('paymentReturn')
             || !$this->registerHook('adminOrder')
             || !$this->registerHook('updateOrderStatus')
+            || !$this->registerHook('actionProductSave')
+            || !$this->registerHook('displayAdminProductsMainStepLeftColumnMiddle')
             || !$this->registerHook('actionValidateOrder')
             && Configuration::updateValue('PAYMENT_METHS_CARD', 1)
             && Configuration::updateValue('INSTALLMENTS_ENABLED', 1)
@@ -236,6 +239,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
             && Configuration::updateValue('MODE', 0) || !Database::installDb()
             || !Database::createTableConektaOrder()
             || !Database::createTableMetaData()
+            || !Database::createTableProductData()
         ) {
             return false;
         }
@@ -306,7 +310,56 @@ class ConektaPaymentsPrestashop extends PaymentModule
         )
         && Db::getInstance()->Execute(
             'DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'conekta_order_checkout`'
+        )
+        && Db::getInstance()->Execute(
+            'DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'conekta_product_data`'
         );
+    }
+
+    public function hookActionProductSave($params)
+    {
+        $product_id = $params['id_product'];
+        if (empty(filter_input(INPUT_POST, 'is_subscription'))) {
+            Database::updateConektaProductData($product_id, 'is_subscription', 'false');
+            Database::updateConektaProductData($product_id, 'subscription_plan', '');
+        } else {
+            Database::updateConektaProductData($product_id, 'is_subscription', 'true');
+            Database::updateConektaProductData(
+                $product_id,
+                'subscription_plan',
+                filter_input(INPUT_POST, 'subscription_plan')
+            );
+        }
+    }
+
+    public function hookDisplayAdminProductsMainStepLeftColumnMiddle($params)
+    {
+        $id_product = $params['id_product'];
+        $key = Configuration::get('CONEKTA_MODE') ?
+            Configuration::get('CONEKTA_PRIVATE_KEY_LIVE')
+            : Configuration::get('CONEKTA_PRIVATE_KEY_TEST');
+        $iso_code = $this->context->language->iso_code;
+        \Conekta\Conekta::setApiKey($key);
+        \Conekta\Conekta::setPlugin("Prestashop1.7");
+        \Conekta\Conekta::setApiVersion("2.0.0");
+        \Conekta\Conekta::setLocale($iso_code);
+        $result  = Database::getConektaProductData($id_product, 'is_subscription');
+        $is_subscription = empty($result) ? 'false' : $result['product_value'];
+        $result = Database::getConektaProductData($id_product, 'subscription_plan');
+        $subscription_plan = empty($result) ? '' : $result['product_value'];
+        $this->smarty->assign(
+            array(
+                'plans'                => \Conekta\Plan::all(),
+                'is_subscription_text' => $this->trans(
+                    'Enable Subscriptions',
+                    array(),
+                    'Modules.ConektaPaymentsPrestashop.Admin'
+                ),
+                'is_subscription'      => ($is_subscription == 'true') ? 'checked' : '',
+                'subscription_plan'    => $subscription_plan,
+            )
+        );
+        return $this->fetchTemplate('product-subscription.tpl');
     }
 
     /**
@@ -318,6 +371,15 @@ class ConektaPaymentsPrestashop extends PaymentModule
      */
     public function hookPaymentReturn($params)
     {
+        $key = Configuration::get('CONEKTA_MODE') ?
+            Configuration::get('CONEKTA_PRIVATE_KEY_LIVE')
+            : Configuration::get('CONEKTA_PRIVATE_KEY_TEST');
+        $iso_code = $this->context->language->iso_code;
+        \Conekta\Conekta::setApiKey($key);
+        \Conekta\Conekta::setPlugin("Prestashop1.7");
+        \Conekta\Conekta::setApiVersion("2.0.0");
+        \Conekta\Conekta::setLocale($iso_code);
+
         if ($params['order'] && Validate::isLoadedObject($params['order'])) {
             $id_order = (int) $params['order']->id;
             $conekta_tran_details = Database::getOrderById($id_order);
@@ -357,9 +419,35 @@ class ConektaPaymentsPrestashop extends PaymentModule
                         'valid' => $params['order']->valid
                     )
                 );
+
+                if (isset($conekta_tran_details['id_conekta_order'])) {
+                    $orderConekta = \Conekta\Order::find($conekta_tran_details['id_conekta_order']);
+                    
+                    if (isset($orderConekta->checkout['plan_id']) && !empty($orderConekta->checkout['plan_id'])) {
+                        $planConekta = \Conekta\Plan::find($orderConekta->checkout['plan_id']);
+                        
+                        $this->smarty->assign('subscription', true);
+                        $this->smarty->assign(
+                            'conekta_subscription',
+                            array(
+                                'name' => $planConekta->name,
+                                'amount' => $planConekta->amount * 0.01,
+                                'currency' => $planConekta->currency,
+                                'interval' => HelperGateway::getInterval(
+                                    $planConekta->interval,
+                                    $planConekta->frequency
+                                ),
+                                'frequency' => $planConekta->frequency,
+                                'trial_period_days' => isset($planConekta->trial_period_days) ?
+                                                                $planConekta->trial_period_days:
+                                                                0,
+                                'expiry_count' => $planConekta->expiry_count
+                            )
+                        );
+                    }
+                }
             }
         }
-
         return $this->fetchTemplate('checkout-confirmation-all.tpl');
     }
 
@@ -596,7 +684,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 $shp_carrier = $carrier->name;
                 $shp_service = implode(",", $carrier->delay);
                 $shippingLines =  Config::getShippingLines($shp_service, $shp_carrier, $shp_price);
-            } elseif ($this->isDigital($items)) {
+            } elseif (HelperGateway::isDigital($items)) {
                 $shp_carrier = "Producto digital";
                 $shp_service = "Digital";
                 $shippingLines =  Config::getShippingLines($shp_service, $shp_carrier, $shp_price);
@@ -611,7 +699,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
         && !empty($shippingLines)
         ) {
             $order_details = array();
-            $taxlines = array();
+            $amount = 0;
 
             if (Configuration::get('PRE_AUTHORIZE_CONEKTA')) {
                 $pre_authorize = true;
@@ -678,17 +766,23 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 'line_items' => Config::getLineItems($items),
                 'customer_info' => array(),
                 'discount_lines' => Config::getDiscountLines($discounts),
-                'shipping_lines' => array(),
+                'shipping_lines' => HelperGateway::addShippingLines($shippingLines),
                 'shipping_contact' => $shippingContact,
                 'pre_authorize' => $pre_authorize,
-                'tax_lines' => array(),
+                'tax_lines' => HelperGateway::addTaxLines(Config::getTaxLines($items)),
                 'metadata' => [
                     "plugin" => "Prestashop",
                     "plugin_version" => _PS_VERSION_,
                     "reference_id" => Order::generateReference()
                 ],
-                'checkout' => $checkout
+                'checkout' => [
+                    "type" => 'Integration',
+                    "on_demand_enabled" => $on_demand_enabled,
+                    "force_3ds_flow" => Configuration::get('CONEKTA_MODE') ? $force_3ds : false,
+                ]
             ];
+
+            $amount = HelperGateway::calculateAmountTotal($order_details);
 
             $order_elements = array_keys(get_class_vars('Cart'));
             foreach ($order_elements as $element) {
@@ -713,48 +807,31 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 $order_details['metadata'][$index] = Tools::substr($order_details['metadata'][$index], 0, -2);
             }
 
-            $amount = 0;
-
-            if (isset($shippingLines)) {
-                foreach ($shippingLines as $shipping) {
-                    array_push(
-                        $order_details['shipping_lines'],
-                        array (
-                            'amount' => $shipping['amount'],
-                            'tracking_number' => $this->removeSpecialCharacter($shipping['tracking_number']),
-                            'carrier' => $this->removeSpecialCharacter($shipping['carrier']),
-                            'method' => $this->removeSpecialCharacter($shipping['method'])
-                        )
-                    );
-                    $amount = $amount + $shipping['amount'];
-                }
-            }
-           
-            if (isset($taxlines)) {
-                foreach ($taxlines as $tax) {
-                    array_push(
-                        $order_details['tax_lines'],
-                        array (
-                            'description' => $this->removeSpecialCharacter($tax['description']),
-                            'amount' => $tax['amount']
-                        )
-                    );
-                    $amount = $amount + $tax['amount'];
-                }
-            }
-
-            foreach ($order_details['line_items'] as $item) {
-                $amount = $amount + ($item['quantity'] * $item['unit_price']);
-            }
-    
-            if (isset($order_details['discount_lines'])) {
-                foreach ($order_details['discount_lines'] as $discount) {
-                    $amount = $amount - $discount['amount'];
-                }
-            }
 
             try {
                 // Validate, create and update the customer in conekta
+
+                if (!HelperGateway::validateItems($items)) {
+                    $this->context->smarty->assign(
+                        array(
+                            'message' =>  'El carrito posee productos del tipo "suscripción" y'
+                            . ' "no suscripción", estos no pueden comprarse juntos, o posee distintas'
+                            . ' suscripciones en el carrito, solo puede comprar una suscripción por compra.'
+                            . ' Por favor, revise los productos en el carrito.',
+                        )
+                    );
+                    return false;
+                }
+
+                if (!HelperGateway::validateAmounts($items, $amount)) {
+                    $this->context->smarty->assign(
+                        array(
+                            'message' =>  'El monto total del carrito no coincide con el del'
+                            . ' plan que se pretende pagar',
+                        )
+                    );
+                    return false;
+                }
 
                 $cust_db = Database::getConektaMetadata(
                     $customerPrestashop->id,
@@ -773,7 +850,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 }
 
                 if (empty($cust_db['meta_value'])) {
-                    $customerConekta = \conekta\Customer::create($customerInfo);
+                    $customerConekta = \Conekta\Customer::create($customerInfo);
                     $customerConekta_id = $customerConekta->id;
                     Database::updateConektaMetadata(
                         $customerPrestashop->id,
@@ -788,6 +865,21 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 }
 
                 $order_details['customer_info'] = array("customer_id" => $customerConekta_id);
+
+                $order_details['checkout'] = array_merge(
+                    $order_details['checkout'],
+                    HelperGateway::generateCheckout($items, $payment_options)
+                );
+
+                if (in_array('cash', $payment_options)) {
+                    $order_details['checkout']["expires_at"] = time() +
+                    (Configuration::get('EXPIRATION_DATE_LIMIT') *
+                        (Configuration::get('EXPIRATION_DATE_TYPE') == 0 ?
+                            86400
+                            : 3600
+                        )
+                    );
+                }
 
                 // Validate, create and update the order in Conekta
 
@@ -849,7 +941,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                         true
                     );
                 }
-    
+
                 $message = $e->getMessage() . ' ';
 
                 $this->context->smarty->assign("message", $message);
@@ -940,19 +1032,6 @@ class ConektaPaymentsPrestashop extends PaymentModule
             array_push($payment_options, $this->getConektaPaymentOption());
         }
         return $payment_options;
-    }
-
-    /**
-     * Remove special character
-     *
-     * @param string $param character string
-     *
-     * @return string
-     */
-    public function removeSpecialCharacter($param)
-    {
-        $param =  str_replace(['#', '-', '_', '.', '/', '(', ')', '[', ']', '!', '¡', '%'], ' ', $param);
-        return $param;
     }
 
     /**
@@ -1882,7 +1961,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
      *
      * @return boolean
      */
-    public function checkedFields($phone = null, $order_details = null, $amount = null)
+    public function checkedFields($phone = null, $order_details = null)
     {
         if (!empty($phone)) {
             if (strpos($phone, '+') !== false) {
@@ -1913,9 +1992,15 @@ class ConektaPaymentsPrestashop extends PaymentModule
         }
 
         if (!empty($order_details)) {
-            if ($order_details['currency'] == 'MXN' && $amount < $this->amount_min) {
+            $amount_items = 0;
+
+            foreach ($order_details['line_items'] as $item) {
+                $amount_items = $amount_items + ($item['quantity'] * $item['unit_price']);
+            }
+
+            if ($order_details['currency'] == 'MXN' && $amount_items < $this->amount_min) {
                 return $this->trans(
-                    'The minimum purchase amount with Conekta must be greater than $ 20.00',
+                    'The minimum purchase amount with Conekta must be greater than $ 20.00 + taxes ',
                     array(),
                     'Modules.ConektaPaymentsPrestashop.Admin'
                 );
@@ -2108,9 +2193,24 @@ class ConektaPaymentsPrestashop extends PaymentModule
         // $cart = $this->context->cart;
         try {
             $order = \Conekta\Order::find($conektaOrderId);
-            $charge_response = $order->charges[0];
-            $order_status = (int) Configuration::get('PS_OS_PAYMENT');
 
+            if (!isset($order->charges[0]) && empty($order->charges[0])) {
+                if (isset($order->checkout['plan_id'])) {
+                    $charge_response = (object) array(
+                        'id' => '',
+                        'status' => $order->status,
+                        'created_at' => $order->created_at,
+                        'currency' => $order->currency,
+                        'livemode' => $order->livemode,
+                        'amount' => $order->amount,
+                    );
+                } else {
+                    return false;
+                }
+            } else {
+                $charge_response = $order->charges[0];
+            }
+            $order_status = (int) Configuration::get('PS_OS_PAYMENT');
             $message = $this->l('Conekta Transaction Details:')
             . "\n\n" . $this->l('Amount:')
             . ' ' . ($charge_response->amount * 0.01)
@@ -2134,7 +2234,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 false,
                 $this->context->customer->secure_key
             );
-
+            
             if (version_compare(_PS_VERSION_, '1.5', '>=')) {
                 $new_order = new Order((int) $this->currentOrder);
                 if (Validate::isLoadedObject($new_order)) {
@@ -2145,7 +2245,11 @@ class ConektaPaymentsPrestashop extends PaymentModule
                     }
                 }
             }
-            if (isset($charge_response->id) && Tools::strtolower($charge_response->payment_method->type) == "oxxo") {
+
+            if (isset($charge_response->id)
+            && !empty($charge_response->id)
+            && Tools::strtolower($charge_response->payment_method->type) == "oxxo"
+            ) {
                 Database::insertOxxoPayment(
                     $order,
                     $charge_response,
@@ -2154,6 +2258,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                     $this->context->cart->id
                 );
             } elseif (isset($charge_response->id)
+            && !empty($charge_response->id)
             && Tools::strtolower($charge_response->payment_method->type) == "spei"
             ) {
                 Database::insertSpeiPayment(
@@ -2163,7 +2268,10 @@ class ConektaPaymentsPrestashop extends PaymentModule
                     $this->currentOrder,
                     $this->context->cart->id
                 );
-            } elseif (isset($charge_response->id)) {
+            } elseif ((isset($charge_response->id)
+            && !empty($charge_response->id))
+            || isset($order->checkout['plan_id'])
+            ) {
                 Database::insertCardPayment(
                     $order,
                     $charge_response,
@@ -2176,7 +2284,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 $this->context->cart->id,
                 $this->conekta_mode,
                 $order->id,
-                $order->charges[0]->status
+                $charge_response->status
             );
 
             $redirect = $this->context->link->getPageLink(

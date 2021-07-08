@@ -145,6 +145,28 @@ class Database
     }
 
     /**
+     * Create table ps_conekta_product_data
+     *
+     * @return boolean
+     */
+    public static function createTableProductData()
+    {
+        $table = _DB_PREFIX_."conekta_product_data";
+        $sql = "CREATE TABLE IF NOT EXISTS $table (
+            id_conekta_product_data int(11) NOT NULL AUTO_INCREMENT,
+            id_product int(11) unsigned NOT NULL,
+            product_attribute varchar(32) NOT NULL,
+            product_value varchar(128) NOT NULL,
+            PRIMARY KEY (id_conekta_product_data),
+            KEY id_product (id_product),
+            KEY id_conekta_product_data (id_conekta_product_data)
+            )
+            ENGINE=". _MYSQL_ENGINE_ . "DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;";
+
+        return (Db::getInstance()->execute($sql));
+    }
+
+    /**
      * Create table ps_conekta_order_checkout
      *
      * @return boolean
@@ -262,6 +284,40 @@ class Database
     }
 
     /**
+     * Returns the product information
+     *
+     * @param int    $id_product        Product ID
+     * @param string $product_attribute Attribute of the product
+     *
+     * @return array|string
+     */
+    public static function getConektaProductData($id_product, $product_attribute)
+    {
+        $table = _DB_PREFIX_."conekta_product_data";
+
+        $sql = "SELECT product_value FROM  $table WHERE id_product = '{$id_product}' "
+        . "AND product_attribute = '{$product_attribute}' ";
+
+        return  Db::getInstance()->getRow($sql);
+    }
+
+    /**
+     * Returns the ID of products
+     *
+     * @param string $product_value Plan key
+     *
+     * @return array|string
+     */
+    public static function getProductIdProductData($product_value)
+    {
+        $table = _DB_PREFIX_."conekta_product_data";
+
+        $sql = "SELECT id_product FROM $table WHERE product_value = '{$product_value}'";
+
+        return  Db::getInstance()->ExecuteS($sql);
+    }
+
+    /**
      * Save or update value.
      *
      * @param int    $user_id      User ID
@@ -284,6 +340,65 @@ class Database
             . "AND `mode` = '{$mode}'";
         }
         return Db::getInstance()->Execute($sql);
+    }
+
+    /**
+     * Save or update value.
+     *
+     * @param int    $id_product        User ID
+     * @param string $product_attribute Mode (Production or Test)
+     * @param string $product_value     Metadata option to save
+     *
+     * @return boolean
+     */
+    public static function updateConektaProductData($id_product, $product_attribute, $product_value)
+    {
+        $table = _DB_PREFIX_."conekta_product_data";
+
+        if (empty(self::getConektaProductData($id_product, $product_attribute))) {
+            $sql = "INSERT INTO $table(id_product, product_attribute, product_value) "
+            . "VALUES ('{$id_product}','{$product_attribute}','{$product_value}')";
+        } else {
+            $sql ="UPDATE $table SET product_value = '{$product_value}' "
+            . "WHERE id_product = '{$id_product}' AND product_attribute = '{$product_attribute}' ";
+        }
+        return Db::getInstance()->Execute($sql);
+    }
+
+    /**
+     * Return if the product is a subscription
+     *
+     * @param int    $id_product        User ID
+     *
+     * @return boolean
+     */
+    public static function isProductSubscription($id_product)
+    {
+        $table = _DB_PREFIX_."conekta_product_data";
+
+        $sql = "SELECT product_value FROM  $table WHERE id_product = '{$id_product}' "
+        . "AND product_attribute = 'is_subscription' ";
+
+        $result = Db::getInstance()->getValue($sql);
+
+        return ($result == "true");
+    }
+
+    /**
+     * Return the ID plan
+     *
+     * @param int    $id_product        User ID
+     *
+     * @return string
+     */
+    public static function getIdPlan($id_product)
+    {
+        $table = _DB_PREFIX_."conekta_product_data";
+
+        $sql = "SELECT product_value FROM  $table WHERE id_product = '{$id_product}' "
+        . "AND product_attribute = 'subscription_plan' ";
+
+        return  Db::getInstance()->getValue($sql);
     }
 
     /**
