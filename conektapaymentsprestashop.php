@@ -746,21 +746,6 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 }
             }
 
-            $checkout = [
-                "type" => 'Integration',
-                "allowed_payment_methods" => $payment_options,
-                "monthly_installments_enabled" => !empty($allowed_installments),
-                "monthly_installments_options" => $allowed_installments,
-                "on_demand_enabled" => $on_demand_enabled,
-                "force_3ds_flow" => Configuration::get('CONEKTA_MODE') ? $force_3ds : false
-            ];
-
-            if (in_array('cash', $payment_options)) {
-                $checkout["expires_at"] = time() +
-                (Configuration::get('EXPIRATION_DATE_LIMIT') *
-                (Configuration::get('EXPIRATION_DATE_TYPE') == 0 ? 86400 : 3600));
-            }
-
             $order_details = [
                 'currency' => $this->context->currency->iso_code,
                 'line_items' => Config::getLineItems($items),
@@ -777,6 +762,8 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 ],
                 'checkout' => [
                     "type" => 'Integration',
+                    "monthly_installments_enabled" => !empty($allowed_installments),
+                    "monthly_installments_options" => $allowed_installments,
                     "on_demand_enabled" => $on_demand_enabled,
                     "force_3ds_flow" => Configuration::get('CONEKTA_MODE') ? $force_3ds : false,
                 ]
