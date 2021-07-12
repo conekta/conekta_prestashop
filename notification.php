@@ -72,7 +72,7 @@ if ($event_json->type == 'order.paid' && isset($event_json->data)) {
             Db::getInstance()->Execute(
                 'UPDATE ' . _DB_PREFIX_
                 .'conekta_transaction SET status = "paid"' . $addIdTransaction . ' WHERE id_order = '
-                . pSQL('411')
+                . pSQL($id_order)
             );
         }
     }
