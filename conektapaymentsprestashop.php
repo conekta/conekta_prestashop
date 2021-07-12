@@ -712,11 +712,11 @@ class ConektaPaymentsPrestashop extends PaymentModule
             if (Configuration::get('3DS_FORCE')) {
                 $force_3ds = true;
             }
-           
-            $taxlines = Config::getTaxLines($items);
             
             $allowed_installments = array();
-            if ($this->installments_enabled && $this->paymnt_method_card && HelperGateway::validateItemsProduct($items)) {
+            if ($this->installments_enabled
+            && $this->paymnt_method_card
+            && HelperGateway::validateItemsProduct($items)) {
                 $total = (float) $this->context->cart->getOrderTotal(true, Cart::BOTH);
                 foreach (array(3, 6, 9, 12, 18) as $month) {
                     if (!empty($this->installments_minimum)) {
