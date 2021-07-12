@@ -716,7 +716,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
             $taxlines = Config::getTaxLines($items);
             
             $allowed_installments = array();
-            if ($this->installments_enabled && $this->paymnt_method_card) {
+            if ($this->installments_enabled && $this->paymnt_method_card && HelperGateway::validateItemsProduct($items)) {
                 $total = (float) $this->context->cart->getOrderTotal(true, Cart::BOTH);
                 foreach (array(3, 6, 9, 12, 18) as $month) {
                     if (!empty($this->installments_minimum)) {
@@ -745,6 +745,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                     }
                 }
             }
+            var_dump($payment_options);
 
             $order_details = [
                 'currency' => $this->context->currency->iso_code,
