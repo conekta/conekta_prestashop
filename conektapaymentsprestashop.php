@@ -745,7 +745,6 @@ class ConektaPaymentsPrestashop extends PaymentModule
                     }
                 }
             }
-            var_dump($payment_options);
 
             $order_details = [
                 'currency' => $this->context->currency->iso_code,
