@@ -24,11 +24,27 @@
 *  International Registered Trademark & Property of PrestaShop SA
 */
 
+function manageInstallments() {
+    let enabled = $("#INSTALLMENTS_ENABLED").is(":checked")
+    let elements = $(".checkbox > label[for^='INSTALLMENTS_'][for$='_MONTHS']").parent()
+    let minimum = $("#INSTALLMENTS_MINIMUM").parent().parent();
+    if( enabled ) {
+        elements.removeClass( "hidden" )
+        minimum.removeClass( "hidden" )
+    } else {
+        elements.addClass( "hidden" )
+        minimum.addClass( "hidden" )
+    }
+}
+
 $(document).ready(function() {
     //initial state
     $("#EXPIRATION_DATE_TYPE_DAYS").prop( "disabled", !$("#PAYMENT_METHS_CASH").is(":checked"));
     $("#EXPIRATION_DATE_TYPE_HOURS").prop( "disabled", !$("#PAYMENT_METHS_CASH").is(":checked") );
     $("#EXPIRATION_DATE_LIMIT").prop( "disabled", !$("#PAYMENT_METHS_CASH").is(":checked") );
+    manageInstallments();
+    
+    $("#INSTALLMENTS_ENABLED").change(manageInstallments);
 
     //onchange value
     $("#PAYMENT_METHS_CASH").change(function() {
