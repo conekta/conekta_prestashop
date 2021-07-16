@@ -268,9 +268,9 @@ class ConektaPaymentsPrestashop extends PaymentModule
         \Conekta\Conekta::setPluginVersion($this->version);
         \Conekta\Conekta::setLocale($iso_code);
 
-        if (!empty(filter_input(INPUT_GET, 'conektaOrdenID'))) {
+        if (!empty(filter_input(INPUT_POST, 'conektaOrdenID'))) {
             try {
-                $order = \Conekta\Order::find(filter_input(INPUT_GET, 'conektaOrdenID'));
+                $order = \Conekta\Order::find(filter_input(INPUT_POST, 'conektaOrdenID'));
                 $params['order']->reference = $order->metadata['reference_id'];
                 return true;
             } catch (\Exception $e) {
