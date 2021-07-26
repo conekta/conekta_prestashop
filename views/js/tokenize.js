@@ -82,4 +82,16 @@ $(document).ready (function($) {
 			alert("Pago declinado.")
 		}
 	})
+
+	var paymentOption = document.querySelectorAll('input[data-module-name="conektapaymentsprestashop"]')[0];
+
+	$("input[name=payment-option]").click(function () {
+		if (paymentOption.checked) {
+			$('#payment-confirmation').find('button').hide()
+			$('#conditions-to-approve').hide();
+		} else {
+			$('#payment-confirmation').find('button').show()
+			$('#conditions-to-approve').show();
+		}
+	});
 });
