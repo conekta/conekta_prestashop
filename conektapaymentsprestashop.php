@@ -314,6 +314,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
         && Db::getInstance()->Execute(
             'DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'conekta_product_data`'
         );
+        return $this->fetchTemplate('product-subscription.tpl');
     }
 
     public function hookActionProductSave($params)
