@@ -31,7 +31,7 @@
   <div class="conekta-payment-errors" style="display:block;">{$smarty.get.message|escape:'htmlall':'UTF-8'}</div>
 {/if}
 
-<form action="{$action|escape:'htmlall':'UTF-8'}" id="conekta-payment-form">
+<form action="{$action|escape:'htmlall':'UTF-8'}" id="conekta-payment-form" method="post">
 
   {if isset($smarty.get.conekta_error)}
     <div class="conekta-payment-errors">

@@ -268,9 +268,9 @@ class ConektaPaymentsPrestashop extends PaymentModule
         \Conekta\Conekta::setPluginVersion($this->version);
         \Conekta\Conekta::setLocale($iso_code);
 
-        if (!empty(filter_input(INPUT_GET, 'conektaOrdenID'))) {
+        if (!empty(filter_input(INPUT_POST, 'conektaOrdenID'))) {
             try {
-                $order = \Conekta\Order::find(filter_input(INPUT_GET, 'conektaOrdenID'));
+                $order = \Conekta\Order::find(filter_input(INPUT_POST, 'conektaOrdenID'));
                 $params['order']->reference = $order->metadata['reference_id'];
                 return true;
             } catch (\Exception $e) {
@@ -937,9 +937,11 @@ class ConektaPaymentsPrestashop extends PaymentModule
         if (isset($order)) {
             $this->smarty->assign("orderID", $order->id);
             $this->smarty->assign("checkoutRequestId", $order->checkout['id']);
+            $this->smarty->assign("amount", $amount);
         } else {
             $this->smarty->assign("checkoutRequestId", "");
             $this->smarty->assign("orderID", "");
+            $this->smarty->assign("amount", "");
         }
         return $this->fetchTemplate("hook-header.tpl");
     }
@@ -2166,7 +2168,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
      *
      * @return string link redirect
      */
-    public function processPayment($conektaOrderId)
+    public function processPayment($order)
     {
         $key = Configuration::get('CONEKTA_MODE') ?
             Configuration::get('CONEKTA_PRIVATE_KEY_LIVE') : Configuration::get('CONEKTA_PRIVATE_KEY_TEST');
@@ -2179,24 +2181,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
         \Conekta\Conekta::setLocale($iso_code);
         // $cart = $this->context->cart;
         try {
-            $order = \Conekta\Order::find($conektaOrderId);
-
-            if (!isset($order->charges[0]) && empty($order->charges[0])) {
-                if (isset($order->checkout['plan_id'])) {
-                    $charge_response = (object) array(
-                        'id' => '',
-                        'status' => $order->status,
-                        'created_at' => $order->created_at,
-                        'currency' => $order->currency,
-                        'livemode' => $order->livemode,
-                        'amount' => $order->amount,
-                    );
-                } else {
-                    return false;
-                }
-            } else {
-                $charge_response = $order->charges[0];
-            }
+            $charge_response = $order->charges;
             $order_status = (int) Configuration::get('PS_OS_PAYMENT');
             $message = $this->l('Conekta Transaction Details:')
             . "\n\n" . $this->l('Amount:')
@@ -2251,13 +2236,13 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 Database::insertSpeiPayment(
                     $order,
                     $charge_response,
-                    $charge_response->payment_method->clabe,
+                    $charge_response->payment_method->reference,
                     $this->currentOrder,
                     $this->context->cart->id
                 );
             } elseif ((isset($charge_response->id)
             && !empty($charge_response->id))
-            || isset($order->checkout['plan_id'])
+            || isset($order->plan_id)
             ) {
                 Database::insertCardPayment(
                     $order,
