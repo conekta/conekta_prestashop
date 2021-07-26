@@ -59,10 +59,29 @@ class ConektaPaymentsPrestashopValidationModuleFrontController extends ModuleFro
             if (!Validate::isLoadedObject($customer)) {
                 Tools::redirect('index.php?controller=order&step=1');
             }
-            
-            $conektaOrderId = pSQL(Tools::getValue('conektaOrdenID'));
-            
-            $conekta->processPayment($conektaOrderId);
+
+            $date = new DateTime();
+
+            $order = (object) array(
+                'id' => pSQL(Tools::getValue('conektaOrdenID')),
+                'amount' => pSQL(Tools::getValue('conektAmount')),
+                'charges' => (object) array(
+                    'id' => pSQL(Tools::getValue('chargeId')),
+                    'created_at' => pSQL(Tools::getValue('createAt'))?
+                        pSQL(Tools::getValue('createAt')) : $date->getTimestamp(),
+                    'amount' => pSQL(Tools::getValue('conektAmount')),
+                    'status' => pSQL(Tools::getValue('charge_status')),
+                    'currency' => pSQL(Tools::getValue('charge_currency')),
+                    'livemode' => Configuration::get('CONEKTA_MODE'),
+                    'payment_method' => (object) array(
+                        'type' => pSQL(Tools::getValue('payment_type')),
+                        'reference' => pSQL(Tools::getValue('reference'))
+                    ),
+                ),
+                'plan_id' => pSQL(Tools::getValue('plan_id'))
+            );
+
+            $conekta->processPayment($order);
             
             $this->setTemplate('module:conektapaymentsprestashop/views/templates/front/payment_return.tpl');
         }
