@@ -18,13 +18,13 @@
 */
 class Config
 {
-    public static function getLineItems($items = '')
+    public static function getLineItems($items = array())
     {
         $lineItems = array();
         foreach ($items as $item) {
             $lineItems = array_merge($lineItems, array(
                 array(
-                    'name'        => $item['name'],
+                    'name'        => self::removeSpecialCharacter($item['name']),
                     'unit_price'  => (int)((float)$item['price'] * 100),
                     'quantity'    => (int)$item['cart_quantity'],
                     'tags'        => array("prestashop")
@@ -34,7 +34,7 @@ class Config
             if (Tools::strlen($item['reference']) > 0) {
                 array_merge($lineItems, array(
                     array(
-                        'sku' => $item['reference']
+                        'sku' => self::removeSpecialCharacter($item['reference'])
                         )
                     ));
             }
@@ -42,7 +42,7 @@ class Config
             if (Tools::strlen($item['description_short']) > 2) {
                 array_merge($lineItems, array(
                     array(
-                        'description' => $item['reference']
+                        'description' => self::removeSpecialCharacter($item['description_short'])
                         )
                     ));
             }
@@ -51,7 +51,7 @@ class Config
         return $lineItems;
     }
 
-    public static function getTaxLines($items = '')
+    public static function getTaxLines($items = array())
     {
         $tax_lines = array();
         foreach ($items as $item) {
@@ -59,7 +59,7 @@ class Config
             if (!empty($item['tax_name'])) {
                 $tax_lines = array_merge($tax_lines, array(
                     array(
-                        'description' => $item['tax_name'],
+                        'description' => self::removeSpecialCharacter($item['tax_name']),
                         'amount'      => $tax
                         )
                     ));
@@ -78,7 +78,7 @@ class Config
                     $discount_lines,
                     array(
                         array(
-                            'code' => (string) $discount['name'],
+                            'code' => self::removeSpecialCharacter((string) $discount['name']),
                             'amount' => str_replace(',', '', number_format(($discount['value_real'] * 100))),
                             'type'=>'coupon'
                         )
@@ -95,23 +95,23 @@ class Config
         $shipping_lines = array(
             array(
                 "amount"          => $shipping_price,
-                "tracking_number" => $shipping_service,
-                "carrier"         => $shipping_carrier,
-                "method"          => $shipping_service
+                "tracking_number" => self::removeSpecialCharacter($shipping_service),
+                "carrier"         => self::removeSpecialCharacter($shipping_carrier),
+                "method"          => self::removeSpecialCharacter($shipping_service)
                 )
             );
 
         return $shipping_lines;
     }
 
-    public static function getShippingContact($customer = '', $address_delivery = '', $state = '', $country = '')
+    public static function getShippingContact($customer, $address_delivery, $state, $country)
     {
         $shipping_contact = array(
-            "receiver" => $customer->firstname . " " . $customer->lastname,
-            "phone"    => $address_delivery->phone,
+            "receiver" => self::removeSpecialCharacter($customer->firstname . " " . $customer->lastname),
+            "phone"    => self::sanitizePhoneNumber($address_delivery->phone),
             "address"  => array(
-                "street1"     => $address_delivery->address1,
-                "city"        => $address_delivery->city,
+                "street1"     => self::removeSpecialCharacter($address_delivery->address1),
+                "city"        => self::removeSpecialCharacter($address_delivery->city),
                 "state"       => $state,
                 "country"     => $country,
                 "postal_code" => $address_delivery->postcode
@@ -122,15 +122,25 @@ class Config
         return $shipping_contact;
     }
 
-    public static function getCustomerInfo($customer = '', $address_delivery = '')
+    public static function getCustomerInfo($customer, $address_delivery)
     {
         $customer_info = array(
-            "name"     => $customer->firstname . " " . $customer->lastname,
-            "phone"    => $address_delivery->phone,
+            "name"     => self::removeSpecialCharacter($customer->firstname . " " . $customer->lastname),
+            "phone"    => self::sanitizePhoneNumber($address_delivery->phone),
             "email"    => $customer->email,
             "metadata" => array("soft_validations" => true)
             );
 
         return $customer_info;
+    }
+
+    public static function sanitizePhoneNumber($number)
+    {
+        return empty($number) ? "" : preg_replace("/[^0-9 ]/", "", $number);
+    }
+
+    public static function removeSpecialCharacter($param)
+    {
+        return preg_replace("/[^0-9a-zA-ZáéíóúüÁÉÍÓÚÜ ]/u", "", $param);
     }
 }

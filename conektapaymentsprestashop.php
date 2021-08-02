@@ -752,10 +752,10 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 'line_items' => Config::getLineItems($items),
                 'customer_info' => array(),
                 'discount_lines' => Config::getDiscountLines($discounts),
-                'shipping_lines' => HelperGateway::addShippingLines($shippingLines),
+                'shipping_lines' => $shippingLines,
                 'shipping_contact' => $shippingContact,
                 'pre_authorize' => $pre_authorize,
-                'tax_lines' => HelperGateway::addTaxLines(Config::getTaxLines($items)),
+                'tax_lines' => Config::getTaxLines($items),
                 'metadata' => [
                     "plugin" => "Prestashop",
                     "plugin_version" => _PS_VERSION_,
@@ -1954,21 +1954,9 @@ class ConektaPaymentsPrestashop extends PaymentModule
     public function checkedFields($phone = null, $order_details = null)
     {
         if (!empty($phone)) {
-            if (strpos($phone, '+') !== false) {
-                return $this->trans(
-                    'The phone number must not contain "+"',
-                    array(),
-                    'Modules.ConektaPaymentsPrestashop.Admin'
-                );
-            } elseif (Tools::strlen($phone) != 10) {
+            if (Tools::strlen($phone) != 10) {
                 return $this->trans(
                     'The field Phone must be a string with a maximum length of 10. (Example: 52XXXXXXXX)',
-                    array(),
-                    'Modules.ConektaPaymentsPrestashop.Admin'
-                );
-            } elseif (!is_numeric($phone)) {
-                return $this->trans(
-                    'The Phone field is not a valid phone number',
                     array(),
                     'Modules.ConektaPaymentsPrestashop.Admin'
                 );

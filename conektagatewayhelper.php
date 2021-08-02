@@ -35,63 +35,6 @@ class HelperGateway
 {
 
     /**
-     * Add tax lines
-     *
-     * @param array $taxlines Tax of the Order
-     *
-     * @return array
-     */
-    public static function addTaxLines($taxlines = null)
-    {
-        $tax_lines = array(
-            'tax_lines' => array()
-        );
-
-        if (isset($taxlines)) {
-            foreach ($taxlines as $tax) {
-                array_push(
-                    $tax_lines['tax_lines'],
-                    array (
-                        'description' => HelperGateway::removeSpecialCharacter($tax['description']),
-                        'amount' => $tax['amount']
-                    )
-                );
-            }
-        }
-
-        return $tax_lines['tax_lines'];
-    }
-
-    /**
-     * Add Shipping lines
-     *
-     * @param array $shippingLines Shipping of the Order
-     *
-     * @return array
-     */
-    public static function addShippingLines($shippingLines = null)
-    {
-        $shippingLinesArray = array(
-            'shipping_lines' => array()
-        );
-        
-        if (isset($shippingLines)) {
-            foreach ($shippingLines as $shipping) {
-                array_push(
-                    $shippingLinesArray['shipping_lines'],
-                    array (
-                        'amount' => $shipping['amount'],
-                        'tracking_number' => HelperGateway::removeSpecialCharacter($shipping['tracking_number']),
-                        'carrier' => HelperGateway::removeSpecialCharacter($shipping['carrier']),
-                        'method' => HelperGateway::removeSpecialCharacter($shipping['method'])
-                    )
-                );
-            }
-        }
-        return $shippingLinesArray['shipping_lines'];
-    }
-
-    /**
      * Calculate amount total of the Order
      *
      * @param array $order_details Order details
@@ -202,19 +145,6 @@ class HelperGateway
         }
 
         return $non_subscription;
-    }
-
-    /**
-     * Remove special character
-     *
-     * @param string $param character string
-     *
-     * @return string
-     */
-    public static function removeSpecialCharacter($param)
-    {
-        $param =  str_replace(['#', '-', '_', '.', '/', '(', ')', '[', ']', '!', '¡', '%'], ' ', $param);
-        return $param;
     }
 
     /**
