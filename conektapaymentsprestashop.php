@@ -302,6 +302,9 @@ class ConektaPaymentsPrestashop extends PaymentModule
         && Configuration::deleteByName('CONEKTA_WEBHOOK_FAILED_ATTEMPTS')
         && Configuration::deleteByName('CONEKTA_WEBHOOK_ERROR_MESSAGE')
         && Configuration::deleteByName('CONEKTA_WEBHOOK_FAILED_URL')
+        && $this->deleteCustomStates()
+        && Configuration::deleteByName('waiting_cash_payment')
+        && Configuration::deleteByName('waiting_spei_payment')
         && Db::getInstance()->Execute(
             'DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'conekta_transaction`'
         )
@@ -605,6 +608,28 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 closedir($dhvalue);
             }
         } else {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Deletes custom order states
+     *
+     * @return boolean
+     */
+    public function deleteCustomStates()
+    {
+        try{
+            $states = array( 
+                Configuration::get('waiting_cash_payment'),
+                Configuration::get('waiting_spei_payment')
+            );
+            foreach ($states as $state_id) {
+                $state = new OrderState($state_id);
+                $state->delete();
+            }
+        } catch (Exception $e) {
             return false;
         }
         return true;
@@ -2171,7 +2196,17 @@ class ConektaPaymentsPrestashop extends PaymentModule
         // $cart = $this->context->cart;
         try {
             $charge_response = $order->charges;
-            $order_status = (int) Configuration::get('PS_OS_PAYMENT');
+            if (Tools::strtolower($charge_response->payment_method->type) == "spei") {
+                $order_status              = (int) Configuration::get('waiting_spei_payment');
+                $checkout                  = Module::getInstanceByName('conektapaymentsprestashop');
+                $checkout->extra_mail_vars = array( '{receiving_account_number}' => (string) $charge_response->payment_method->reference );
+            } elseif (Tools::strtolower($charge_response->payment_method->type) == "oxxo") {
+                $order_status = (int) Configuration::get('waiting_cash_payment');
+                $checkout     = Module::getInstanceByName('conektapaymentsprestashop');
+                $checkout->extra_mail_vars = array( '{barcode}' => (string) $charge_response->payment_method->reference );
+            } else {
+                $order_status = (int) Configuration::get('PS_OS_PAYMENT');
+            }
             $message = $this->l('Conekta Transaction Details:')
             . "\n\n" . $this->l('Amount:')
             . ' ' . ($charge_response->amount * 0.01)
