@@ -33,6 +33,7 @@ if (!defined('_PS_VERSION_')) {
 define("METADATA_LIMIT", 12);
 define("CANCELLED_ID", 6);
 define("REFUNDED_ID", 7);
+define("MAXIMUM_OXXO_PAYMENT", 10000);
 
 /**
  * ConektaPaymentsPrestashop Class Doc Comment
@@ -683,7 +684,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
             array_push($payment_options, 'bank_transfer');
         }
 
-        if (Configuration::get('PAYMENT_METHS_CASH')) {
+        if (Configuration::get('PAYMENT_METHS_CASH') && $cart->getOrderTotal() <= MAXIMUM_OXXO_PAYMENT) {
             array_push($payment_options, 'cash');
         }
 
