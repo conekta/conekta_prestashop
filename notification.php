@@ -23,6 +23,7 @@
 require_once dirname(__FILE__) . '/../../config/config.inc.php';
 require_once dirname(__FILE__) . '/../../init.php';
 require_once dirname(__FILE__) . '/model/Database.php';
+require_once dirname(__FILE__) . '/log.php';
 
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -39,6 +40,9 @@ define("ORDER_REFUNDED", 7);
 $body = Tools::file_get_contents('php://input');
 authenticateEvent($body, filter_input(INPUT_SERVER, 'HTTP_DIGEST'));
 $event_json = Tools::jsonDecode($body);
+
+DebugConekta::log($event_json, TYPE_NOTICE);
+
 if ($event_json->type == 'order.paid' && isset($event_json->data)) {
     $conekta_order = $event_json->data->object;
     

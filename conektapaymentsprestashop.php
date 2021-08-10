@@ -24,6 +24,7 @@ use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
 require_once dirname(__FILE__) . '/model/Config.php';
 require_once dirname(__FILE__) . '/model/Database.php';
 require_once dirname(__FILE__) . '/conektagatewayhelper.php';
+require_once dirname(__FILE__) . '/log.php';
 require_once dirname(__FILE__) . '/lib/conekta-php/lib/Conekta.php';
 
 if (!defined('_PS_VERSION_')) {
@@ -102,7 +103,8 @@ class ConektaPaymentsPrestashop extends PaymentModule
             'LIVE_PUBLIC_KEY',
             'PRE_AUTHORIZE_CONEKTA',
             'CHARGE_ON_DEMAND_ENABLE',
-            '3DS_FORCE'
+            '3DS_FORCE',
+            'CONEKTA_DEBUG'
         );
         $order_elements = array_keys(get_class_vars('Cart'));
         foreach ($order_elements as $element) {
@@ -126,6 +128,11 @@ class ConektaPaymentsPrestashop extends PaymentModule
             $this->mode = $config['MODE'];
             $this->conekta_mode = ($this->mode) ? 'live' : 'test';
         }
+
+        if (isset($config['CONEKTA_DEBUG'])) {
+            $this->conekta_debug = $config['CONEKTA_DEBUG'];
+        }
+
         if (isset($config['WEB_HOOK'])) {
             $this->web_hook = $config['WEB_HOOK'];
         }
@@ -237,6 +244,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
             && Configuration::updateValue('INSTALLMENTS_ENABLED', 1)
             && Configuration::updateValue('PAYMENT_METHS_CASH', 1)
             && Configuration::updateValue('PAYMENT_METHS_SPEI', 1)
+            && Configuration::updateValue('CONEKTA_DEBUG', 0)
             && Configuration::updateValue('MODE', 0) || !Database::installDb()
             || !Database::createTableConektaOrder()
             || !Database::createTableMetaData()
@@ -275,7 +283,13 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 $params['order']->reference = $order->metadata['reference_id'];
                 return true;
             } catch (\Exception $e) {
-                return false;
+                ob_start();
+                debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+                $trace = ob_get_contents();
+                ob_end_clean();
+
+                DebugConekta::log($e->getMessage(), TYPE_ERROR);
+                DebugConekta::log($trace, TYPE_ERROR);
             }
         }
     }
@@ -318,7 +332,6 @@ class ConektaPaymentsPrestashop extends PaymentModule
         && Db::getInstance()->Execute(
             'DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'conekta_product_data`'
         );
-        return $this->fetchTemplate('product-subscription.tpl');
     }
 
     public function hookActionProductSave($params)
@@ -542,7 +555,14 @@ class ConektaPaymentsPrestashop extends PaymentModule
                             Tools::copy($new_html_file, $html_folder);
                             Tools::copy($new_txt_file, $txt_folder);
                         } catch (\Exception $e) {
+                            ob_start();
+                            debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+                            $trace = ob_get_contents();
+                            ob_end_clean();
+                            
                             $error_copy = $e->getMessage() . ' ';
+                            DebugConekta::log($error_copy, TYPE_ERROR);
+                            DebugConekta::log($trace, TYPE_ERROR);
                             if (class_exists('Logger')) {
                                 Logger::addLog(json_encode($error_copy), 1, null, null, null, true);
                             }
@@ -599,7 +619,14 @@ class ConektaPaymentsPrestashop extends PaymentModule
                             Tools::copy($new_html_file, $html_folder);
                             Tools::copy($new_txt_file, $txt_folder);
                         } catch (\Exception $e) {
+                            ob_start();
+                            debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+                            $trace = ob_get_contents();
+                            ob_end_clean();
+
                             $error_copy = $e->getMessage() . ' ';
+                            DebugConekta::log($error_copy, TYPE_ERROR);
+                            DebugConekta::log($trace, TYPE_ERROR);
                             if (class_exists('Logger')) {
                                 Logger::addLog(json_encode($error_copy), 1, null, null, null, true);
                             }
@@ -621,8 +648,8 @@ class ConektaPaymentsPrestashop extends PaymentModule
      */
     public function deleteCustomStates()
     {
-        try{
-            $states = array( 
+        try {
+            $states = array(
                 Configuration::get('waiting_cash_payment'),
                 Configuration::get('waiting_spei_payment')
             );
@@ -824,7 +851,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
 
             try {
                 // Validate, create and update the customer in conekta
-
+                DebugConekta::log($order_details, TYPE_NOTICE);
                 if (!HelperGateway::validateItems($items)) {
                     $this->context->smarty->assign(
                         array(
@@ -860,8 +887,10 @@ class ConektaPaymentsPrestashop extends PaymentModule
                             'message' =>  $message,
                         )
                     );
+                    DebugConekta::log($message, TYPE_ERROR);
                     return false;
                 }
+                DebugConekta::log($customerInfo, TYPE_NOTICE);
 
                 if (empty($cust_db['meta_value'])) {
                     $customerConekta = \Conekta\Customer::create($customerInfo);
@@ -872,10 +901,12 @@ class ConektaPaymentsPrestashop extends PaymentModule
                         "conekta_customer_id",
                         $customerConekta_id
                     );
+                    DebugConekta::log($customerConekta, TYPE_CREATE_CUSTOMER);
                 } else {
                     $customerConekta_id = $cust_db['meta_value'];
                     $customerConekta = \Conekta\Customer::find($customerConekta_id);
                     $customerConekta->update($customerInfo);
+                    DebugConekta::log($customerConekta, TYPE_UPDATE_CUSTOMER);
                 }
 
                 $order_details['customer_info'] = array("customer_id" => $customerConekta_id);
@@ -915,6 +946,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                             $order->charges[0]->status
                         );
                     }
+                    DebugConekta::log($order, TYPE_UPDATE_ORDER);
                 }
 
                 if (empty($order)) {
@@ -926,12 +958,14 @@ class ConektaPaymentsPrestashop extends PaymentModule
                         $order->id,
                         'unpaid'
                     );
+                    DebugConekta::log($order, TYPE_CREATE_ORDER);
                 } elseif (empty($order->charges[0]->status) || $order->charges[0]->status == 'unpaid') {
                     $order->update([
                         'customer_info' => $customerInfo
                     ]);
                     unset($order_details['customer_info']);
                     $order->update($order_details);
+                    DebugConekta::log($order, TYPE_UPDATE_ORDER);
                 } else {
                     $order = \Conekta\Order::create($order_details);
                     Database::updateConektaOrder(
@@ -941,6 +975,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                         $order->id,
                         'unpaid'
                     );
+                    DebugConekta::log($order, TYPE_CREATE_ORDER);
                 }
             } catch (\Exception $e) {
                 $log_message = $e->getMessage() . ' ';
@@ -955,8 +990,14 @@ class ConektaPaymentsPrestashop extends PaymentModule
                         true
                     );
                 }
+                ob_start();
+                debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+                $trace = ob_get_contents();
+                ob_end_clean();
 
                 $message = $e->getMessage() . ' ';
+                DebugConekta::log($message, TYPE_ERROR);
+                DebugConekta::log($trace, TYPE_ERROR);
 
                 $this->context->smarty->assign("message", $message);
             }
@@ -1279,6 +1320,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
             Configuration::updateValue('PAYEE_NAME', Tools::getValue('PAYEE_NAME'));
             Configuration::updateValue('PAYEE_ADDRESS', Tools::getValue('PAYEE_ADDRESS'));
             Configuration::updateValue('MODE', Tools::getValue('MODE'));
+            Configuration::updateValue('CONEKTA_DEBUG', Tools::getValue('CONEKTA_DEBUG'));
             Configuration::updateValue('WEB_HOOK', Tools::getValue('WEB_HOOK'));
             Configuration::updateValue('PAYMENT_METHS_CARD', Tools::getValue('PAYMENT_METHS_CARD'));
             Configuration::updateValue('INSTALLMENTS_MINIMUM', Tools::getValue('INSTALLMENTS_MINIMUM'));
@@ -1359,6 +1401,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
             'PAYEE_NAME' => Tools::getValue('PAYEE_NAME', Configuration::get('PAYEE_NAME')),
             'PAYEE_ADDRESS' => Tools::getValue('PAYEE_ADDRESS', Configuration::get('PAYEE_ADDRESS')),
             'MODE' => Tools::getValue('MODE', Configuration::get('MODE')),
+            'CONEKTA_DEBUG' => Tools::getValue('CONEKTA_DEBUG', Configuration::get('CONEKTA_DEBUG')),
             'WEB_HOOK' => Tools::getValue('WEB_HOOK', Configuration::get('WEB_HOOK')),
             'PAYMENT_METHS_CARD' => Tools::getValue('PAYMENT_METHS_CARD', Configuration::get('PAYMENT_METHS_CARD')),
             'INSTALLMENTS_MINIMUM' => Tools::getValue(
@@ -1748,13 +1791,60 @@ class ConektaPaymentsPrestashop extends PaymentModule
                         'name' => 'LIVE_PUBLIC_KEY',
                         'required' => true
                     ),
+                )
+            )
+        );
+        return $fields_form_keys;
+    }
+
+    /**
+     * Build the content of debug log
+     *
+     * @return array
+     */
+    public function buildAdminContentDebugLog()
+    {
+        $this->context->controller->addJS($this->_path . 'views/js/functions.js');
+        $fields_form_debug = array(
+            'form' => array(
+                'legend' => array(
+                    'title' => $this->trans('Debug mode', array(), 'Modules.ConektaPaymentsPrestashop.Admin'),
+                    'icon' => 'icon-bug'
+                ),
+                'input' => array(
+                    array(
+                        'type' => 'switch',
+                        'label' => $this->trans('Debug mode', array(), 'Admin.ConektaPaymentsPrestashop.Admin'),
+                        'name' => 'CONEKTA_DEBUG',
+                        'required' => false,
+                        'class' => 't',
+                        'is_bool' => true,
+                        'values' => array(
+                            array(
+                                'id' => 'conekta_debug_on',
+                                'value' => 1,
+                                'label' => $this->trans('Enabled', array(), 'Admin.Global'),
+                            ),
+                            array(
+                                'id' => 'conekta_debug_off',
+                                'value' => 0,
+                                'label' => $this->trans('Disabled', array(), 'Admin.Global'),
+                            ),
+                        ),
+                        'hint' => $this->trans(
+                            'Enable or disable debug mode of Conekta Payments Module.',
+                            array(),
+                            'Admin.Global'
+                        ),
+                    ),
                 ),
                 'submit' => array(
                     'title' => $this->trans('Save All', array(), 'Admin.Actions')
                 )
             )
         );
-        return $fields_form_keys;
+
+        return $fields_form_debug;
     }
 
     /**
@@ -1765,7 +1855,8 @@ class ConektaPaymentsPrestashop extends PaymentModule
     public function renderForm()
     {
         $fields_form           = $this->buildAdminContent();
-        $fields_form_keys       = $this->buildAdminContentKey();
+        $fields_form_keys      = $this->buildAdminContentKey();
+        $fields_form_debug     = $this->buildAdminContentDebugLog();
         $helper                = new HelperForm();
         $helper->show_toolbar  = false;
         $helper->id            = (int) Tools::getValue('id_carrier');
@@ -1777,7 +1868,9 @@ class ConektaPaymentsPrestashop extends PaymentModule
         $helper->tpl_vars      = array( 'fields_value' => $this->getConfigFieldsValues() );
         $this->fields_form = array();
         $this->fields_form_keys = array();
-        return $helper->generateForm(array( $fields_form, $fields_form_keys ));
+        $this->fields_form_debug = array();
+
+        return $helper->generateForm(array( $fields_form, $fields_form_keys, $fields_form_debug ));
     }
 
     /**
@@ -1878,6 +1971,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
         if (Tools::isSubmit('btnSubmit') && Tools::getValue('TEST_PUBLIC_KEY') && Tools::getValue('TEST_PRIVATE_KEY')) {
             $configuration_values = array(
                 'CONEKTA_MODE' => Tools::getValue('MODE'),
+                'CONEKTA_DEBUG' => Tools::getValue('CONEKTA_DEBUG'),
                 'CONEKTA_PUBLIC_KEY_TEST' => rtrim(Tools::getValue('TEST_PUBLIC_KEY')),
                 'CONEKTA_PRIVATE_KEY_TEST' => rtrim(Tools::getValue('TEST_PRIVATE_KEY')),
                 'CONEKTA_CARDS' => rtrim(Tools::getValue('PAYMENT_METHS_CARD')),
@@ -2091,6 +2185,13 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 }
             } catch (\Exception $e) {
                 Configuration::updateValue('CONEKTA_WEBHOOK_ERROR_MESSAGE', $e->getMessage());
+                ob_start();
+                debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+                $trace = ob_get_contents();
+                ob_end_clean();
+
+                DebugConekta::log($e->getMessage(), TYPE_ERROR);
+                DebugConekta::log($trace, TYPE_ERROR);
             }
         } else {
             if ($url == Configuration::get('CONEKTA_WEBHOOK_FAILED_URL')) {
@@ -2200,11 +2301,15 @@ class ConektaPaymentsPrestashop extends PaymentModule
             if (Tools::strtolower($charge_response->payment_method->type) == "spei") {
                 $order_status              = (int) Configuration::get('waiting_spei_payment');
                 $checkout                  = Module::getInstanceByName('conektapaymentsprestashop');
-                $checkout->extra_mail_vars = array( '{receiving_account_number}' => (string) $charge_response->payment_method->reference );
+                $checkout->extra_mail_vars = array(
+                    '{receiving_account_number}' => (string) $charge_response->payment_method->reference
+                );
             } elseif (Tools::strtolower($charge_response->payment_method->type) == "oxxo") {
                 $order_status = (int) Configuration::get('waiting_cash_payment');
                 $checkout     = Module::getInstanceByName('conektapaymentsprestashop');
-                $checkout->extra_mail_vars = array( '{barcode}' => (string) $charge_response->payment_method->reference );
+                $checkout->extra_mail_vars = array(
+                    '{barcode}' => (string) $charge_response->payment_method->reference
+                );
             } else {
                 $order_status = (int) Configuration::get('PS_OS_PAYMENT');
             }
@@ -2295,9 +2400,16 @@ class ConektaPaymentsPrestashop extends PaymentModule
                     'id_module' => (int) $this->id
                 )
             );
+            DebugConekta::log($order, TYPE_NOTICE);
+
             Tools::redirect($redirect);
         } catch (\Exception $e) {
             $log_message = $e->getMessage() . ' ';
+
+            ob_start();
+            debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+            $trace = ob_get_contents();
+            ob_end_clean();
 
             if (class_exists('Logger')) {
                 Logger::addLog(
@@ -2311,6 +2423,9 @@ class ConektaPaymentsPrestashop extends PaymentModule
             }
 
             $message = $e->getMessage() . ' ';
+
+            DebugConekta::log($message, TYPE_ERROR);
+            DebugConekta::log($trace, TYPE_ERROR);
 
             $controller = Configuration::get('PS_ORDER_PROCESS_TYPE') ?
                 'order-opc.php' : 'order.php';
