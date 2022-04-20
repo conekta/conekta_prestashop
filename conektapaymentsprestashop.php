@@ -198,7 +198,6 @@ class ConektaPaymentsPrestashop extends PaymentModule
      */
     public function install()
     {
-
         $updateConfig = array(
             'PS_OS_CHEQUE' => 1,
             'PS_OS_PAYMENT' => 2,
@@ -257,7 +256,6 @@ class ConektaPaymentsPrestashop extends PaymentModule
      */
     public function hookActionValidateOrder($params)
     {
-
         $key = Configuration::get('CONEKTA_MODE') ?
             Configuration::get('CONEKTA_PRIVATE_KEY_LIVE') : Configuration::get('CONEKTA_PRIVATE_KEY_TEST');
         $iso_code = $this->context->language->iso_code;
@@ -488,7 +486,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                     if ($order->payment_status == 'pre_authorized') {
                         $order->void();
                     } else {
-                        $order->refund(['reason' => 'requested_by_client']);
+                        $order->refund(array('reason' => 'requested_by_client'));
                     }
                 }
             }
@@ -747,7 +745,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 }
             }
 
-            $order_details = [
+            $order_details = array(
                 'currency' => $this->context->currency->iso_code,
                 'line_items' => Config::getLineItems($items),
                 'customer_info' => array(),
@@ -756,19 +754,19 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 'shipping_contact' => $shippingContact,
                 'pre_authorize' => $pre_authorize,
                 'tax_lines' => HelperGateway::addTaxLines(Config::getTaxLines($items)),
-                'metadata' => [
+                'metadata' => array(
                     "plugin" => "Prestashop",
                     "plugin_version" => _PS_VERSION_,
                     "reference_id" => Order::generateReference()
-                ],
-                'checkout' => [
+                ),
+                'checkout' => array(
                     "type" => 'Integration',
                     "monthly_installments_enabled" => !empty($allowed_installments),
                     "monthly_installments_options" => $allowed_installments,
                     "on_demand_enabled" => $on_demand_enabled,
                     "force_3ds_flow" => Configuration::get('CONEKTA_MODE') ? $force_3ds : false,
-                ]
-            ];
+                )
+            );
 
             $amount = HelperGateway::calculateAmountTotal($order_details);
 
@@ -859,10 +857,12 @@ class ConektaPaymentsPrestashop extends PaymentModule
                     HelperGateway::generateCheckout($items, $payment_options)
                 );
 
-                if (in_array('cash', $payment_options)) {
+                if (in_array('cash', $payment_options, true)) {
                     $order_details['checkout']["expires_at"] = time() +
-                    (Configuration::get('EXPIRATION_DATE_LIMIT') *
-                        (Configuration::get('EXPIRATION_DATE_TYPE') == 0 ?
+                    (
+                        Configuration::get('EXPIRATION_DATE_LIMIT') *
+                        (
+                            Configuration::get('EXPIRATION_DATE_TYPE') == 0 ?
                             86400
                             : 3600
                         )
@@ -901,9 +901,9 @@ class ConektaPaymentsPrestashop extends PaymentModule
                         'unpaid'
                     );
                 } elseif (empty($order->charges[0]->status) || $order->charges[0]->status == 'unpaid') {
-                    $order->update([
+                    $order->update(array(
                         'customer_info' => $customerInfo
-                    ]);
+                    ));
                     unset($order_details['customer_info']);
                     $order->update($order_details);
                 } else {
@@ -1160,7 +1160,8 @@ class ConektaPaymentsPrestashop extends PaymentModule
             }
 
             if (Tools::getValue('PAYMENT_METHS_CASH')
-            && ( (Tools::getValue('EXPIRATION_DATE_TYPE')==0
+            && (
+                (Tools::getValue('EXPIRATION_DATE_TYPE')==0
             && (Tools::getValue('EXPIRATION_DATE_LIMIT')<3
             || Tools::getValue('EXPIRATION_DATE_LIMIT')>31))
             || (Tools::getValue('EXPIRATION_DATE_TYPE')==1
@@ -2047,7 +2048,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 foreach ($webhooks as $webhook) {
                     array_push($urls, $webhook->webhook_url);
                 }
-                if (!in_array($url, $urls)) {
+                if (!in_array($url, $urls, true)) {
                     if (Configuration::get('CONEKTA_MODE')) {
                         $mode = array(
                             "production_enabled" => 1

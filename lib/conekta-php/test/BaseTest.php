@@ -19,6 +19,4 @@ class BaseTest extends TestCase
     {
         Conekta::setApiVersion($version);
     }
-
 }
-?>
