@@ -9,4 +9,3 @@ use \Exception;
 class AuthenticationError extends Handler
 {
 }
-?>

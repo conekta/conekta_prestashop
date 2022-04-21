@@ -50,5 +50,3 @@ require_once dirname(__FILE__).'/Conekta/Exceptions/NoConnectionError.php';
 require_once dirname(__FILE__).'/Conekta/Exceptions/ParameterValidationError.php';
 require_once dirname(__FILE__).'/Conekta/Exceptions/ProcessingError.php';
 require_once dirname(__FILE__).'/Conekta/Exceptions/ResourceNotFoundError.php';
-
-?>

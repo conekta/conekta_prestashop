@@ -1,6 +1,6 @@
 <?php
 /**
- * 2007-2019 PrestaShop
+ * 2007-2022 PrestaShop
  *
  * NOTICE OF LICENSE
  * Title   : Conekta Card Payment Gateway for Prestashop
@@ -11,7 +11,7 @@
  * Database File Doc Comment
  *
  * @author    Conekta <support@conekta.io>
- * @copyright 2012-2019 Conekta
+ * @copyright 2012-2022 Conekta
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  * @category  Database
  * @package   Database
