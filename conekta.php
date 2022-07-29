@@ -8,13 +8,13 @@
  * URL     : https://www.conekta.io/es/docs/plugins/prestashop.
  * PHP Version 7.0.0
  *
- * ConektaPaymentsPrestashop File Doc Comment
+ * Conekta File Doc Comment
  *
  * @author    Conekta <support@conekta.io>
  * @copyright 2012-2019 Conekta
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
- * @category  ConektaPaymentsPrestashop
- * @package   ConektaPaymentsPrestashop
+ * @category  Conekta
+ * @package   Conekta
  * @version   GIT: @1.1.0@
  * @link      https://conekta.com/
  */
@@ -23,7 +23,7 @@ use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
 
 require_once dirname(__FILE__) . '/model/Config.php';
 require_once dirname(__FILE__) . '/model/Database.php';
-require_once dirname(__FILE__) . '/conektagatewayhelper.php';
+require_once dirname(__FILE__) . '/HelperGateway.php';
 require_once dirname(__FILE__) . '/lib/conekta-php/lib/Conekta.php';
 
 if (!defined('_PS_VERSION_')) {
@@ -35,16 +35,16 @@ define("CANCELLED_ID", 6);
 define("REFUNDED_ID", 7);
 
 /**
- * ConektaPaymentsPrestashop Class Doc Comment
+ * Conekta Class Doc Comment
  *
  * @category Class
- * @package  ConektaPaymentsPrestashop
+ * @package  Conekta
  * @author   Conekta <support@conekta.io>
  * @license  http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  * @link     https://conekta.com/
  */
 
-class ConektaPaymentsPrestashop extends PaymentModule
+class Conekta extends PaymentModule
 {
     protected $html = '';
     protected $postErrors = array();
@@ -60,7 +60,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
      */
     public function __construct()
     {
-        $this->name = 'conektapaymentsprestashop';
+        $this->name = 'conekta';
         $this->tab = 'payments_gateways';
         $this->version = '1.1.0';
         $this->ps_versions_compliancy = array(
@@ -352,7 +352,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 'is_subscription_text' => $this->trans(
                     'Enable Subscriptions',
                     array(),
-                    'Modules.ConektaPaymentsPrestashop.Admin'
+                    'Modules.Conekta.Admin'
                 ),
                 'is_subscription'      => ($is_subscription == 'true') ? 'checked' : '',
                 'subscription_plan'    => $subscription_plan,
@@ -511,7 +511,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
         $state->name        = $names;
         $state->color       = '#4169E1';
         $state->send_email  = true;
-        $state->module_name = 'conektapaymentsprestashop';
+        $state->module_name = 'conekta';
         $templ              = array();
 
         foreach ($languages as $lang) {
@@ -569,7 +569,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
         $state->name        = $names;
         $state->color       = '#4169E1';
         $state->send_email  = true;
-        $state->module_name = 'conektapaymentsprestashop';
+        $state->module_name = 'conekta';
         $templ              = array();
 
         foreach ($languages as $lang) {
@@ -1080,13 +1080,13 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 $this->postErrors[] = $this->trans(
                     'The "Payee" field is required.',
                     array(),
-                    'Modules.ConektaPaymentsPrestashop.Admin'
+                    'Modules.Conekta.Admin'
                 );
             } elseif (!Tools::getValue('PAYEE_ADDRESS')) {
                 $this->postErrors[] = $this->trans(
                     'The "Address" field is required.',
                     array(),
-                    'Modules.ConektaPaymentsPrestashop.Admin'
+                    'Modules.Conekta.Admin'
                 );
             }
 
@@ -1094,7 +1094,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 $this->postErrors[] = $this->trans(
                     'The "Web Hook" field is required.',
                     array(),
-                    'Modules.ConektaPaymentsPrestashop.Admin'
+                    'Modules.Conekta.Admin'
                 );
             }
 
@@ -1111,7 +1111,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                             $this->postErrors[] = $this->trans(
                                 'The minimum amount must be a number.',
                                 array(),
-                                'Modules.ConektaPaymentsPrestashop.Admin'
+                                'Modules.Conekta.Admin'
                             );
                         } else {
                             switch ($this->installments[$i]) {
@@ -1137,7 +1137,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                                     $minimum_value .
                                     ' because it is the minimum amount for ' . $this->installments[$i] . ' months.',
                                     array(),
-                                    'Modules.ConektaPaymentsPrestashop.Admin'
+                                    'Modules.Conekta.Admin'
                                 );
                             }
                         }
@@ -1146,7 +1146,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                     $this->postErrors[] = $this->trans(
                         'Monthly installments are enabled, but no months were chosen.',
                         array(),
-                        'Modules.ConektaPaymentsPrestashop.Admin'
+                        'Modules.Conekta.Admin'
                     );
                 }
             }
@@ -1155,7 +1155,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 $this->postErrors[] = $this->trans(
                     'The "Expiration days" field is required.',
                     array(),
-                    'Modules.ConektaPaymentsPrestashop.Admin'
+                    'Modules.Conekta.Admin'
                 );
             }
 
@@ -1171,7 +1171,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 $this->postErrors[] = $this->trans(
                     'The "Expiration days" is out of range. It has to be between 3 and 31',
                     array(),
-                    'Modules.ConektaPaymentsPrestashop.Admin'
+                    'Modules.Conekta.Admin'
                 );
             }
 
@@ -1179,7 +1179,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 $this->postErrors[] = $this->trans(
                     'The "Expiration days" must be a number.',
                     array(),
-                    'Modules.ConektaPaymentsPrestashop.Admin'
+                    'Modules.Conekta.Admin'
                 );
             }
 
@@ -1205,7 +1205,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 $this->postErrors[] = $this->trans(
                     'No more than '. METADATA_LIMIT .' attributes can be sent as metadata',
                     array(),
-                    'Modules.ConektaPaymentsPrestashop.Admin'
+                    'Modules.Conekta.Admin'
                 );
             }
 
@@ -1213,7 +1213,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 $this->postErrors[] = $this->trans(
                     'The "Test Private Key" field is required.',
                     array(),
-                    'Modules.ConektaPaymentsPrestashop.Admin'
+                    'Modules.Conekta.Admin'
                 );
             }
 
@@ -1221,7 +1221,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 $this->postErrors[] = $this->trans(
                     'The "Test Public Key" field is required.',
                     array(),
-                    'Modules.ConektaPaymentsPrestashop.Admin'
+                    'Modules.Conekta.Admin'
                 );
             }
 
@@ -1229,7 +1229,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 $this->postErrors[] = $this->trans(
                     'The "Live Public Key" field is required.',
                     array(),
-                    'Modules.ConektaPaymentsPrestashop.Admin'
+                    'Modules.Conekta.Admin'
                 );
             }
 
@@ -1237,7 +1237,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 $this->postErrors[] = $this->trans(
                     'The "Live Private Key" field is required.',
                     array(),
-                    'Modules.ConektaPaymentsPrestashop.Admin'
+                    'Modules.Conekta.Admin'
                 );
             }
         }
@@ -1442,7 +1442,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                     'title' => $this->trans(
                         'Contact details',
                         array(),
-                        'Modules.ConektaPaymentsPrestashop.Admin'
+                        'Modules.Conekta.Admin'
                     ),
                     'icon' => 'icon-envelope'
                 ),
@@ -1452,7 +1452,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                         'label' => $this->trans(
                             'Payee (name)',
                             array(),
-                            'Modules.ConektaPaymentsPrestashop.Admin'
+                            'Modules.Conekta.Admin'
                         ),
                         'name' => 'PAYEE_NAME',
                         'required' => true
@@ -1462,12 +1462,12 @@ class ConektaPaymentsPrestashop extends PaymentModule
                         'label' => $this->trans(
                             'Address',
                             array(),
-                            'Modules.ConektaPaymentsPrestashop.Admin'
+                            'Modules.Conekta.Admin'
                         ),
                         'desc' => $this->trans(
                             'Address where the check should be sent to.',
                             array(),
-                            'Modules.ConektaPaymentsPrestashop.Admin'
+                            'Modules.Conekta.Admin'
                         ),
                         'name' => 'PAYEE_ADDRESS',
                         'required' => true
@@ -1486,7 +1486,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                     ),
                     array(
                         'type' => 'text',
-                        'label' => $this->trans('Webhook', array(), 'Modules.ConektaPaymentsPrestashop.Admin'),
+                        'label' => $this->trans('Webhook', array(), 'Modules.Conekta.Admin'),
                         'name' => 'WEB_HOOK',
                         'required' => true
                     ),
@@ -1554,7 +1554,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                     ),
                     array(
                         'type' => 'text',
-                        'label' => $this->trans('Minimum amount', array(), 'Modules.ConektaPaymentsPrestashop.Admin'),
+                        'label' => $this->trans('Minimum amount', array(), 'Modules.Conekta.Admin'),
                         'name' => 'INSTALLMENTS_MINIMUM',
                         'desc' => $this->trans(
                             'Minimum amount for monthly installments from Conekta</br>
@@ -1564,7 +1564,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                                 - 1200 MXN para 12 meses sin intereses</br>
                                 - 1800 MXN para 18 meses sin intereses</br>',
                             array(),
-                            'Modules.ConektaPaymentsPrestashop.Admin'
+                            'Modules.Conekta.Admin'
                         ),
                     ),
                     array(
@@ -1582,7 +1582,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                         'label' => $this->trans(
                             'Expiration (# days)',
                             array(),
-                            'Modules.ConektaPaymentsPrestashop.Admin'
+                            'Modules.Conekta.Admin'
                         ),
                         'name' => 'EXPIRATION_DATE_LIMIT',
                     ),
@@ -1695,31 +1695,31 @@ class ConektaPaymentsPrestashop extends PaymentModule
         $fields_form_keys = array(
             'form' => array(
                 'legend' => array(
-                    'title' => $this->trans('KEYS', array(), 'Modules.ConektaPaymentsPrestashop.Admin'),
+                    'title' => $this->trans('KEYS', array(), 'Modules.Conekta.Admin'),
                     'icon' => 'icon-key'
                 ),
                 'input' => array(
                     array(
                         'type' => 'text',
-                        'label' => $this->trans('Test Private Key', array(), 'Modules.ConektaPaymentsPrestashop.Admin'),
+                        'label' => $this->trans('Test Private Key', array(), 'Modules.Conekta.Admin'),
                         'name' => 'TEST_PRIVATE_KEY',
                         'required' => true
                     ),
                     array(
                         'type' => 'text',
-                        'label' => $this->trans('Test Public Key', array(), 'Modules.ConektaPaymentsPrestashop.Admin'),
+                        'label' => $this->trans('Test Public Key', array(), 'Modules.Conekta.Admin'),
                         'name' => 'TEST_PUBLIC_KEY',
                         'required' => true,
                     ),
                     array(
                         'type' => 'password',
-                        'label' => $this->trans('Live Private Key', array(), 'Modules.ConektaPaymentsPrestashop.Admin'),
+                        'label' => $this->trans('Live Private Key', array(), 'Modules.Conekta.Admin'),
                         'name' => 'LIVE_PRIVATE_KEY',
                         'required' => true
                     ),
                     array(
                         'type' => 'password',
-                        'label' => $this->trans('Live Public Key', array(), 'Modules.ConektaPaymentsPrestashop.Admin'),
+                        'label' => $this->trans('Live Public Key', array(), 'Modules.Conekta.Admin'),
                         'name' => 'LIVE_PUBLIC_KEY',
                         'required' => true
                     ),
@@ -1847,7 +1847,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
         $url = Configuration::get('WEB_HOOK');
 
         if (empty($url)) {
-            $url = _PS_BASE_URL_ . __PS_BASE_URI__ . "modules/conektapaymentsprestashop/notification.php";
+            $url = _PS_BASE_URL_ . __PS_BASE_URI__ . "modules/conekta/notification.php";
         }
 
         if (Tools::isSubmit('btnSubmit') && Tools::getValue('TEST_PUBLIC_KEY') && Tools::getValue('TEST_PRIVATE_KEY')) {
@@ -1959,26 +1959,26 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 return $this->trans(
                     'The phone number must not contain "+"',
                     array(),
-                    'Modules.ConektaPaymentsPrestashop.Admin'
+                    'Modules.Conekta.Admin'
                 );
             } elseif (Tools::strlen($phone) != 10) {
                 return $this->trans(
                     'The field Phone must be a string with a maximum length of 10. (Example: 52XXXXXXXX)',
                     array(),
-                    'Modules.ConektaPaymentsPrestashop.Admin'
+                    'Modules.Conekta.Admin'
                 );
             } elseif (!is_numeric($phone)) {
                 return $this->trans(
                     'The Phone field is not a valid phone number',
                     array(),
-                    'Modules.ConektaPaymentsPrestashop.Admin'
+                    'Modules.Conekta.Admin'
                 );
             }
         } else {
             return $this->trans(
                 'The phone number is empty',
                 array(),
-                'Modules.ConektaPaymentsPrestashop.Admin'
+                'Modules.Conekta.Admin'
             );
         }
 
@@ -1993,7 +1993,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
                 return $this->trans(
                     'The minimum purchase amount with Conekta must be greater than $ 20.00 + taxes ',
                     array(),
-                    'Modules.ConektaPaymentsPrestashop.Admin'
+                    'Modules.Conekta.Admin'
                 );
             }
         }
@@ -2160,7 +2160,7 @@ class ConektaPaymentsPrestashop extends PaymentModule
             )
         );
 
-        return $this->context->smarty->fetch('module:conektapaymentsprestashop/views/templates/front/payment_form.tpl');
+        return $this->context->smarty->fetch('module:conekta/views/templates/front/payment_form.tpl');
     }
 
     /**
