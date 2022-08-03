@@ -48,7 +48,7 @@ if ($event_json->type == 'order.paid' && isset($event_json->data)) {
     $order = new Order($id_order);
     $order_fields = $order->getFields();
     $currency_payment = Currency::getPaymentCurrencies(
-        Module::getModuleIdByName('conektapaymentsprestashop'),
+        Module::getModuleIdByName('conekta'),
         $order_fields['id_shop']
     );
     $total_order_amount = $order->getOrdersTotalPaid();

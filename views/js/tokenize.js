@@ -83,7 +83,7 @@ $(document).ready (function($) {
 		}
 	})
 
-	var paymentOption = document.querySelectorAll('input[data-module-name="conektapaymentsprestashop"]')[0];
+	var paymentOption = document.querySelectorAll('input[data-module-name="conekta"]')[0];
 
 	$("input[name=payment-option]").click(function () {
 		if (paymentOption.checked) {
