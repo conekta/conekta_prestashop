@@ -20,16 +20,16 @@
  */
 
 /**
- * ConektaPaymentsPrestashopValidationModuleFrontController Class Doc Comment
+ * ConektaValidationModuleFrontController Class Doc Comment
  *
  * @author   Conekta <support@conekta.io>
  * @category Class
- * @package  ConektaPaymentsPrestashopValidationModuleFrontController
+ * @package  ConektaValidationModuleFrontController
  * @license  http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  * @link     https://conekta.com/
  */
 
-class ConektaPaymentsPrestashopValidationModuleFrontController extends ModuleFrontController
+class ConektaValidationModuleFrontController extends ModuleFrontController
 {
     /**
      * Returns the module that the payment of the order was made.
