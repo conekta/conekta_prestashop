@@ -15,7 +15,7 @@
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  * @category  Validation
  * @package   Validation
- * @version   GIT: @1.1.0@
+ * @version   GIT: @2.3.3@
  * @link      https://conekta.com/
  */
 
