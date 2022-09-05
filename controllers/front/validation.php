@@ -20,16 +20,16 @@
  */
 
 /**
- * ConektaPaymentsPrestashopValidationModuleFrontController Class Doc Comment
+ * ConektaValidationModuleFrontController Class Doc Comment
  *
  * @author   Conekta <support@conekta.io>
  * @category Class
- * @package  ConektaPaymentsPrestashopValidationModuleFrontController
+ * @package  ConektaValidationModuleFrontController
  * @license  http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  * @link     https://conekta.com/
  */
 
-class ConektaPaymentsPrestashopValidationModuleFrontController extends ModuleFrontController
+class ConektaValidationModuleFrontController extends ModuleFrontController
 {
     /**
      * Returns the module that the payment of the order was made.
@@ -41,10 +41,10 @@ class ConektaPaymentsPrestashopValidationModuleFrontController extends ModuleFro
         $cart = $this->context->cart;
         $authorized = false;
         $customer = new Customer($cart->id_customer);
-        $conekta = new ConektaPaymentsPrestashop();
+        $conekta = new Conekta();
 
         foreach (Module::getPaymentModules() as $module) {
-            if ($module['name'] == 'conektapaymentsprestashop') {
+            if ($module['name'] == 'conekta') {
                 $authorized = true;
                 break;
             }
@@ -53,7 +53,7 @@ class ConektaPaymentsPrestashopValidationModuleFrontController extends ModuleFro
             print_r($this->getTranslator()->trans(
                 'This payment method is not available.',
                 array(),
-                'Modules.ConektaPaymentsPrestashop.Shop'
+                'Modules.Conekta.Shop'
             ));
         } else {
             if (!Validate::isLoadedObject($customer)) {
@@ -83,7 +83,7 @@ class ConektaPaymentsPrestashopValidationModuleFrontController extends ModuleFro
 
             $conekta->processPayment($order);
             
-            $this->setTemplate('module:conektapaymentsprestashop/views/templates/front/payment_return.tpl');
+            $this->setTemplate('module:conekta/views/templates/front/payment_return.tpl');
         }
     }
 }

@@ -1,3 +1,7 @@
+## [v2.3.3](https://github.com/conekta/conekta_prestashop/pull/102) - 2022-08-03
+### Changed
+- Update plugin name 
+
 ## [v2.3.2](https://github.com/conekta/conekta_prestashop/pull/102) - 2022-04-22
 ### Changed
 - Update Changelog file and determine plugin version 

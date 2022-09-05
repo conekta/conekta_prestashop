@@ -35,7 +35,7 @@
 
   {if isset($smarty.get.conekta_error)}
     <div class="conekta-payment-errors">
-      {l s='There was a problem processing your credit card, please double check your data and try again.' mod='conektapaymentsprestashop'}
+      {l s='There was a problem processing your credit card, please double check your data and try again.' mod='conekta'}
     </div>
   {/if}
   {if !isset($message)}

@@ -15,7 +15,7 @@
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  * @category  Notification
  * @package   Notification
- * @version   GIT: @1.1.0@
+ * @version   GIT: @1.1.1@
  * @link      https://conekta.com/
  *
  */
@@ -48,7 +48,7 @@ if ($event_json->type == 'order.paid' && isset($event_json->data)) {
     $order = new Order($id_order);
     $order_fields = $order->getFields();
     $currency_payment = Currency::getPaymentCurrencies(
-        Module::getModuleIdByName('conektapaymentsprestashop'),
+        Module::getModuleIdByName('conekta'),
         $order_fields['id_shop']
     );
     $total_order_amount = $order->getOrdersTotalPaid();
