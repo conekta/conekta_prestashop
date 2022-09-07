@@ -1,5 +1,5 @@
 /**
-* 2012-2021 Conekta
+* 2012-2022 Conekta
 *
 * NOTICE OF LICENSE
 *
@@ -18,7 +18,7 @@
 * needs please refer to http://www.prestashop.com for more information.
 *
 *  @author Conekta <support@conekta.io>
-*  @copyright  2012-2021 Conekta
+*  @copyright  2012-2022 Conekta
 *  @version  v2.0.0
 *  @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
@@ -83,7 +83,7 @@ $(document).ready (function($) {
 		}
 	})
 
-	var paymentOption = document.querySelectorAll('input[data-module-name="conektapaymentsprestashop"]')[0];
+	var paymentOption = document.querySelectorAll('input[data-module-name="conekta"]')[0];
 
 	$("input[name=payment-option]").click(function () {
 		if (paymentOption.checked) {

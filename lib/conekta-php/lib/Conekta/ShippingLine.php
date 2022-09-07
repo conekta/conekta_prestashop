@@ -11,15 +11,15 @@ class ShippingLine extends ConektaResource
 {
     public function instanceUrl()
     {
-      $this->apiVersion = Conekta::$apiVersion;
-      $id = $this->id;
-      parent::idValidator($id);
-      $class = get_class($this);
-      $base = $this->classUrl($class);
-      $extn = urlencode($id);
-      $orderUrl = $this->order->instanceUrl();
+        $this->apiVersion = Conekta::$apiVersion;
+        $id = $this->id;
+        parent::idValidator($id);
+        $class = get_class($this);
+        $base = $this->classUrl($class);
+        $extn = urlencode($id);
+        $orderUrl = $this->order->instanceUrl();
       
-      return $orderUrl . $base . "/{$extn}";
+        return $orderUrl . $base . "/{$extn}";
     }
 
     public function update($params = null)
@@ -32,4 +32,3 @@ class ShippingLine extends ConektaResource
         return parent::_delete('order', 'shipping_lines');
     }
 }
-?>

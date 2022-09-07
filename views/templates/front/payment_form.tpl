@@ -1,5 +1,5 @@
 {*
- * 2007-2021 PrestaShop and Contributors
+ * 2007-2022 PrestaShop and Contributors
  *
  * NOTICE OF LICENSE
  *
@@ -18,7 +18,7 @@
  * needs please refer to https://www.prestashop.com for more information.
  *
  * @author    Conekta <support@conekta.io>
- * @copyright 2007-2021 PrestaShop SA and Contributors
+ * @copyright 2007-2022 PrestaShop SA and Contributors
  * @version v1.0.0
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  * International Registered Trademark & Property of PrestaShop SA
@@ -35,7 +35,7 @@
 
   {if isset($smarty.get.conekta_error)}
     <div class="conekta-payment-errors">
-      {l s='There was a problem processing your credit card, please double check your data and try again.' mod='conektapaymentsprestashop'}
+      {l s='There was a problem processing your credit card, please double check your data and try again.' mod='conekta'}
     </div>
   {/if}
   {if !isset($message)}

@@ -1,5 +1,5 @@
 {*
- * 2007-2021 PrestaShop and Contributors
+ * 2007-2022 PrestaShop and Contributors
  *
  * NOTICE OF LICENSE
  *
@@ -18,25 +18,23 @@
  * needs please refer to https://www.prestashop.com for more information.
  *
  * @author    Conekta <support@conekta.io>
- * @copyright 2007-2021 PrestaShop SA and Contributors
+ * @copyright 2007-2022 PrestaShop SA and Contributors
  * @version v1.0.0
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  * International Registered Trademark & Property of PrestaShop SA
  *}
 
-
-
 {extends "$layout"}
 
 {block name="content"}
   <section>
-    <p>{l s='You have successfully submitted your payment form.' mod='conektapaymentsprestashop'}</p>
-    <p>{l s='Here are the params:' mod='conektapaymentsprestashop'}</p>
+    <p>{l s='You have successfully submitted your payment form.' mod='conekta'}</p>
+    <p>{l s='Here are the params:' mod='conekta'}</p>
     <ul>
       {foreach from=$params key=name item=value}
         <li>{$name|escape:'htmlall':'UTF-8'}: {$value|escape:'htmlall':'UTF-8'}</li>
       {/foreach}
     </ul>
-    <p>{l s='Now, you just need to proceed the payment and do what you need to do.' mod='conektapaymentsprestashop'}</p>
+    <p>{l s='Now, you just need to proceed the payment and do what you need to do.' mod='conekta'}</p>
   </section>
 {/block}

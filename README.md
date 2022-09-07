@@ -17,14 +17,14 @@ Current version features:
 Installation
 -----------
 
-  Clone the module using <pre>git clone --recursive git@github.com:conekta/conekta_prestashop.git ./conektapaymentsprestashop</pre>
+  Clone the module using <pre>git clone --recursive git@github.com:conekta/conekta_prestashop.git ./conekta</pre>
 
 There is no custom installation for this plugin, just the default:
 
-*   Compress the folder conektapaymentsprestashop.
+*   Compress the folder conekta.
 *   Go to the modules section and clic on 'Add a new module'.
 *   Select the compressed folder.
-*   Search for conektapaymentsprestashop in the modules list.
+*   Search for conekta in the modules list.
 *   Clic on 'install'.
 *   Add your API keys.
 *   Modify if necessary your webhook url.

@@ -5,58 +5,58 @@ namespace Conekta;
 class ChargeTest extends BaseTest
 {
     public static $valid_payment_method = array(
-        'amount'      => 2000,
-        'currency'    => 'mxn',
+        'amount' => 2000,
+        'currency' => 'mxn',
         'description' => 'Some desc',
-        'details'=> array(
-            'name'=> 'Arnulfo Quimare',
-            'phone'=> '403-342-0642',
-            'email'=> 'logan@x-men.org',
-            'customer'=> array(
-                'logged_in'=> true,
-                'successful_purchases'=> 14,
-                'created_at'=> 1379784950,
-                'updated_at'=> 1379784950,
-                'offline_payments'=> 4,
-                'score'=> 9
+        'details' => array(
+            'name' => 'Arnulfo Quimare',
+            'phone' => '403-342-0642',
+            'email' => 'logan@x-men.org',
+            'customer' => array(
+                'logged_in' => true,
+                'successful_purchases' => 14,
+                'created_at' => 1379784950,
+                'updated_at' => 1379784950,
+                'offline_payments' => 4,
+                'score' => 9
             ),
-            'line_items'=> array(
+            'line_items' => array(
                 array(
-                    'name'=> 'Box of Cohiba S1s',
-                    'description'=> 'Imported From Mex.',
-                    'unit_price'=> 20000,
-                    'quantity'=> 1,
-                    'sku'=> 'cohb_s1',
-                    'category'=> 'food'
+                    'name' => 'Box of Cohiba S1s',
+                    'description' => 'Imported From Mex.',
+                    'unit_price' => 20000,
+                    'quantity' => 1,
+                    'sku' => 'cohb_s1',
+                    'category' => 'food'
                 )
             )
         )
     );
 
     public static $intvalid_payment_method = array(
-        'amount'      => 10,
-        'currency'    => 'mxn',
+        'amount' => 10,
+        'currency' => 'mxn',
         'description' => 'Some desc',
-        'details'=> array(
-            'name'=> 'Arnulfo Quimare',
-            'phone'=> '403-342-0642',
-            'email'=> 'logan@x-men.org',
-            'customer'=> array(
-                'logged_in'=> true,
-                'successful_purchases'=> 14,
-                'created_at'=> 1379784950,
-                'updated_at'=> 1379784950,
-                'offline_payments'=> 4,
-                'score'=> 9
+        'details' => array(
+            'name' => 'Arnulfo Quimare',
+            'phone' => '403-342-0642',
+            'email' => 'logan@x-men.org',
+            'customer' => array(
+                'logged_in' => true,
+                'successful_purchases' => 14,
+                'created_at' => 1379784950,
+                'updated_at' => 1379784950,
+                'offline_payments' => 4,
+                'score' => 9
             ),
-            'line_items'=> array(
+            'line_items' => array(
                 array(
-                    'name'=> 'Box of Cohiba S1s',
-                    'description'=> 'Imported From Mex.',
-                    'unit_price'=> 20000,
-                    'quantity'=> 1,
-                    'sku'=> 'cohb_s1',
-                    'category'=> 'food'
+                    'name' => 'Box of Cohiba S1s',
+                    'description' => 'Imported From Mex.',
+                    'unit_price' => 20000,
+                    'quantity' => 1,
+                    'sku' => 'cohb_s1',
+                    'category' => 'food'
                 )
             )
         )
@@ -109,7 +109,12 @@ class ChargeTest extends BaseTest
         try {
             $cpm->refund(3000);
         } catch (\Exception $e) {
-            $this->assertTrue(strpos($e->getMessage(), 'The amount to refund exceeds the charge total') !== false);
+            $this->assertTrue(
+                strpos(
+                    $e->getMessage(),
+                    'The amount to refund exceeds the charge total'
+                ) !== false
+            );
         }
     }
 
@@ -126,4 +131,3 @@ class ChargeTest extends BaseTest
         $this->assertTrue($cpm->status == 'paid');
     }
 }
-?>

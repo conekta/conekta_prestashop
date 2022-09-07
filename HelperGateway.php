@@ -15,7 +15,7 @@
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  * @category  HelperGateway
  * @package   HelperGateway
- * @version   GIT: @1.1.0@
+ * @version   GIT: @2.3.3@
  * @link      https://conekta.com/
  */
 
@@ -51,7 +51,7 @@ class HelperGateway
             foreach ($taxlines as $tax) {
                 array_push(
                     $tax_lines['tax_lines'],
-                    array (
+                    array(
                         'description' => HelperGateway::removeSpecialCharacter($tax['description']),
                         'amount' => $tax['amount']
                     )
@@ -79,7 +79,7 @@ class HelperGateway
             foreach ($shippingLines as $shipping) {
                 array_push(
                     $shippingLinesArray['shipping_lines'],
-                    array (
+                    array(
                         'amount' => $shipping['amount'],
                         'tracking_number' => HelperGateway::removeSpecialCharacter($shipping['tracking_number']),
                         'carrier' => HelperGateway::removeSpecialCharacter($shipping['carrier']),
@@ -213,7 +213,7 @@ class HelperGateway
      */
     public static function removeSpecialCharacter($param)
     {
-        $param =  str_replace(['#', '-', '_', '.', '/', '(', ')', '[', ']', '!', '¡', '%'], ' ', $param);
+        $param =  str_replace(array('#', '-', '_', '.', '/', '(', ')', '[', ']', '!', '¡', '%'), ' ', $param);
         return $param;
     }
 
@@ -231,7 +231,7 @@ class HelperGateway
 
         if ($retorno) {
             return array(
-                "allowed_payment_methods" => ['card'],
+                "allowed_payment_methods" => array('card'),
                 "plan_id" => Database::getIdPlan($items[0]['id_product'])
             );
         } elseif (HelperGateway::validateItemsProduct($items)) {

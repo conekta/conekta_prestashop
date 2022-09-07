@@ -4,8 +4,7 @@ namespace Conekta;
 
 class ShippingLineTest extends BaseTest
 {
-  public static $validOrder =
-  array(
+    public static $validOrder = array(
     'line_items'=> array(
       array(
         'name'=> 'Box of Cohiba S1s',
@@ -36,35 +35,33 @@ class ShippingLineTest extends BaseTest
       )
     );
 
-  public function testSuccessfulShippingLineDelete()
-  {
-    $this->setApiKey();
-    $order = Order::create(self::$validOrder);
-    $shippingLine = $order->shipping_lines[0];
-    $shippingLine->delete();
-    $this->assertTrue($shippingLine->deleted == true);
-  }
-
-  public function testSuccessfulShippingLineUpdate()
-  {
-    $this->setApiKey();
-    $order = Order::create(self::$validOrder);
-    $shippingLine = $order->shipping_lines[0];
-    $shippingLine->update(array('method' => 'Air'));
-    $this->assertTrue($shippingLine->method == 'Air');
-  }
-
-  public function testUnsuccessfulShippingLineUpdate()
-  {
-    $this->setApiKey();
-    $order = Order::create(self::$validOrder);
-    $shippingLine = $order->shipping_lines[0];
-    try{
-      $shippingLine->update(array('amount' => -1));
-    } catch (\Exception $e) {
-      $this->assertTrue(strpos(get_class($e), 'ParameterValidationError') == true);
+    public function testSuccessfulShippingLineDelete()
+    {
+        $this->setApiKey();
+        $order = Order::create(self::$validOrder);
+        $shippingLine = $order->shipping_lines[0];
+        $shippingLine->delete();
+        $this->assertTrue($shippingLine->deleted == true);
     }
-  }
-}
 
-?>
+    public function testSuccessfulShippingLineUpdate()
+    {
+        $this->setApiKey();
+        $order = Order::create(self::$validOrder);
+        $shippingLine = $order->shipping_lines[0];
+        $shippingLine->update(array('method' => 'Air'));
+        $this->assertTrue($shippingLine->method == 'Air');
+    }
+
+    public function testUnsuccessfulShippingLineUpdate()
+    {
+        $this->setApiKey();
+        $order = Order::create(self::$validOrder);
+        $shippingLine = $order->shipping_lines[0];
+        try {
+            $shippingLine->update(array('amount' => -1));
+        } catch (\Exception $e) {
+            $this->assertTrue(strpos(get_class($e), 'ParameterValidationError') == true);
+        }
+    }
+}

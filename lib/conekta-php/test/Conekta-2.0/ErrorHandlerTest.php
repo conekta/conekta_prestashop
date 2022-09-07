@@ -3,9 +3,8 @@
 namespace Conekta;
 
 class ErrorHandlerTest extends BaseTest
-{   
-
-  public static $validOrder = array(
+{
+    public static $validOrder = array(
     'line_items' => array(
       array(
         'name' => 'Box of Cohiba S1s',
@@ -20,7 +19,7 @@ class ErrorHandlerTest extends BaseTest
     'currency'    => 'mxn',
     'metadata'    => array('test' => 'extra info')
     );
-  public static $otherParams = array(
+    public static $otherParams = array(
     'currency' => 'mxn',
     'customer_info' => array(
       'name' => 'John Constantine',
@@ -28,87 +27,85 @@ class ErrorHandlerTest extends BaseTest
       'email' => 'hola@hola.com'
       )
     );
-  public static $invalidCustomer = array(
+    public static $invalidCustomer = array(
     'email' => 'hola@hola.com',
     'cards' => array('tok_test_visa_4241')
     );
 
-  function unsetApiKey()
-  {
-    if (isset($env) == false) {
-      $env = Conekta::setApiKey('');
+    public function unsetApiKey()
+    {
+        if (isset($env) == false) {
+            $env = Conekta::setApiKey('');
+        }
     }
-  }
 
-  public function testNoIdError()
-  {
-    $this->setApiKey();
-    try {
-      $customer = Customer::find('0');
-    } catch (\Exception $e) {
-      $this->assertTrue(strpos(get_class($e), 'ParameterValidationError') == true);
+    public function testNoIdError()
+    {
+        $this->setApiKey();
+        try {
+            $customer = Customer::find('0');
+        } catch (\Exception $e) {
+            $this->assertTrue(strpos(get_class($e), 'ParameterValidationError') == true);
+        }
     }
-  }
 
-  public function testNoConnectionError()
-  {
-    $this->setApiKey();
-    $apiUrl = Conekta::$apiBase;
-    Conekta::$apiBase = 'http://localhost:3001';
-    try {
-      $customer = Customer::create(array('cards' => array('tok_test_visa_4241')));
-    } catch (\Exception $e) {
-      $this->assertTrue(strpos(get_class($e), 'NoConnectionError') == true);
+    public function testNoConnectionError()
+    {
+        $this->setApiKey();
+        $apiUrl = Conekta::$apiBase;
+        Conekta::$apiBase = 'http://localhost:3001';
+        try {
+            $customer = Customer::create(array('cards' => array('tok_test_visa_4241')));
+        } catch (\Exception $e) {
+            $this->assertTrue(strpos(get_class($e), 'NoConnectionError') == true);
+        }
+        Conekta::$apiBase = $apiUrl;
     }
-    Conekta::$apiBase = $apiUrl;
-  }
 
-  public function testParameterValidationError(){
-    $this->setApiKey();
-    try {
-      $customer = Customer::create(self::$invalidCustomer);
-    } catch (\Exception $e) {
-      $this->assertTrue(strpos(get_class($e), 'ParameterValidationError') == true);
+    public function testParameterValidationError()
+    {
+        $this->setApiKey();
+        try {
+            $customer = Customer::create(self::$invalidCustomer);
+        } catch (\Exception $e) {
+            $this->assertTrue(strpos(get_class($e), 'ParameterValidationError') == true);
+        }
     }
-  }
 
-  public function testResourceNotFoundError()
-  {
-    $this->setApiKey();
-    try {
-      $customer = Customer::find('2');
-    } catch (\Exception $e) {
-      $this->assertTrue(strpos(get_class($e), 'ResourceNotFoundError') == true);
+    public function testResourceNotFoundError()
+    {
+        $this->setApiKey();
+        try {
+            $customer = Customer::find('2');
+        } catch (\Exception $e) {
+            $this->assertTrue(strpos(get_class($e), 'ResourceNotFoundError') == true);
+        }
     }
-  }
-  public function testAuthenticationError()
-  {
-    $this->unsetApiKey();
-    try{
-      $customer = Customer::create();
-    }catch(\Exception $e){
-      $this->assertTrue(strpos(get_class($e), 'AuthenticationError') == true);
+    public function testAuthenticationError()
+    {
+        $this->unsetApiKey();
+        try {
+            $customer = Customer::create();
+        } catch (\Exception $e) {
+            $this->assertTrue(strpos(get_class($e), 'AuthenticationError') == true);
+        }
+        $this->setApiKey();
     }
-    $this->setApiKey();
-  }
-  public function testUnknowApiRequest()
-  {
-    $this->setApiKey();
-    $valid_visa_card =array(
+    public function testUnknowApiRequest()
+    {
+        $this->setApiKey();
+        $valid_visa_card =array(
       'payment_method' => array(
         'type' => 'card',
         'token_id' => 'tok_test_insufficient_funds')
       );
 
-    try{
-      $orderParams = array_merge(self::$validOrder, self::$otherParams);
-      $order  = Order::create($orderParams);
-      $charge = $order->createCharge($valid_visa_card);
-    }catch(\Exception $e){
-      $this->assertTrue(strpos(get_class($e), 'ProcessingError') == true);
+        try {
+            $orderParams = array_merge(self::$validOrder, self::$otherParams);
+            $order  = Order::create($orderParams);
+            $charge = $order->createCharge($valid_visa_card);
+        } catch (\Exception $e) {
+            $this->assertTrue(strpos(get_class($e), 'ProcessingError') == true);
+        }
     }
-  }
-
 }
-
-?>
