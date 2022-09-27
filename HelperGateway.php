@@ -15,7 +15,7 @@
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  * @category  HelperGateway
  * @package   HelperGateway
- * @version   GIT: @2.3.3@
+ * @version   GIT: @2.3.4@
  * @link      https://conekta.com/
  */
 
