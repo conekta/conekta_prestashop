@@ -21,9 +21,14 @@
 
 use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
 
-require_once __DIR__ . '/model/Config.php';
-require_once __DIR__ . '/model/Database.php';
-require_once __DIR__ . '/lib/conekta-php/lib/Conekta.php';
+require_once 'Utils/CnkConfig.php';
+require_once 'model/Config.php';
+require_once 'model/Database.php';
+require 'model/MetadataModel.php';
+require_once 'lib/conekta-php/lib/Conekta.php';
+require_once 'UseCases/Install/InstallPluginUseCase.php';
+require_once 'UseCases/Install/UninstallPluginUseCase.php';
+
 
 if (! defined('_PS_VERSION_')) {
     die(403);
@@ -49,12 +54,16 @@ class Conekta extends PaymentModule
     public $owner;
     public $address;
     public $extra_mail_vars;
+    private $cnkConfig;
+    private $metadataModel;
 
     /**
      * Implement the configuration of the Conekta Prestashop module
      */
     public function __construct()
     {
+        $this->metadataModel = new MetadataModel();
+        $this->cnkConfig = new CnkConfig();
         $this->name = 'conekta';
         $this->tab = 'payments_gateways';
         $this->version = '1.1.0';
@@ -100,7 +109,7 @@ class Conekta extends PaymentModule
             $settings[] = 'PRODUCT_' . Tools::strtoupper($element);
         }
 
-        $config = Configuration::getMultiple($settings);
+        $config = $this->cnkConfig->getMultiple($settings);
         $this->setConfiguration($config);
 
 
@@ -152,48 +161,18 @@ class Conekta extends PaymentModule
      */
     public function install()
     {
-        $updateConfig = array(
-            'PS_OS_CHEQUE'      => 1,
-            'PS_OS_PAYMENT'     => 2,
-            'PS_OS_PREPARATION' => 3,
-            'PS_OS_SHIPPING'    => 4,
-            'PS_OS_DELIVERED'   => 5,
-            'PS_OS_CANCELED'    => 6,
-            'PS_OS_REFUND'      => 7,
-            'PS_OS_ERROR'       => 8,
-            'PS_OS_OUTOFSTOCK'  => 9,
-            'PS_OS_BANKWIRE'    => 10,
-            'PS_OS_PAYPAL'      => 11,
-            'PS_OS_WS_PAYMENT'  => 12
-        );
+        $installResult = (new InstallPluginUseCase())($this->name, $this->version);
 
-        foreach ($updateConfig as $u => $v) {
-            if (! Configuration::get($u) || (int)Configuration::get($u) < 1) {
-                if (defined('_' . $u . '_') && (int)constant('_' . $u . '_') > 0) {
-                    Configuration::updateValue($u, constant('_' . $u . '_'));
-                } else {
-                    Configuration::updateValue($u, $v);
-                }
-            }
-        }
-        if (! parent::install() || ! $this->createPendingCashState()
-            || ! $this->createPendingSpeiState() || ! $this->registerHook('header')
+        if (! parent::install()
             || ! $this->registerHook('paymentOptions')
             || ! $this->registerHook('paymentReturn')
             || ! $this->registerHook('adminOrder')
             || ! $this->registerHook('updateOrderStatus')
-            && Configuration::updateValue('PAYMENT_METHS_CARD', 1)
-            && Configuration::updateValue('PAYMENT_METHS_INSTALLMET', 1)
-            && Configuration::updateValue('PAYMENT_METHS_CASH', 1)
-            && Configuration::updateValue('PAYMENT_METHS_SPEI', 1)
-            && Configuration::updateValue('MODE', 0) || ! Database::installDb()
-            || ! Database::createTableConektaOrder()
-            || ! Database::createTableMetaData()
+            || ! $installResult
         ) {
             return false;
         }
 
-        Configuration::updateValue('CONEKTA_PRESTASHOP_VERSION', $this->version);
         return true;
     }
 
@@ -205,32 +184,7 @@ class Conekta extends PaymentModule
     public function uninstall()
     {
         return parent::uninstall()
-            && Configuration::deleteByName('CONEKTA_PRESTASHOP_VERSION')
-            && Configuration::deleteByName('CONEKTA_MSI')
-            && Configuration::deleteByName('CONEKTA_CARDS')
-            && Configuration::deleteByName('PAYMENT_METHS_CASH')
-            && Configuration::deleteByName('PAYMENT_METHS_SPEI')
-            && Configuration::deleteByName('CONEKTA_PUBLIC_KEY_TEST')
-            && Configuration::deleteByName('CONEKTA_PUBLIC_KEY_LIVE')
-            && Configuration::deleteByName('CONEKTA_MODE')
-            && Configuration::deleteByName('CONEKTA_PRIVATE_KEY_TEST')
-            && Configuration::deleteByName('CONEKTA_PRIVATE_KEY_LIVE')
-            && Configuration::deleteByName('CONEKTA_SIGNATURE_KEY_LIVE')
-            && Configuration::deleteByName('CONEKTA_SIGNATURE_KEY_TEST')
-            && Configuration::deleteByName('CONEKTA_PAYMENT_ORDER_STATUS')
-            && Configuration::deleteByName('CONEKTA_WEBHOOK')
-            && Configuration::deleteByName('CONEKTA_WEBHOOK_FAILED_ATTEMPTS')
-            && Configuration::deleteByName('CONEKTA_WEBHOOK_ERROR_MESSAGE')
-            && Configuration::deleteByName('CONEKTA_WEBHOOK_FAILED_URL')
-            && Db::getInstance()->Execute(
-                'DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'conekta_transaction`'
-            )
-            && Db::getInstance()->Execute(
-                'DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'conekta_metadata`'
-            )
-            && Db::getInstance()->Execute(
-                'DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'conekta_order_checkout`'
-            );
+            && (new UninstallPluginUseCase())();
     }
 
     /**
@@ -296,9 +250,9 @@ class Conekta extends PaymentModule
     {
         if ($params['newOrderStatus']->id == 7) {
             //order refunded
-            $key = Configuration::get('CONEKTA_MODE') ?
-                Configuration::get('CONEKTA_PRIVATE_KEY_LIVE') :
-                Configuration::get('CONEKTA_PRIVATE_KEY_TEST');
+            $key = $this->cnkConfig->get('CONEKTA_MODE') ?
+                $this->cnkConfig->get('CONEKTA_PRIVATE_KEY_LIVE') :
+                $this->cnkConfig->get('CONEKTA_PRIVATE_KEY_TEST');
 
             $iso_code = $this->context->language->iso_code;
 
@@ -329,55 +283,7 @@ class Conekta extends PaymentModule
      */
     private function createPendingCashState()
     {
-        $state = new OrderState();
-        $languages = Language::getLanguages();
-        $names = array();
-
-        foreach ($languages as $lang) {
-            $names[$lang['id_lang']] = 'En espera de pago';
-        }
-
-        $state->name = $names;
-        $state->color = '#4169E1';
-        $state->send_email = true;
-        $state->module_name = 'conekta';
-        $templ = array();
-
-        foreach ($languages as $lang) {
-            $templ[$lang['id_lang']] = 'conektaefectivo';
-        }
-
-        $state->template = $templ;
-
-        if ($state->save()) {
-            Configuration::updateValue('waiting_cash_payment', $state->id);
-            $directory = _PS_MAIL_DIR_;
-            if ($dhvalue = opendir($directory)) {
-                while (($file = readdir($dhvalue)) !== false) {
-                    if (is_dir($directory . $file) && $file[0] != '.') {
-                        $new_html_file = _PS_MODULE_DIR_ . $this->name . '/mails/' . $file . '/conektaefectivo.html';
-                        $new_txt_file = _PS_MODULE_DIR_ . $this->name . '/mails/' . $file . '/conektaefectivo.txt';
-
-                        $html_folder = $directory . $file . '/conektaefectivo.html';
-                        $txt_folder = $directory . $file . '/conektaefectivo.txt';
-
-                        try {
-                            Tools::copy($new_html_file, $html_folder);
-                            Tools::copy($new_txt_file, $txt_folder);
-                        } catch (\Exception $e) {
-                            $error_copy = $e->getMessage() . ' ';
-                            if (class_exists('Logger')) {
-                                Logger::addLog(json_encode($error_copy), 1, null, null, null, true);
-                            }
-                        }
-                    }
-                }
-                closedir($dhvalue);
-            }
-        } else {
-            return false;
-        }
-        return true;
+        (new CreatePendingStateUseCase())($this->name);
     }
 
     /**
@@ -407,7 +313,7 @@ class Conekta extends PaymentModule
 
         $state->template = $templ;
         if ($state->save()) {
-            Configuration::updateValue('waiting_spei_payment', $state->id);
+            $this->cnkConfig->update('waiting_spei_payment', $state->id);
             $directory = _PS_MAIL_DIR_;
             if ($dhvalue = opendir($directory)) {
                 while (($file = readdir($dhvalue)) !== false) {
@@ -444,9 +350,9 @@ class Conekta extends PaymentModule
      */
     public function hookHeader()
     {
-        $key = Configuration::get('CONEKTA_MODE') ? Configuration::get('CONEKTA_PRIVATE_KEY_LIVE') : Configuration::get(
-            'CONEKTA_PRIVATE_KEY_TEST'
-        );
+        $key = $this->cnkConfig->get('CONEKTA_MODE') ? $this->cnkConfig->get('CONEKTA_PRIVATE_KEY_LIVE') :
+            $this->cnkConfig->get('CONEKTA_PRIVATE_KEY_TEST');
+
         $iso_code = $this->context->language->iso_code;
         \Conekta\Conekta::setApiKey($key);
         \Conekta\Conekta::setPlugin("Prestashop1.7");
@@ -472,10 +378,10 @@ class Conekta extends PaymentModule
         );
         $this->context->controller->addCSS($this->_path . 'views/css/conekta-prestashop.css');
 
-        if (Configuration::get('MODE')) {
-            $this->smarty->assign("api_key", addslashes(Configuration::get('LIVE_PUBLIC_KEY')));
+        if ($this->cnkConfig->get('MODE')) {
+            $this->smarty->assign("api_key", addslashes($this->cnkConfig->get('LIVE_PUBLIC_KEY')));
         } else {
-            $this->smarty->assign("api_key", addslashes(Configuration::get('TEST_PUBLIC_KEY')));
+            $this->smarty->assign("api_key", addslashes($this->cnkConfig->get('TEST_PUBLIC_KEY')));
         }
 
         $this->smarty->assign("path", $this->_path);
@@ -484,15 +390,15 @@ class Conekta extends PaymentModule
         $customer = $this->context->customer;
         $payment_options = array();
 
-        if (Configuration::get('PAYMENT_METHS_SPEI')) {
+        if ($this->cnkConfig->get('PAYMENT_METHS_SPEI')) {
             array_push($payment_options, 'bank_transfer');
         }
 
-        if (Configuration::get('PAYMENT_METHS_CASH')) {
+        if ($this->cnkConfig->get('PAYMENT_METHS_CASH')) {
             array_push($payment_options, 'cash');
         }
 
-        if (Configuration::get('PAYMENT_METHS_CARD')) {
+        if ($this->cnkConfig->get('PAYMENT_METHS_CARD')) {
             array_push($payment_options, 'card');
         }
 
@@ -522,7 +428,11 @@ class Conekta extends PaymentModule
         $shippingContact = Config::getShippingContact($customer, $address_delivery, $state, $country);
         $customerInfo = Config::getCustomerInfo($customer, $address_delivery);
 
-        $result = Database::getConektaMetadata($customer->id, $this->conekta_mode, "conekta_customer_id");
+        $result = $this->metadataModel->getConektaMetadata(
+            $customer->id,
+            $this->conekta_mode,
+            "conekta_customer_id"
+        );
 
         if (count($payment_options) > 0
             && ! empty($shippingContact['address']['postal_code'])
@@ -538,15 +448,15 @@ class Conekta extends PaymentModule
                 $customerConekta->update($customerInfo);
             }
 
-            if ((Configuration::get('PAYMENT_METHS_INSTALLMET'))) {
+            if (($this->cnkConfig->get('PAYMENT_METHS_INSTALLMET'))) {
                 $msi = true;
             }
 
-            if (Configuration::get('CHARGE_ON_DEMAND_ENABLE')) {
+            if ($this->cnkConfig->get('CHARGE_ON_DEMAND_ENABLE')) {
                 $on_demand_enabled = true;
             }
 
-            if (Configuration::get('3DS_FORCE')) {
+            if ($this->cnkConfig->get('3DS_FORCE')) {
                 $force_3ds = true;
             }
 
@@ -556,11 +466,13 @@ class Conekta extends PaymentModule
                 "type"                    => 'Integration',
                 "allowed_payment_methods" => $payment_options,
                 "on_demand_enabled"       => $on_demand_enabled,
-                "force_3ds_flow"          => Configuration::get('CONEKTA_MODE') ? $force_3ds : false
+                "force_3ds_flow"          => $this->cnkConfig->get('CONEKTA_MODE') ? $force_3ds : false
             ];
 
             if (in_array('cash', $payment_options)) {
-                $checkout["expires_at"] = time() + (Configuration::get('EXPIRATION_DATE_LIMIT') * (Configuration::get(
+                $checkout["expires_at"] = time() + ($this->cnkConfig->get(
+                            'EXPIRATION_DATE_LIMIT'
+                        ) * ($this->cnkConfig->get(
                             'EXPIRATION_DATE_TYPE'
                         ) == 0 ? 86400 : 3600));
             }
@@ -583,7 +495,7 @@ class Conekta extends PaymentModule
 
             $order_elements = array_keys(get_class_vars('Cart'));
             foreach ($order_elements as $element) {
-                if (! empty(Configuration::get('ORDER_' . Tools::strtoupper($element))) && property_exists(
+                if (! empty($this->cnkConfig->get('ORDER_' . Tools::strtoupper($element))) && property_exists(
                         $this->context->cart,
                         $element
                     )) {
@@ -596,7 +508,7 @@ class Conekta extends PaymentModule
                 $index = 'product-' . $item['id_product'];
                 $order_details['metadata'][$index] = '';
                 foreach ($product_elements as $element) {
-                    if (! empty(Configuration::get('PRODUCT_' . Tools::strtoupper($element)))
+                    if (! empty($this->cnkConfig->get('PRODUCT_' . Tools::strtoupper($element)))
                         && array_key_exists($element, $item)
                     ) {
                         $order_details['metadata'][$index] .= $this->buildRecursiveMetadata($item[$element], $element);
@@ -782,14 +694,14 @@ class Conekta extends PaymentModule
         }
         $this->smarty->assign(
             array(
-                'test_private_key' => Configuration::get('TEST_PRIVATE_KEY')
+                'test_private_key' => $this->cnkConfig->get('TEST_PRIVATE_KEY')
             )
         );
         $payment_options = array();
 
-        if (Configuration::get('PAYMENT_METHS_CARD')
-            || Configuration::get('PAYMENT_METHS_CASH')
-            || Configuration::get('PAYMENT_METHS_SPEI')
+        if ($this->cnkConfig->get('PAYMENT_METHS_CARD')
+            || $this->cnkConfig->get('PAYMENT_METHS_CASH')
+            || $this->cnkConfig->get('PAYMENT_METHS_SPEI')
         ) {
             array_push($payment_options, $this->getConektaPaymentOption());
         }
@@ -970,34 +882,34 @@ class Conekta extends PaymentModule
     private function postProcess()
     {
         if (Tools::isSubmit('btnSubmit') && Tools::getValue('TEST_PUBLIC_KEY') && Tools::getValue('TEST_PRIVATE_KEY')) {
-            Configuration::updateValue('PAYEE_NAME', Tools::getValue('PAYEE_NAME'));
-            Configuration::updateValue('PAYEE_ADDRESS', Tools::getValue('PAYEE_ADDRESS'));
-            Configuration::updateValue('MODE', Tools::getValue('MODE'));
-            Configuration::updateValue('WEB_HOOK', Tools::getValue('WEB_HOOK'));
-            Configuration::updateValue('PAYMENT_METHS_CARD', Tools::getValue('PAYMENT_METHS_CARD'));
-            Configuration::updateValue('PAYMENT_METHS_INSTALLMET', Tools::getValue('PAYMENT_METHS_INSTALLMET'));
-            Configuration::updateValue('PAYMENT_METHS_CASH', Tools::getValue('PAYMENT_METHS_CASH'));
-            Configuration::updateValue('PAYMENT_METHS_BANORTE', Tools::getValue('PAYMENT_METHS_BANORTE'));
-            Configuration::updateValue('PAYMENT_METHS_SPEI', Tools::getValue('PAYMENT_METHS_SPEI'));
-            Configuration::updateValue('EXPIRATION_DATE_TYPE', Tools::getValue('EXPIRATION_DATE_TYPE'));
-            Configuration::updateValue('EXPIRATION_DATE_LIMIT', Tools::getValue('EXPIRATION_DATE_LIMIT'));
-            Configuration::updateValue('TEST_PRIVATE_KEY', Tools::getValue('TEST_PRIVATE_KEY'));
-            Configuration::updateValue('TEST_PUBLIC_KEY', Tools::getValue('TEST_PUBLIC_KEY'));
-            Configuration::updateValue('LIVE_PRIVATE_KEY', Tools::getValue('LIVE_PRIVATE_KEY'));
-            Configuration::updateValue('LIVE_PUBLIC_KEY', Tools::getValue('LIVE_PUBLIC_KEY'));
-            Configuration::updateValue('CHARGE_ON_DEMAND_ENABLE', Tools::getValue('CHARGE_ON_DEMAND_ENABLE'));
-            Configuration::updateValue('3DS_FORCE', Tools::getValue('3DS_FORCE'));
+            $this->cnkConfig->update('PAYEE_NAME', Tools::getValue('PAYEE_NAME'));
+            $this->cnkConfig->update('PAYEE_ADDRESS', Tools::getValue('PAYEE_ADDRESS'));
+            $this->cnkConfig->update('MODE', Tools::getValue('MODE'));
+            $this->cnkConfig->update('WEB_HOOK', Tools::getValue('WEB_HOOK'));
+            $this->cnkConfig->update('PAYMENT_METHS_CARD', Tools::getValue('PAYMENT_METHS_CARD'));
+            $this->cnkConfig->update('PAYMENT_METHS_INSTALLMET', Tools::getValue('PAYMENT_METHS_INSTALLMET'));
+            $this->cnkConfig->update('PAYMENT_METHS_CASH', Tools::getValue('PAYMENT_METHS_CASH'));
+            $this->cnkConfig->update('PAYMENT_METHS_BANORTE', Tools::getValue('PAYMENT_METHS_BANORTE'));
+            $this->cnkConfig->update('PAYMENT_METHS_SPEI', Tools::getValue('PAYMENT_METHS_SPEI'));
+            $this->cnkConfig->update('EXPIRATION_DATE_TYPE', Tools::getValue('EXPIRATION_DATE_TYPE'));
+            $this->cnkConfig->update('EXPIRATION_DATE_LIMIT', Tools::getValue('EXPIRATION_DATE_LIMIT'));
+            $this->cnkConfig->update('TEST_PRIVATE_KEY', Tools::getValue('TEST_PRIVATE_KEY'));
+            $this->cnkConfig->update('TEST_PUBLIC_KEY', Tools::getValue('TEST_PUBLIC_KEY'));
+            $this->cnkConfig->update('LIVE_PRIVATE_KEY', Tools::getValue('LIVE_PRIVATE_KEY'));
+            $this->cnkConfig->update('LIVE_PUBLIC_KEY', Tools::getValue('LIVE_PUBLIC_KEY'));
+            $this->cnkConfig->update('CHARGE_ON_DEMAND_ENABLE', Tools::getValue('CHARGE_ON_DEMAND_ENABLE'));
+            $this->cnkConfig->update('3DS_FORCE', Tools::getValue('3DS_FORCE'));
 
             $order_elements = array_keys(get_class_vars('Cart'));
             foreach ($order_elements as $element) {
-                Configuration::updateValue(
+                $this->cnkConfig->update(
                     'ORDER_' . Tools::strtoupper($element),
                     Tools::getValue('ORDER_' . Tools::strtoupper($element))
                 );
             }
             $product_elements = self::CART_PRODUCT_ATTR;
             foreach ($product_elements as $element) {
-                Configuration::updateValue(
+                $this->cnkConfig->update(
                     'PRODUCT_' . Tools::strtoupper($element),
                     Tools::getValue('PRODUCT_' . Tools::strtoupper($element))
                 );
@@ -1027,55 +939,63 @@ class Conekta extends PaymentModule
     public function getConfigFieldsValues()
     {
         $ret = array(
-            'PAYEE_NAME'               => Tools::getValue('PAYEE_NAME', Configuration::get('PAYEE_NAME')),
-            'PAYEE_ADDRESS'            => Tools::getValue('PAYEE_ADDRESS', Configuration::get('PAYEE_ADDRESS')),
-            'MODE'                     => Tools::getValue('MODE', Configuration::get('MODE')),
-            'WEB_HOOK'                 => Tools::getValue('WEB_HOOK', Configuration::get('WEB_HOOK')),
+            'PAYEE_NAME'               => Tools::getValue('PAYEE_NAME', $this->cnkConfig->get('PAYEE_NAME')),
+            'PAYEE_ADDRESS'            => Tools::getValue('PAYEE_ADDRESS', $this->cnkConfig->get('PAYEE_ADDRESS')),
+            'MODE'                     => Tools::getValue('MODE', $this->cnkConfig->get('MODE')),
+            'WEB_HOOK'                 => Tools::getValue('WEB_HOOK', $this->cnkConfig->get('WEB_HOOK')),
             'PAYMENT_METHS_CARD'       => Tools::getValue(
                 'PAYMENT_METHS_CARD',
-                Configuration::get('PAYMENT_METHS_CARD')
+                $this->cnkConfig->get('PAYMENT_METHS_CARD')
             ),
             'PAYMENT_METHS_INSTALLMET' => Tools::getValue(
                 'PAYMENT_METHS_INSTALLMET',
-                Configuration::get('PAYMENT_METHS_INSTALLMET')
+                $this->cnkConfig->get('PAYMENT_METHS_INSTALLMET')
             ),
             'PAYMENT_METHS_CASH'       => Tools::getValue(
                 'PAYMENT_METHS_CASH',
-                Configuration::get('PAYMENT_METHS_CASH')
+                $this->cnkConfig->get('PAYMENT_METHS_CASH')
             ),
             'PAYMENT_METHS_BANORTE'    => Tools::getValue(
                 'PAYMENT_METHS_BANORTE',
-                Configuration::get('PAYMENT_METHS_BANORTE')
+                $this->cnkConfig->get('PAYMENT_METHS_BANORTE')
             ),
             'PAYMENT_METHS_SPEI'       => Tools::getValue(
                 'PAYMENT_METHS_SPEI',
-                Configuration::get('PAYMENT_METHS_SPEI')
+                $this->cnkConfig->get('PAYMENT_METHS_SPEI')
             ),
             'EXPIRATION_DATE_TYPE'     => Tools::getValue(
                 'EXPIRATION_DATE_TYPE',
-                Configuration::get('EXPIRATION_DATE_TYPE')
+                $this->cnkConfig->get('EXPIRATION_DATE_TYPE')
             ),
             'EXPIRATION_DATE_LIMIT'    => Tools::getValue(
                 'EXPIRATION_DATE_LIMIT',
-                Configuration::get('EXPIRATION_DATE_LIMIT')
+                $this->cnkConfig->get('EXPIRATION_DATE_LIMIT')
             ),
-            'TEST_PRIVATE_KEY'         => Tools::getValue('TEST_PRIVATE_KEY', Configuration::get('TEST_PRIVATE_KEY')),
-            'TEST_PUBLIC_KEY'          => Tools::getValue('TEST_PUBLIC_KEY', Configuration::get('TEST_PUBLIC_KEY')),
-            'LIVE_PRIVATE_KEY'         => Tools::getValue('LIVE_PRIVATE_KEY', Configuration::get('LIVE_PRIVATE_KEY')),
-            'LIVE_PUBLIC_KEY'          => Tools::getValue('LIVE_PUBLIC_KEY', Configuration::get('LIVE_PUBLIC_KEY')),
+            'TEST_PRIVATE_KEY'         => Tools::getValue(
+                'TEST_PRIVATE_KEY',
+                $this->cnkConfig->get('TEST_PRIVATE_KEY')
+            ),
+            'TEST_PUBLIC_KEY'          => Tools::getValue('TEST_PUBLIC_KEY', $this->cnkConfig->get('TEST_PUBLIC_KEY')),
+            'LIVE_PRIVATE_KEY'         => Tools::getValue(
+                'LIVE_PRIVATE_KEY',
+                $this->cnkConfig->get('LIVE_PRIVATE_KEY')
+            ),
+            'LIVE_PUBLIC_KEY'          => Tools::getValue('LIVE_PUBLIC_KEY', $this->cnkConfig->get('LIVE_PUBLIC_KEY')),
             'CHARGE_ON_DEMAND_ENABLE'  => Tools::getValue(
                 'CHARGE_ON_DEMAND_ENABLE',
-                Configuration::get('CHARGE_ON_DEMAND_ENABLE')
+                $this->cnkConfig->get('CHARGE_ON_DEMAND_ENABLE')
             ),
-            '3DS_FORCE'                => Tools::getValue('3DS_FORCE', Configuration::get('3DS_FORCE'))
+            '3DS_FORCE'                => Tools::getValue('3DS_FORCE', $this->cnkConfig->get('3DS_FORCE'))
         );
         $order_elements = array_keys(get_class_vars('Cart'));
         foreach ($order_elements as $element) {
-            $ret['ORDER_' . Tools::strtoupper($element)] = Configuration::get('ORDER_' . Tools::strtoupper($element));
+            $ret['ORDER_' . Tools::strtoupper($element)] = $this->cnkConfig->get(
+                'ORDER_' . Tools::strtoupper($element)
+            );
         }
         $product_elements = self::CART_PRODUCT_ATTR;
         foreach ($product_elements as $element) {
-            $ret['PRODUCT_' . Tools::strtoupper($element)] = Configuration::get(
+            $ret['PRODUCT_' . Tools::strtoupper($element)] = $this->cnkConfig->get(
                 'PRODUCT_' . Tools::strtoupper($element)
             );
         }
@@ -1412,17 +1332,17 @@ class Conekta extends PaymentModule
     public function checkSettings($mode = 'global')
     {
         if ($mode === 'global') {
-            $mode = Configuration::get('CONEKTA_MODE');
+            $mode = $this->cnkConfig->get('CONEKTA_MODE');
         }
 
         $valid = false;
 
         if ($mode) {
-            $valid = Configuration::get('CONEKTA_PUBLIC_KEY_LIVE') != '' && Configuration::get(
+            $valid = $this->cnkConfig->get('CONEKTA_PUBLIC_KEY_LIVE') != '' && $this->cnkConfig->get(
                     'CONEKTA_PRIVATE_KEY_LIVE'
                 ) != '';
         } else {
-            $valid = Configuration::get('CONEKTA_PUBLIC_KEY_TEST') != '' && Configuration::get(
+            $valid = $this->cnkConfig->get('CONEKTA_PUBLIC_KEY_TEST') != '' && $this->cnkConfig->get(
                     'CONEKTA_PRIVATE_KEY_TEST'
                 ) != '';
         }
@@ -1446,10 +1366,10 @@ class Conekta extends PaymentModule
             'result' => (integer)function_exists('curl_init')
         );
 
-        if (Configuration::get('CONEKTA_MODE')) {
+        if ($this->cnkConfig->get('CONEKTA_MODE')) {
             $tests['ssl'] = array(
                 'name'   => $this->l('SSL must be enabled on your store (before entering Live mode)'),
-                'result' => (integer)Configuration::get('PS_SSL_ENABLED') || (! empty(
+                'result' => (integer)$this->cnkConfig->get('PS_SSL_ENABLED') || (! empty(
                         filter_input(
                             INPUT_SERVER,
                             'HTTPS'
@@ -1495,8 +1415,8 @@ class Conekta extends PaymentModule
         //CODE FOR WEBHOOK VALIDATION UNTESTED DONT ERASE
 
         $this->smarty->assign("base_uri", __PS_BASE_URI__);
-        $this->smarty->assign("mode", Configuration::get('MODE'));
-        $url = Configuration::get('WEB_HOOK');
+        $this->smarty->assign("mode", $this->cnkConfig->get('MODE'));
+        $url = $this->cnkConfig->get('WEB_HOOK');
 
         if (empty($url)) {
             $url = _PS_BASE_URL_ . __PS_BASE_URI__ . "modules/conekta/notification.php";
@@ -1518,17 +1438,17 @@ class Conekta extends PaymentModule
             );
 
             foreach ($configuration_values as $configuration_key => $configuration_value) {
-                Configuration::updateValue($configuration_key, $configuration_value);
+                $this->cnkConfig->update($configuration_key, $configuration_value);
             }
             $this->createWebhook();
 
-            $webhook_message = Configuration::get('CONEKTA_WEBHOOK_ERROR_MESSAGE');
+            $webhook_message = $this->cnkConfig->get('CONEKTA_WEBHOOK_ERROR_MESSAGE');
 
             if (empty($webhook_message)) {
                 $webhook_message = false;
             }
 
-            $this->smarty->assign("error_webhook_message", Configuration::get('CONEKTA_WEBHOOK_ERROR_MESSAGE'));
+            $this->smarty->assign("error_webhook_message", $this->cnkConfig->get('CONEKTA_WEBHOOK_ERROR_MESSAGE'));
         } else {
             $this->smarty->assign("error_webhook_message", false);
         }
@@ -1578,7 +1498,7 @@ class Conekta extends PaymentModule
         try {
             $customerConekta = \Conekta\Customer::create($params);
 
-            Database::updateConektaMetadata(
+            $this->metadataModel->updateConektaMetadata(
                 $customer->id,
                 $this->conekta_mode,
                 "conekta_customer_id",
@@ -1598,9 +1518,10 @@ class Conekta extends PaymentModule
      */
     private function createWebhook()
     {
-        $key = Configuration::get('CONEKTA_MODE') ? Configuration::get('CONEKTA_PRIVATE_KEY_LIVE') : Configuration::get(
-            'CONEKTA_PRIVATE_KEY_TEST'
-        );
+        $key = $this->cnkConfig->get('CONEKTA_MODE') ?
+            $this->cnkConfig->get('CONEKTA_PRIVATE_KEY_LIVE')
+            : $this->cnkConfig->get('CONEKTA_PRIVATE_KEY_TEST');
+
         $iso_code = $this->context->language->iso_code;
 
         \Conekta\Conekta::setApiKey($key);
@@ -1618,15 +1539,15 @@ class Conekta extends PaymentModule
 
         $url = Tools::safeOutput(Tools::getValue('WEB_HOOK'));
 
-        Configuration::deleteByName('CONEKTA_WEBHOOK_ERROR_MESSAGE');
+        $this->cnkConfig->delete('CONEKTA_WEBHOOK_ERROR_MESSAGE');
 
         // Obtain stored value
-        $config_url = Tools::safeOutput(Configuration::get('CONEKTA_WEBHOOK'));
+        $config_url = Tools::safeOutput($this->cnkConfig->get('CONEKTA_WEBHOOK'));
         $is_valid_url = ! empty($url) && ! filter_var($url, FILTER_VALIDATE_URL) === false;
-        $failed_attempts = (integer)Configuration::get('CONEKTA_WEBHOOK_FAILED_ATTEMPTS');
+        $failed_attempts = (integer)$this->cnkConfig->get('CONEKTA_WEBHOOK_FAILED_ATTEMPTS');
 
         // If input is valid, has not been stored and has not failed more than 5 times
-        if ($is_valid_url && ($config_url != $url) && ($failed_attempts < 5 && $url != Configuration::get(
+        if ($is_valid_url && ($config_url != $url) && ($failed_attempts < 5 && $url != $this->cnkConfig->get(
                     'CONEKTA_WEBHOOK_FAILED_URL'
                 ))) {
             try {
@@ -1638,7 +1559,7 @@ class Conekta extends PaymentModule
                     array_push($urls, $webhook->webhook_url);
                 }
                 if (! in_array($url, $urls)) {
-                    if (Configuration::get('CONEKTA_MODE')) {
+                    if ($this->cnkConfig->get('CONEKTA_MODE')) {
                         $mode = array(
                             "production_enabled" => 1
                         );
@@ -1657,40 +1578,40 @@ class Conekta extends PaymentModule
                         )
                     );
 
-                    Configuration::updateValue('CONEKTA_WEBHOOK', $url);
+                    $this->cnkConfig->update('CONEKTA_WEBHOOK', $url);
 
                     // delete error variables
 
-                    Configuration::deleteByName('CONEKTA_WEBHOOK_FAILED_ATTEMPTS');
-                    Configuration::deleteByName('CONEKTA_WEBHOOK_FAILED_URL');
-                    Configuration::deleteByName('CONEKTA_WEBHOOK_ERROR_MESSAGE');
+                    $this->cnkConfig->delete('CONEKTA_WEBHOOK_FAILED_ATTEMPTS');
+                    $this->cnkConfig->delete('CONEKTA_WEBHOOK_FAILED_URL');
+                    $this->cnkConfig->delete('CONEKTA_WEBHOOK_ERROR_MESSAGE');
                 }
             } catch (\Exception $e) {
-                Configuration::updateValue('CONEKTA_WEBHOOK_ERROR_MESSAGE', $e->getMessage());
+                $this->cnkConfig->update('CONEKTA_WEBHOOK_ERROR_MESSAGE', $e->getMessage());
             }
         } else {
-            if ($url == Configuration::get('CONEKTA_WEBHOOK_FAILED_URL')) {
-                Configuration::updateValue(
+            if ($url == $this->cnkConfig->get('CONEKTA_WEBHOOK_FAILED_URL')) {
+                $this->cnkConfig->update(
                     'CONEKTA_WEBHOOK_ERROR_MESSAGE',
                     "Webhook was already register, try changing webhook!"
                 );
-                Configuration::deleteByName('CONEKTA_WEBHOOK_FAILED_ATTEMPTS');
+                $this->cnkConfig->delete('CONEKTA_WEBHOOK_FAILED_ATTEMPTS');
                 $failed_attempts = 0;
             } elseif ($failed_attempts >= 5) {
-                Configuration::updateValue('CONEKTA_WEBHOOK_ERROR_MESSAGE', "Maximum failed attempts reached!");
+                $this->cnkConfig->update('CONEKTA_WEBHOOK_ERROR_MESSAGE', "Maximum failed attempts reached!");
             } elseif (! $is_valid_url) {
-                Configuration::updateValue('CONEKTA_WEBHOOK_ERROR_MESSAGE', "Not a valid url!");
+                $this->cnkConfig->update('CONEKTA_WEBHOOK_ERROR_MESSAGE', "Not a valid url!");
             } else {
-                Configuration::updateValue(
+                $this->cnkConfig->update(
                     'CONEKTA_WEBHOOK_ERROR_MESSAGE',
                     "Webhook was already registered in your shop!"
                 );
             }
         }
-        if (! empty(Configuration::get('CONEKTA_WEBHOOK_ERROR_MESSAGE'))) {
+        if (! empty($this->cnkConfig->get('CONEKTA_WEBHOOK_ERROR_MESSAGE'))) {
             $failed_attempts = $failed_attempts + 1;
-            Configuration::updateValue('CONEKTA_WEBHOOK_FAILED_ATTEMPTS', $failed_attempts);
-            Configuration::updateValue('CONEKTA_WEBHOOK_FAILED_URL', $url);
+            $this->cnkConfig->update('CONEKTA_WEBHOOK_FAILED_ATTEMPTS', $failed_attempts);
+            $this->cnkConfig->update('CONEKTA_WEBHOOK_FAILED_URL', $url);
         }
     }
 
@@ -1726,7 +1647,7 @@ class Conekta extends PaymentModule
         //value by default
         $msi = 0;
         $jumps = array(1);
-        if (Configuration::get('PAYMENT_METHS_INSTALLMET')) {
+        if ($this->cnkConfig->get('PAYMENT_METHS_INSTALLMET')) {
             $msi = 1;
             $total = $this->context->cart->getOrderTotal();
             $jumps = $this->getJumps($total, $jumps);
@@ -1748,7 +1669,7 @@ class Conekta extends PaymentModule
                 'years'            => $years,
                 'msi'              => $msi,
                 'msi_jumps'        => $jumps[0],
-                'test_private_key' => Configuration::get('TEST_PRIVATE_KEY'),
+                'test_private_key' => $this->cnkConfig->get('TEST_PRIVATE_KEY'),
                 'charge_on_demand' => $this->charge_on_demand,
                 'path'             => $this->_path
             )
@@ -1765,7 +1686,9 @@ class Conekta extends PaymentModule
      */
     public function processPayment($conektaOrderId)
     {
-        $key = Configuration::get('CONEKTA_MODE') ? Configuration::get('CONEKTA_PRIVATE_KEY_LIVE') : Configuration::get(
+        $key = $this->cnkConfig->get('CONEKTA_MODE') ? $this->cnkConfig->get(
+            'CONEKTA_PRIVATE_KEY_LIVE'
+        ) : $this->cnkConfig->get(
             'CONEKTA_PRIVATE_KEY_TEST'
         );
         $iso_code = $this->context->language->iso_code;
@@ -1779,7 +1702,7 @@ class Conekta extends PaymentModule
         try {
             $order = \Conekta\Order::find($conektaOrderId->id);
             $charge_response = $order->charges[0];
-            $order_status = (int)Configuration::get('PS_OS_PAYMENT');
+            $order_status = (int)$this->cnkConfig->get('PS_OS_PAYMENT');
 
             $message = $this->l('Conekta Transaction Details:') . "\n\n" . $this->l(
                     'Amount:'
@@ -1874,7 +1797,7 @@ class Conekta extends PaymentModule
 
             $message = $e->getMessage() . ' ';
 
-            $controller = Configuration::get('PS_ORDER_PROCESS_TYPE') ? 'order-opc.php' : 'order.php';
+            $controller = $this->cnkConfig->get('PS_ORDER_PROCESS_TYPE') ? 'order-opc.php' : 'order.php';
             $location = $this->context->link->getPageLink($controller, true) . (strpos(
                     $controller,
                     '?'
