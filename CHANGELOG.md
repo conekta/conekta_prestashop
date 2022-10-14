@@ -1,3 +1,8 @@
+## [v2.3.4] - 2022-09-28
+[Full Changelog](https://github.com/conekta/conekta_prestashop/compare/2.3.3...2.3.4)
+* Changed
+- Update Conekta logo by @ElvisHeredia [#107](https://github.com/conekta/conekta_prestashop/pull/107)
+
 ## [v2.3.3] - 2022-08-03
 [Full Changelog](https://github.com/conekta/conekta_prestashop/compare/1.1.0...2.3.3)
 * Changed
