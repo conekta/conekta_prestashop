@@ -57,14 +57,14 @@ class Conekta extends PaymentModule
     {
         $this->name = 'conekta';
         $this->tab = 'payments_gateways';
-        $this->version = '1.1.0';
+        $this->version = '2.3.3';
         $this->ps_versions_compliancy = array(
             'min' => '1.7',
             'max' => _PS_VERSION_
         );
         $this->author = 'Conekta';
         $this->module_key = 'db59557d5fe73f63180043679985c8c4';
-        $this->displayName = $this->l('Conekta Prestashop');
+        $this->displayName = $this->l('Conekta');
         $this->description = $this->l('Accept payments by Credit and Debit Card with Conekta (Visa, Mastercard, Amex)');
         $this->controllers = array('validation');
         $this->is_eu_compatible = 1;
@@ -116,7 +116,8 @@ class Conekta extends PaymentModule
     {
         $mappedConfig = $this->mappedConfig();
         foreach ($config as $key => $value) {
-            $this->$mappedConfig[$key] = $value;
+            $attr = $mappedConfig[$key];
+            $this->$attr = $value;
             if ($key == 'MODE') {
                 $this->conekta_mode = ($this->mode) ? 'live' : 'test';
             }
