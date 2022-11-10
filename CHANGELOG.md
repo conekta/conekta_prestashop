@@ -1,3 +1,7 @@
+## [v2.3.5] - 2022-11-04
+[Full Changelog](https://github.com/conekta/conekta_prestashop/compare/2.3.4...2.3.5)
+- Update Version by @ElvisHeredia [#107](https://github.com/conekta/conekta_prestashop/pull/107)
+
 ## [v2.3.4] - 2022-09-28
 [Full Changelog](https://github.com/conekta/conekta_prestashop/compare/2.3.3...2.3.4)
 * Changed
