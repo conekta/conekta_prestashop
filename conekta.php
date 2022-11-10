@@ -15,7 +15,7 @@
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  * @category  Conekta
  * @package   Conekta
- * @version   GIT: @2.3.4@
+ * @version   GIT: @2.3.5@
  * @link      https://conekta.com/
  */
 
@@ -57,7 +57,7 @@ class Conekta extends PaymentModule
     {
         $this->name = 'conekta';
         $this->tab = 'payments_gateways';
-        $this->version = '2.3.3';
+        $this->version = '2.3.5';
         $this->ps_versions_compliancy = array(
             'min' => '1.7',
             'max' => _PS_VERSION_
@@ -116,6 +116,9 @@ class Conekta extends PaymentModule
     {
         $mappedConfig = $this->mappedConfig();
         foreach ($config as $key => $value) {
+            if (! isset($mappedConfig[$key])) {
+                continue;
+            }
             $attr = $mappedConfig[$key];
             $this->$attr = $value;
             if ($key == 'MODE') {

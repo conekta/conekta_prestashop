@@ -15,7 +15,7 @@
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  * @category  Database
  * @package   Database
- * @version   GIT: @2.3.4@
+ * @version   GIT: @2.3.5@
  * @link      https://conekta.com/
  */
 
