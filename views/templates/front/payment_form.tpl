@@ -39,7 +39,7 @@
     </div>
   {/if}
   {if !isset($message)}
-      <div id="conektaIframeContainer" style="height:800px; width: 600px;"></div>
+      <div id="conektaIframeContainer" style="height:800px; width: 100%;"></div>
       <button style="display:none" id="conekta-payment-resume" type="submit" class="btn btn-primary">resumen</button>
   {/if}
 
