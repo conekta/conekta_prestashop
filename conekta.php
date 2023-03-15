@@ -15,7 +15,7 @@
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  * @category  Conekta
  * @package   Conekta
- * @version   GIT: @2.3.5@
+ * @version   GIT: @2.3.6@
  * @link      https://conekta.com/
  */
 
@@ -57,7 +57,7 @@ class Conekta extends PaymentModule
     {
         $this->name = 'conekta';
         $this->tab = 'payments_gateways';
-        $this->version = '2.3.5';
+        $this->version = '2.3.6';
         $this->ps_versions_compliancy = array(
             'min' => '1.7',
             'max' => _PS_VERSION_
@@ -73,13 +73,13 @@ class Conekta extends PaymentModule
         $this->cash = true;
         $this->amount_min = 2000;
 
-        $settings = array(
+        $settings = [
             'PAYEE_NAME',
             'PAYEE_ADDRESS',
             'MODE',
             'WEB_HOOK',
             'PAYMENT_METHS_CARD',
-            'PAYMENT_METHS_INSTALLMET',
+            'PAYMENT_MONTHS_INSTALLMENT',
             'PAYMENT_METHS_CASH',
             'PAYMENT_METHS_SPEI',
             'EXPIRATION_DATE_TYPE',
@@ -89,8 +89,14 @@ class Conekta extends PaymentModule
             'LIVE_PRIVATE_KEY',
             'LIVE_PUBLIC_KEY',
             'CHARGE_ON_DEMAND_ENABLE',
-            '3DS_FORCE'
-        );
+            '3DS_FORCE',
+            'INSTALLMENTS_3_MONTHS',
+            'INSTALLMENTS_6_MONTHS',
+            'INSTALLMENTS_9_MONTHS',
+            'INSTALLMENTS_12_MONTHS',
+            'INSTALLMENTS_18_MONTHS',
+        ];
+
         $order_elements = array_keys(get_class_vars('Cart'));
         foreach ($order_elements as $element) {
             $settings[] = 'ORDER_' . Tools::strtoupper($element);
@@ -130,22 +136,27 @@ class Conekta extends PaymentModule
     private function mappedConfig()
     {
         return [
-            'PAYEE_NAME'               => 'checkName',
-            'PAYEE_ADDRESS'            => 'address',
-            'MODE'                     => 'mode',
-            'WEB_HOOK'                 => 'web_hook',
-            'PAYMENT_METHS_CARD'       => 'paymnt_method_card',
-            'PAYMENT_METHS_INSTALLMET' => 'payment_method_installment',
-            'PAYMENT_METHS_CASH'       => 'payment_method_cash',
-            'PAYMENT_METHS_SPEI'       => 'payment_method_spei',
-            'EXPIRATION_DATE_TYPE'     => 'expiration_date_type',
-            'EXPIRATION_DATE_LIMIT'    => 'expiration_date_limit',
-            'TEST_PRIVATE_KEY'         => 'test_private_key',
-            'TEST_PUBLIC_KEY'          => 'test_public_key',
-            'LIVE_PRIVATE_KEY'         => 'live_private_key',
-            'LIVE_PUBLIC_KEY'          => 'live_public_key',
-            'CHARGE_ON_DEMAND_ENABLE'  => 'charge_on_demand',
-            '3DS_FORCE'                => 'charge_on_demand'
+            'PAYEE_NAME'                => 'checkName',
+            'PAYEE_ADDRESS'             => 'address',
+            'MODE'                      => 'mode',
+            'WEB_HOOK'                  => 'web_hook',
+            'PAYMENT_METHS_CARD'        => 'paymnt_method_card',
+            'PAYMENT_MONTHS_INSTALLMENT' => 'payment_months_installment',
+            'PAYMENT_METHS_CASH'        => 'payment_method_cash',
+            'PAYMENT_METHS_SPEI'        => 'payment_method_spei',
+            'EXPIRATION_DATE_TYPE'      => 'expiration_date_type',
+            'EXPIRATION_DATE_LIMIT'     => 'expiration_date_limit',
+            'TEST_PRIVATE_KEY'          => 'test_private_key',
+            'TEST_PUBLIC_KEY'           => 'test_public_key',
+            'LIVE_PRIVATE_KEY'          => 'live_private_key',
+            'LIVE_PUBLIC_KEY'           => 'live_public_key',
+            'CHARGE_ON_DEMAND_ENABLE'   => 'charge_on_demand',
+            '3DS_FORCE'                 => 'charge_on_demand',
+            'INSTALLMENTS_3_MONTHS'     => 'installments_3_months',
+            'INSTALLMENTS_6_MONTHS'     => 'installments_6_months',
+            'INSTALLMENTS_9_MONTHS'     => 'installments_9_months',
+            'INSTALLMENTS_12_MONTHS'    => 'installments_12_months',
+            'INSTALLMENTS_18_MONTHS'    => 'installments_18_months'
         ];
     }
 
@@ -187,7 +198,7 @@ class Conekta extends PaymentModule
             || ! $this->registerHook('adminOrder')
             || ! $this->registerHook('updateOrderStatus')
             && Configuration::updateValue('PAYMENT_METHS_CARD', 1)
-            && Configuration::updateValue('PAYMENT_METHS_INSTALLMET', 1)
+            && Configuration::updateValue('PAYMENT_MONTHS_INSTALLMENT', 1)
             && Configuration::updateValue('PAYMENT_METHS_CASH', 1)
             && Configuration::updateValue('PAYMENT_METHS_SPEI', 1)
             && Configuration::updateValue('MODE', 0) || ! Database::installDb()
@@ -542,9 +553,8 @@ class Conekta extends PaymentModule
                 $customerConekta->update($customerInfo);
             }
 
-            if ((Configuration::get('PAYMENT_METHS_INSTALLMET'))) {
-                $msi = true;
-            }
+
+
 
             if (Configuration::get('CHARGE_ON_DEMAND_ENABLE')) {
                 $on_demand_enabled = true;
@@ -562,6 +572,10 @@ class Conekta extends PaymentModule
                 "on_demand_enabled"       => $on_demand_enabled,
                 "force_3ds_flow"          => Configuration::get('CONEKTA_MODE') ? $force_3ds : false
             ];
+            if ((Configuration::get('PAYMENT_MONTHS_INSTALLMENT'))) {
+                $checkout['monthly_installments_enabled'] = true;
+                $checkout['monthly_installments_options'] = $this->getMonthlyInstallments();
+            }
 
             if (in_array('cash', $payment_options)) {
                 $checkout["expires_at"] = time() + (Configuration::get('EXPIRATION_DATE_LIMIT') * (Configuration::get(
@@ -721,6 +735,27 @@ class Conekta extends PaymentModule
             $this->smarty->assign("amount", "");
         }
         return $this->fetchTemplate("hook-header.tpl");
+    }
+
+    /**
+     * Generate string with msi for checkout
+     * @return array
+     */
+    private function getMonthlyInstallments()
+    {
+        $monthlyInstallments =[
+            3 => Configuration::get('INSTALLMENTS_3_MONTHS'),
+            6 => Configuration::get('INSTALLMENTS_6_MONTHS'),
+            9 => Configuration::get('INSTALLMENTS_9_MONTHS'),
+            12 => Configuration::get('INSTALLMENTS_12_MONTHS'),
+            18 => Configuration::get('INSTALLMENTS_18_MONTHS'),
+        ];
+
+        $monthlyInstallmentsFiltered = array_filter($monthlyInstallments, function ($item) {
+            return !empty($item);
+        });
+
+        return array_keys($monthlyInstallmentsFiltered);
     }
 
     /**
@@ -963,6 +998,22 @@ class Conekta extends PaymentModule
                     'Modules.Conekta.Admin'
                 );
             }
+
+            if ( Tools::getValue('PAYMENT_METHS_CARD') && Tools::getValue('PAYMENT_MONTHS_INSTALLMENT') &&
+
+                ! Tools::getValue('INSTALLMENTS_3_MONTHS') &&
+                ! Tools::getValue('INSTALLMENTS_6_MONTHS') &&
+                ! Tools::getValue('INSTALLMENTS_9_MONTHS') &&
+                ! Tools::getValue('INSTALLMENTS_12_MONTHS') &&
+                ! Tools::getValue('INSTALLMENTS_18_MONTHS')
+
+            ) {
+                $this->postErrors[] = $this->trans(
+                    'Almost one installment, must be selected.'.$result,
+                    array(),
+                    'Modules.Conekta.Admin'
+                );
+            }
         }
     }
 
@@ -979,7 +1030,7 @@ class Conekta extends PaymentModule
             Configuration::updateValue('MODE', Tools::getValue('MODE'));
             Configuration::updateValue('WEB_HOOK', Tools::getValue('WEB_HOOK'));
             Configuration::updateValue('PAYMENT_METHS_CARD', Tools::getValue('PAYMENT_METHS_CARD'));
-            Configuration::updateValue('PAYMENT_METHS_INSTALLMET', Tools::getValue('PAYMENT_METHS_INSTALLMET'));
+            Configuration::updateValue('PAYMENT_MONTHS_INSTALLMENT', Tools::getValue('PAYMENT_MONTHS_INSTALLMENT'));
             Configuration::updateValue('PAYMENT_METHS_CASH', Tools::getValue('PAYMENT_METHS_CASH'));
             Configuration::updateValue('PAYMENT_METHS_BANORTE', Tools::getValue('PAYMENT_METHS_BANORTE'));
             Configuration::updateValue('PAYMENT_METHS_SPEI', Tools::getValue('PAYMENT_METHS_SPEI'));
@@ -991,6 +1042,11 @@ class Conekta extends PaymentModule
             Configuration::updateValue('LIVE_PUBLIC_KEY', Tools::getValue('LIVE_PUBLIC_KEY'));
             Configuration::updateValue('CHARGE_ON_DEMAND_ENABLE', Tools::getValue('CHARGE_ON_DEMAND_ENABLE'));
             Configuration::updateValue('3DS_FORCE', Tools::getValue('3DS_FORCE'));
+            Configuration::updateValue('INSTALLMENTS_3_MONTHS', Tools::getValue('INSTALLMENTS_3_MONTHS'));
+            Configuration::updateValue('INSTALLMENTS_6_MONTHS', Tools::getValue('INSTALLMENTS_6_MONTHS'));
+            Configuration::updateValue('INSTALLMENTS_9_MONTHS', Tools::getValue('INSTALLMENTS_9_MONTHS'));
+            Configuration::updateValue('INSTALLMENTS_12_MONTHS', Tools::getValue('INSTALLMENTS_12_MONTHS'));
+            Configuration::updateValue('INSTALLMENTS_18_MONTHS', Tools::getValue('INSTALLMENTS_18_MONTHS'));
 
             $order_elements = array_keys(get_class_vars('Cart'));
             foreach ($order_elements as $element) {
@@ -1031,47 +1087,67 @@ class Conekta extends PaymentModule
     public function getConfigFieldsValues()
     {
         $ret = array(
-            'PAYEE_NAME'               => Tools::getValue('PAYEE_NAME', Configuration::get('PAYEE_NAME')),
-            'PAYEE_ADDRESS'            => Tools::getValue('PAYEE_ADDRESS', Configuration::get('PAYEE_ADDRESS')),
-            'MODE'                     => Tools::getValue('MODE', Configuration::get('MODE')),
-            'WEB_HOOK'                 => Tools::getValue('WEB_HOOK', Configuration::get('WEB_HOOK')),
-            'PAYMENT_METHS_CARD'       => Tools::getValue(
+            'PAYEE_NAME'                => Tools::getValue('PAYEE_NAME', Configuration::get('PAYEE_NAME')),
+            'PAYEE_ADDRESS'             => Tools::getValue('PAYEE_ADDRESS', Configuration::get('PAYEE_ADDRESS')),
+            'MODE'                      => Tools::getValue('MODE', Configuration::get('MODE')),
+            'WEB_HOOK'                  => Tools::getValue('WEB_HOOK', Configuration::get('WEB_HOOK')),
+            'PAYMENT_METHS_CARD'        => Tools::getValue(
                 'PAYMENT_METHS_CARD',
                 Configuration::get('PAYMENT_METHS_CARD')
             ),
-            'PAYMENT_METHS_INSTALLMET' => Tools::getValue(
-                'PAYMENT_METHS_INSTALLMET',
-                Configuration::get('PAYMENT_METHS_INSTALLMET')
+            'PAYMENT_MONTHS_INSTALLMENT' => Tools::getValue(
+                'PAYMENT_MONTHS_INSTALLMENT',
+                Configuration::get('PAYMENT_MONTHS_INSTALLMENT')
             ),
-            'PAYMENT_METHS_CASH'       => Tools::getValue(
+            'PAYMENT_METHS_CASH'        => Tools::getValue(
                 'PAYMENT_METHS_CASH',
                 Configuration::get('PAYMENT_METHS_CASH')
             ),
-            'PAYMENT_METHS_BANORTE'    => Tools::getValue(
+            'PAYMENT_METHS_BANORTE'     => Tools::getValue(
                 'PAYMENT_METHS_BANORTE',
                 Configuration::get('PAYMENT_METHS_BANORTE')
             ),
-            'PAYMENT_METHS_SPEI'       => Tools::getValue(
+            'PAYMENT_METHS_SPEI'        => Tools::getValue(
                 'PAYMENT_METHS_SPEI',
                 Configuration::get('PAYMENT_METHS_SPEI')
             ),
-            'EXPIRATION_DATE_TYPE'     => Tools::getValue(
+            'EXPIRATION_DATE_TYPE'      => Tools::getValue(
                 'EXPIRATION_DATE_TYPE',
                 Configuration::get('EXPIRATION_DATE_TYPE')
             ),
-            'EXPIRATION_DATE_LIMIT'    => Tools::getValue(
+            'EXPIRATION_DATE_LIMIT'     => Tools::getValue(
                 'EXPIRATION_DATE_LIMIT',
                 Configuration::get('EXPIRATION_DATE_LIMIT')
             ),
-            'TEST_PRIVATE_KEY'         => Tools::getValue('TEST_PRIVATE_KEY', Configuration::get('TEST_PRIVATE_KEY')),
-            'TEST_PUBLIC_KEY'          => Tools::getValue('TEST_PUBLIC_KEY', Configuration::get('TEST_PUBLIC_KEY')),
-            'LIVE_PRIVATE_KEY'         => Tools::getValue('LIVE_PRIVATE_KEY', Configuration::get('LIVE_PRIVATE_KEY')),
-            'LIVE_PUBLIC_KEY'          => Tools::getValue('LIVE_PUBLIC_KEY', Configuration::get('LIVE_PUBLIC_KEY')),
-            'CHARGE_ON_DEMAND_ENABLE'  => Tools::getValue(
+            'TEST_PRIVATE_KEY'          => Tools::getValue('TEST_PRIVATE_KEY', Configuration::get('TEST_PRIVATE_KEY')),
+            'TEST_PUBLIC_KEY'           => Tools::getValue('TEST_PUBLIC_KEY', Configuration::get('TEST_PUBLIC_KEY')),
+            'LIVE_PRIVATE_KEY'          => Tools::getValue('LIVE_PRIVATE_KEY', Configuration::get('LIVE_PRIVATE_KEY')),
+            'LIVE_PUBLIC_KEY'           => Tools::getValue('LIVE_PUBLIC_KEY', Configuration::get('LIVE_PUBLIC_KEY')),
+            'CHARGE_ON_DEMAND_ENABLE'   => Tools::getValue(
                 'CHARGE_ON_DEMAND_ENABLE',
                 Configuration::get('CHARGE_ON_DEMAND_ENABLE')
             ),
-            '3DS_FORCE'                => Tools::getValue('3DS_FORCE', Configuration::get('3DS_FORCE'))
+            '3DS_FORCE'                 => Tools::getValue('3DS_FORCE', Configuration::get('3DS_FORCE')),
+            'INSTALLMENTS_3_MONTHS'     => Tools::getValue(
+                'INSTALLMENTS_3_MONTHS',
+                Configuration::get('INSTALLMENTS_3_MONTHS')
+            ),
+            'INSTALLMENTS_6_MONTHS'     => Tools::getValue(
+                'INSTALLMENTS_6_MONTHS',
+                Configuration::get('INSTALLMENTS_6_MONTHS')
+            ),
+            'INSTALLMENTS_9_MONTHS'     => Tools::getValue(
+                'INSTALLMENTS_9_MONTHS',
+                Configuration::get('INSTALLMENTS_9_MONTHS')
+            ),
+            'INSTALLMENTS_12_MONTHS'    => Tools::getValue(
+                'INSTALLMENTS_12_MONTHS',
+                Configuration::get('INSTALLMENTS_12_MONTHS')
+            ),
+            'INSTALLMENTS_18_MONTHS'    => Tools::getValue(
+                'INSTALLMENTS_18_MONTHS',
+                Configuration::get('INSTALLMENTS_18_MONTHS')
+            )
         );
         $order_elements = array_keys(get_class_vars('Cart'));
         foreach ($order_elements as $element) {
@@ -1240,11 +1316,6 @@ class Conekta extends PaymentModule
                         'values' => array(
                             'query' => array(
                                 array('id' => 'CARD', 'name' => $this->l('Card'), 'val' => 'card_payment_method'),
-                                array(
-                                    'id'   => 'INSTALLMET',
-                                    'name' => $this->l('Monthly Installents'),
-                                    'val'  => 'installment_payment_method'
-                                ),
                                 array('id' => 'CASH', 'name' => $this->l('Cash'), 'val' => 'cash_payment_method'),
                                 array('id' => 'SPEI', 'name' => $this->l('SPEI'), 'val' => 'spei_payment_method')
                             ),
@@ -1252,12 +1323,65 @@ class Conekta extends PaymentModule
                             'name'  => 'name'
                         ),
                         'expand' => array(
-                            'print_total' => 4,
+                            'print_total' => 3,
                             'default'     => 'show',
                             'show'        => array('text' => $this->l('show'), 'icon' => 'plus-sign-alt'),
                             'hide'        => array('text' => $this->l('hide'), 'icon' => 'minus-sign-alt')
                         )
                     ),
+                    [
+                        'type'   => 'select',
+                        'label'  => $this->l('Monthly Installments enable'),
+                        'desc'   => $this->l('Choose options.'),
+                        'name'   => 'PAYMENT_MONTHS_INSTALLMENT',
+                        'options' => [
+                            'query' => [
+                                [
+                                    'id' => 'NO',
+                                    'name' => $this->l('No'),
+                                    'val'  => 'No'
+                                ],
+                                [
+                                    'id' => 'YES',
+                                    'name' => $this->l('Yes'),
+                                    'val'  => 'yes'
+                                ],
+                            ],
+                            'id'    => 'id',
+                            'name'  => 'name'
+                        ],
+                    ],
+                    [
+                        'type'   => 'checkbox',
+                        'label'  => $this->l('Monthly Installments'),
+                        'desc'   => $this->l('Choose options.'),
+                        'name'   => 'INSTALLMENTS',
+                        'values' => [
+                            'query' => [
+                                ['id' => '3_MONTHS', 'name' => $this->l('3 Months'), 'val' => 'installments_3_months'],
+                                ['id' => '6_MONTHS', 'name' => $this->l('6 Months'), 'val' => 'installments_6_months'],
+                                ['id' => '9_MONTHS', 'name' => $this->l('9 Months'), 'val' => 'installments_9_months'],
+                                [
+                                    'id'   => '12_MONTHS',
+                                    'name' => $this->l('12 Months'),
+                                    'val'  => 'installments_12_months'
+                                ],
+                                [
+                                    'id'   => '18_MONTHS',
+                                    'name' => $this->l('18 Months'),
+                                    'val'  => 'installments_18_months'
+                                ]
+                            ],
+                            'id'    => 'id',
+                            'name'  => 'name'
+                        ],
+                        'expand' => [
+                            'print_total' => 5,
+                            'default'     => 'show',
+                            'show'        => ['text' => $this->l('show'), 'icon' => 'plus-sign-alt'],
+                            'hide'        => ['text' => $this->l('hide'), 'icon' => 'minus-sign-alt']
+                        ]
+                    ],
                     array(
                         'type'    => 'radio',
                         'label'   => $this->l('Expiration date type'),
@@ -1507,19 +1631,24 @@ class Conekta extends PaymentModule
         }
 
         if (Tools::isSubmit('btnSubmit') && Tools::getValue('TEST_PUBLIC_KEY') && Tools::getValue('TEST_PRIVATE_KEY')) {
-            $configuration_values = array(
+            $configuration_values = [
                 'CONEKTA_MODE'             => Tools::getValue('MODE'),
                 'CONEKTA_PUBLIC_KEY_TEST'  => rtrim(Tools::getValue('TEST_PUBLIC_KEY')),
                 'CONEKTA_PUBLIC_KEY_LIVE'  => rtrim(Tools::getValue('LIVE_PUBLIC_KEY')),
                 'CONEKTA_PRIVATE_KEY_TEST' => rtrim(Tools::getValue('TEST_PRIVATE_KEY')),
                 'CONEKTA_PRIVATE_KEY_LIVE' => rtrim(Tools::getValue('LIVE_PRIVATE_KEY')),
                 'CONEKTA_CARDS'            => rtrim(Tools::getValue('PAYMENT_METHS_CARD')),
-                'CONEKTA_MSI'              => rtrim(Tools::getValue('PAYMENT_METHS_INSTALLMET')),
+                'CONEKTA_MSI'              => rtrim(Tools::getValue('PAYMENT_MONTHS_INSTALLMENT')),
                 'PAYMENT_METHS_CASH'       => rtrim(Tools::getValue('PAYMENT_METHS_CASH')),
                 'PAYMENT_METHS_SPEI'       => rtrim(Tools::getValue('PAYMENT_METHS_SPEI')),
                 'EXPIRATION_DATE_LIMIT'    => rtrim(Tools::getValue('EXPIRATION_DATE_LIMIT')),
                 'EXPIRATION_DATE_TYPE'     => rtrim(Tools::getValue('EXPIRATION_DATE_TYPE')),
-            );
+                'INSTALLMENTS_3_MONTHS'    => rtrim(Tools::getValue('INSTALLMENTS_3_MONTHS')),
+                'INSTALLMENTS_6_MONTHS'    => rtrim(Tools::getValue('INSTALLMENTS_6_MONTHS')),
+                'INSTALLMENTS_9_MONTHS'    => rtrim(Tools::getValue('INSTALLMENTS_9_MONTHS')),
+                'INSTALLMENTS_12_MONTHS'   => rtrim(Tools::getValue('INSTALLMENTS_12_MONTHS')),
+                'INSTALLMENTS_18_MONTHS'   => rtrim(Tools::getValue('INSTALLMENTS_18_MONTHS')),
+            ];
 
             foreach ($configuration_values as $configuration_key => $configuration_value) {
                 Configuration::updateValue($configuration_key, $configuration_value);
@@ -1730,7 +1859,7 @@ class Conekta extends PaymentModule
         //value by default
         $msi = 0;
         $jumps = array(1);
-        if (Configuration::get('PAYMENT_METHS_INSTALLMET')) {
+        if (Configuration::get('PAYMENT_MONTHS_INSTALLMENT')) {
             $msi = 1;
             $total = $this->context->cart->getOrderTotal();
             $jumps = $this->getJumps($total, $jumps);
