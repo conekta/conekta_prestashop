@@ -1,5 +1,5 @@
 /**
-* 2007-2022 Conekta
+* 2007-2023 Conekta
 *
 * NOTICE OF LICENSE
 *
@@ -25,33 +25,53 @@
 */
 
 function manageInstallments() {
-    let enabled = $("#INSTALLMENTS_ENABLED").is(":checked")
-    let elements = $(".checkbox > label[for^='INSTALLMENTS_'][for$='_MONTHS']").parent()
-    let minimum = $("#INSTALLMENTS_MINIMUM").parent().parent();
-    if( enabled ) {
-        elements.removeClass( "hidden" )
-        minimum.removeClass( "hidden" )
+    let select = $("#PAYMENT_MONTHS_INSTALLMENT")
+    let elements = $(".checkbox > label[for^='INSTALLMENTS_'][for$='_MONTHS']").parent().parent().parent()
+
+    if (select.val() === 'YES') {
+        elements.removeClass("hidden")
     } else {
-        elements.addClass( "hidden" )
-        minimum.addClass( "hidden" )
+        elements.addClass("hidden")
     }
 }
 
-$(document).ready(function() {
+function showInstalmentsOptions() {
+
+    const paymentCard = $("#PAYMENT_METHS_CARD");
+    const selectMonthInstallments = $("#PAYMENT_MONTHS_INSTALLMENT")
+
+
+    if (paymentCard.is(':checked')) {
+        selectMonthInstallments.parent().parent().removeClass('hidden')
+    }
+
+    if (!paymentCard.is(':checked')) {
+        selectMonthInstallments.parent().parent().addClass('hidden')
+        selectMonthInstallments.val('NO')
+    }
+    manageInstallments()
+}
+
+
+$(document).ready(function () {
     //initial state
-    $("#EXPIRATION_DATE_TYPE_DAYS").prop( "disabled", !$("#PAYMENT_METHS_CASH").is(":checked"));
-    $("#EXPIRATION_DATE_TYPE_HOURS").prop( "disabled", !$("#PAYMENT_METHS_CASH").is(":checked") );
-    $("#EXPIRATION_DATE_LIMIT").prop( "disabled", !$("#PAYMENT_METHS_CASH").is(":checked") );
-    manageInstallments();
-    
-    $("#INSTALLMENTS_ENABLED").change(manageInstallments);
+    let paymentCash = $("#PAYMENT_METHS_CASH");
+    let expirationDateLimit = $("#EXPIRATION_DATE_LIMIT")
+    let paymentCashChecked = paymentCash.is(":checked")
+
+    $("#EXPIRATION_DATE_TYPE_DAYS").prop("disabled", !paymentCashChecked);
+    $("#EXPIRATION_DATE_TYPE_HOURS").prop("disabled", !paymentCashChecked);
+    expirationDateLimit.prop("disabled", !paymentCashChecked);
+    showInstalmentsOptions()
+    $("#PAYMENT_MONTHS_INSTALLMENT").change(manageInstallments);
+    $("#PAYMENT_METHS_CARD").change(showInstalmentsOptions)
 
     //onchange value
-    $("#PAYMENT_METHS_CASH").change(function() {
-        $("#EXPIRATION_DATE_TYPE_DAYS").prop( "disabled", !this.checked );
-        $("#EXPIRATION_DATE_TYPE_HOURS").prop( "disabled", !this.checked );
-        $("#EXPIRATION_DATE_LIMIT").prop( "disabled", !this.checked );  
-        $("#EXPIRATION_DATE_LIMIT").prop( "required", this.checked );      
+    paymentCash.change(function () {
+        $("#EXPIRATION_DATE_TYPE_DAYS").prop("disabled", !this.checked);
+        $("#EXPIRATION_DATE_TYPE_HOURS").prop("disabled", !this.checked);
+        expirationDateLimit.prop("disabled", !this.checked);
+        expirationDateLimit.prop("required", this.checked);
     });
 
-}); 
+});

@@ -1,3 +1,8 @@
+## [v2.3.6] - 2023-03-15
+[Full Changelog](https://github.com/conekta/conekta_prestashop/compare/2.3.5...2.3.6)
+- Add MSI feature by @ElvisHeredia [#115](https://github.com/conekta/conekta_prestashop/pull/115)
+
+
 ## [v2.3.5] - 2022-11-04
 [Full Changelog](https://github.com/conekta/conekta_prestashop/compare/2.3.4...2.3.5)
 - Update Version by @ElvisHeredia [#107](https://github.com/conekta/conekta_prestashop/pull/107)
