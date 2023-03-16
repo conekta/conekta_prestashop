@@ -1,21 +1,40 @@
 <?php
+/**
+ * NOTICE OF LICENSE
+ * Title   : Conekta Card Payment Gateway for Prestashop
+ * Author  : Conekta.io
+ * URL     : https://www.conekta.io/es/docs/plugins/prestashop.
+ * PHP Version 7.0.0
+ * Conekta File Doc Comment
+ *
+ * @author    Conekta <support@conekta.io>
+ * @copyright 2012-2023 Conekta
+ * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ *
+ * @category  Conekta
+ *
+ * @version   GIT: @2.3.6@
+ *
+ * @see       https://conekta.com/
+ */
 
 namespace Conekta;
 
 class Lang
 {
-    const EN = 'en';
-    const ES = 'es';
+    public const EN = 'en';
 
-    protected static $cache = array();
+    public const ES = 'es';
+
+    protected static $cache = [];
 
     public static function translate($key, $locale, $parameters = null)
     {
-        $parameters = str_replace("Conekta\\", "", $parameters);
+        $parameters = str_replace('Conekta\\', '', $parameters);
 
         $langs = self::readDirectory(dirname(__FILE__) . '/../locales/messages');
 
-        $keys = explode('.', $locale.'.'.$key);
+        $keys = explode('.', $locale . '.' . $key);
         $result = $langs[array_shift($keys)];
 
         foreach ($keys as $val) {
@@ -37,12 +56,13 @@ class Lang
             return self::$cache;
         }
 
-        $langs = array();
+        $langs = [];
+
         if ($handle = opendir($directory)) {
             while ($lang = readdir($handle)) {
                 if (strpos($lang, '.php') !== false) {
                     $langKey = str_replace('.php', '', $lang);
-                    $langs[$langKey] = include $directory.'/'.$lang;
+                    $langs[$langKey] = include $directory . '/' . $lang;
                 }
             }
 

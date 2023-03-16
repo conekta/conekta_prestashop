@@ -1,21 +1,40 @@
 <?php
+/**
+ * NOTICE OF LICENSE
+ * Title   : Conekta Card Payment Gateway for Prestashop
+ * Author  : Conekta.io
+ * URL     : https://www.conekta.io/es/docs/plugins/prestashop.
+ * PHP Version 7.0.0
+ * Conekta File Doc Comment
+ *
+ * @author    Conekta <support@conekta.io>
+ * @copyright 2012-2023 Conekta
+ * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ *
+ * @category  Conekta
+ *
+ * @version   GIT: @2.3.6@
+ *
+ * @see       https://conekta.com/
+ */
 
 namespace Conekta;
 
 class SubscriptionTest extends BaseTest
 {
-    public static $validCustomer = array(
+    public static $validCustomer = [
         'email' => 'hola@hola.com',
-        'name'  => 'John Constantine'
-    );
-    public static $validVisaCard =array('type' => 'card','token_id' => 'tok_test_visa_4242');
+        'name' => 'John Constantine',
+    ];
+
+    public static $validVisaCard = ['type' => 'card', 'token_id' => 'tok_test_visa_4242'];
 
     public function testSuccesfulSubscriptionCreate()
     {
         $this->setApiKey();
         $customer = Customer::create(self::$validCustomer);
         $customer->createPaymentSource(self::$validVisaCard);
-        $subscription = $customer->createSubscription(array('plan' => 'gold-plan'));
+        $subscription = $customer->createSubscription(['plan' => 'gold-plan']);
         $this->assertTrue(strpos(get_class($subscription), 'Conekta\Subscription') !== false);
     }
 
@@ -24,24 +43,25 @@ class SubscriptionTest extends BaseTest
         $this->setApiKey();
         $customer = Customer::create(self::$validCustomer);
         $customer->createPaymentSource(self::$validVisaCard);
-        $subscription = $customer->createSubscription(array('plan' => 'gold-plan'));
+        $subscription = $customer->createSubscription(['plan' => 'gold-plan']);
+
         try {
             $plan = Plan::find('gold-plan2');
         } catch (\Exception $e) {
             $plan = Plan::create(
-                array(
-        'id'                => 'gold-plan2',
-        'name'              => 'Gold Plan',
-        'amount'            => 10000,
-        'currency'          => 'MXN',
-        'interval'          => 'month',
-        'frequency'         => 1,
+                [
+        'id' => 'gold-plan2',
+        'name' => 'Gold Plan',
+        'amount' => 10000,
+        'currency' => 'MXN',
+        'interval' => 'month',
+        'frequency' => 1,
         'trial_period_days' => 15,
-        'expiry_count'      => 12,
-        )
+        'expiry_count' => 12,
+        ]
             );
         }
-        $subscription->update(array('plan' => $plan->id));
+        $subscription->update(['plan' => $plan->id]);
         $this->assertTrue(strpos($subscription->plan_id, 'gold-plan2') !== false);
     }
 
@@ -50,9 +70,10 @@ class SubscriptionTest extends BaseTest
         $this->setApiKey();
         $customer = Customer::create(self::$validCustomer);
         $customer->createPaymentSource(self::$validVisaCard);
+
         try {
-            $subscription = $customer->createSubscription(array(
-        'plan' => 'unexistent-plan', ));
+            $subscription = $customer->createSubscription([
+        'plan' => 'unexistent-plan', ]);
         } catch (\Exception $e) {
             $this->assertTrue(strpos($e->getMessage(), 'El recurso no ha sido encontrado') !== false);
         }
@@ -63,7 +84,7 @@ class SubscriptionTest extends BaseTest
         $this->setApiKey();
         $customer = Customer::create(self::$validCustomer);
         $customer->createPaymentSource(self::$validVisaCard);
-        $subscription = $customer->createSubscription(array('plan' => 'gold-plan'));
+        $subscription = $customer->createSubscription(['plan' => 'gold-plan']);
         $this->assertTrue(strpos(get_class($subscription), 'Subscription') !== false);
         $subscription->pause();
         $this->assertTrue(strpos($subscription->status, 'paused') !== false);
@@ -74,7 +95,7 @@ class SubscriptionTest extends BaseTest
         $this->setApiKey();
         $customer = Customer::create(self::$validCustomer);
         $customer->createPaymentSource(self::$validVisaCard);
-        $subscription = $customer->createSubscription(array('plan' => 'gold-plan'));
+        $subscription = $customer->createSubscription(['plan' => 'gold-plan']);
         $this->assertTrue(strpos(get_class($subscription), 'Subscription') !== false);
         $subscription->pause();
         $subscription->resume();
@@ -86,7 +107,7 @@ class SubscriptionTest extends BaseTest
         $this->setApiKey();
         $customer = Customer::create(self::$validCustomer);
         $customer->createPaymentSource(self::$validVisaCard);
-        $subscription = $customer->createSubscription(array('plan' => 'gold-plan'));
+        $subscription = $customer->createSubscription(['plan' => 'gold-plan']);
         $this->assertTrue(strpos(get_class($subscription), 'Subscription') !== false);
         $subscription->cancel();
         $this->assertTrue(strpos($subscription->status, 'canceled') !== false);

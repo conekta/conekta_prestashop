@@ -1,16 +1,30 @@
 <?php
+/**
+ * NOTICE OF LICENSE
+ * Title   : Conekta Card Payment Gateway for Prestashop
+ * Author  : Conekta.io
+ * URL     : https://www.conekta.io/es/docs/plugins/prestashop.
+ * PHP Version 7.0.0
+ * Conekta File Doc Comment
+ *
+ * @author    Conekta <support@conekta.io>
+ * @copyright 2012-2023 Conekta
+ * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ *
+ * @category  Conekta
+ *
+ * @version   GIT: @2.3.6@
+ *
+ * @see       https://conekta.com/
+ */
 
 namespace Conekta;
 
-use \Conekta\ConektaResource;
-use \Conekta\Lang;
-use \Conekta\Error;
-use \Conekta\Conekta;
-
 class PaymentSource extends ConektaResource
 {
-    const TYPE_CARD = 'card';
-    const TYPE_OXXO_RECURRENT = 'oxxo_recurrent';
+    public const TYPE_CARD = 'card';
+
+    public const TYPE_OXXO_RECURRENT = 'oxxo_recurrent';
 
     public function instanceUrl()
     {
@@ -18,10 +32,10 @@ class PaymentSource extends ConektaResource
         $id = $this->id;
         parent::idValidator($id);
         $class = get_class($this);
-        $base = "/payment_sources";
+        $base = '/payment_sources';
         $extn = urlencode($id);
         $customerUrl = $this->customer->instanceUrl();
-    
+
         return $customerUrl . $base . "/{$extn}";
     }
 
@@ -37,7 +51,8 @@ class PaymentSource extends ConektaResource
 
     /**
      * Method for determine if is card
-     * @return boolean
+     *
+     * @return bool
      */
     public function isCard()
     {
@@ -46,7 +61,8 @@ class PaymentSource extends ConektaResource
 
     /**
      * Method for determine if is oxxo recurrent
-     * @return boolean
+     *
+     * @return bool
      */
     public function isOxxoRecurrent()
     {

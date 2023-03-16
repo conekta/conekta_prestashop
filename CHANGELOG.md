@@ -1,6 +1,7 @@
 ## [v2.3.6] - 2023-03-15
 [Full Changelog](https://github.com/conekta/conekta_prestashop/compare/2.3.5...2.3.6)
 - Add MSI feature by @ElvisHeredia [#115](https://github.com/conekta/conekta_prestashop/pull/115)
+- Fix Coding standards to get approval from Prestashop Validator by @ElvisHeredia [#116](https://github.com/conekta/conekta_prestashop/pull/116)
 
 
 ## [v2.3.5] - 2022-11-04

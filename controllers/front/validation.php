@@ -1,34 +1,34 @@
 <?php
 /**
- * 2007-2022 PrestaShop
- *
  * NOTICE OF LICENSE
  * Title   : Conekta Card Payment Gateway for Prestashop
  * Author  : Conekta.io
  * URL     : https://www.conekta.io/es/docs/plugins/prestashop.
  * PHP Version 7.0.0
- *
- * Validation File Doc Comment
+ * Conekta File Doc Comment
  *
  * @author    Conekta <support@conekta.io>
- * @copyright 2012-2022 Conekta
+ * @copyright 2012-2023 Conekta
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
- * @category  Validation
- * @package   Validation
- * @version   GIT: @2.3.5@
- * @link      https://conekta.com/
+ *
+ * @category  Conekta
+ *
+ * @version   GIT: @2.3.6@
+ *
+ * @see       https://conekta.com/
  */
 
 /**
  * ConektaValidationModuleFrontController Class Doc Comment
  *
  * @author   Conekta <support@conekta.io>
+ *
  * @category Class
- * @package  ConektaValidationModuleFrontController
+ *
  * @license  http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
- * @link     https://conekta.com/
+ *
+ * @see     https://conekta.com/
  */
-
 class ConektaValidationModuleFrontController extends ModuleFrontController
 {
     /**
@@ -46,13 +46,15 @@ class ConektaValidationModuleFrontController extends ModuleFrontController
         foreach (Module::getPaymentModules() as $module) {
             if ($module['name'] == 'conekta') {
                 $authorized = true;
+
                 break;
             }
         }
+
         if (!$authorized) {
             print_r($this->getTranslator()->trans(
                 'This payment method is not available.',
-                array(),
+                [],
                 'Modules.Conekta.Shop'
             ));
         } else {
@@ -62,27 +64,27 @@ class ConektaValidationModuleFrontController extends ModuleFrontController
 
             $date = new DateTime();
 
-            $order = (object) array(
+            $order = (object) [
                 'id' => pSQL(Tools::getValue('conektaOrdenID')),
                 'amount' => pSQL(Tools::getValue('conektAmount')),
-                'charges' => (object) array(
+                'charges' => (object) [
                     'id' => pSQL(Tools::getValue('chargeId')),
-                    'created_at' => pSQL(Tools::getValue('createAt'))?
+                    'created_at' => pSQL(Tools::getValue('createAt')) ?
                         pSQL(Tools::getValue('createAt')) : $date->getTimestamp(),
                     'amount' => pSQL(Tools::getValue('conektAmount')),
                     'status' => pSQL(Tools::getValue('charge_status')),
                     'currency' => pSQL(Tools::getValue('charge_currency')),
                     'livemode' => Configuration::get('CONEKTA_MODE'),
-                    'payment_method' => (object) array(
+                    'payment_method' => (object) [
                         'type' => pSQL(Tools::getValue('payment_type')),
-                        'reference' => pSQL(Tools::getValue('reference'))
-                    ),
-                ),
-                'plan_id' => pSQL(Tools::getValue('plan_id'))
-            );
+                        'reference' => pSQL(Tools::getValue('reference')),
+                    ],
+                ],
+                'plan_id' => pSQL(Tools::getValue('plan_id')),
+            ];
 
             $conekta->processPayment($order);
-            
+
             $this->setTemplate('module:conekta/views/templates/front/payment_return.tpl');
         }
     }

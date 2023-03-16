@@ -1,13 +1,24 @@
 <?php
+/**
+ * NOTICE OF LICENSE
+ * Title   : Conekta Card Payment Gateway for Prestashop
+ * Author  : Conekta.io
+ * URL     : https://www.conekta.io/es/docs/plugins/prestashop.
+ * PHP Version 7.0.0
+ * Conekta File Doc Comment
+ *
+ * @author    Conekta <support@conekta.io>
+ * @copyright 2012-2023 Conekta
+ * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ *
+ * @category  Conekta
+ *
+ * @version   GIT: @2.3.6@
+ *
+ * @see       https://conekta.com/
+ */
 
 namespace Conekta;
-
-use \Conekta\ConektaObject;
-use \Conekta\Requestor;
-use \Conekta\NoConnectionError;
-use \Conekta\Lang;
-use \Conekta\Util;
-use \Conekta\Conekta;
 
 abstract class ConektaResource extends ConektaObject
 {
@@ -17,6 +28,7 @@ abstract class ConektaResource extends ConektaObject
         if ($postfix = strrchr($class, '\\')) {
             $class = substr($postfix, 1);
         }
+
         if (substr($class, 0, strlen('Conekta')) == 'Conekta') {
             $class = substr($class, strlen('Conekta'));
         }
@@ -31,24 +43,22 @@ abstract class ConektaResource extends ConektaObject
     {
         $args = array_slice(func_get_args(), 2);
 
-        return call_user_func_array(array($class, $method), $args);
+        return call_user_func_array([$class, $method], $args);
     }
 
     public static function classUrl($class = null)
     {
         if (empty($class)) {
-            throw new NoConnectionError(
-                Lang::translate('error.resource.id', Lang::EN, array('RESOURCE' => "NULL")),
-                Lang::translate('error.resource.id_purchaser', Conekta::$locale)
-            );
+            throw new NoConnectionError(Lang::translate('error.resource.id', Lang::EN, ['RESOURCE' => 'NULL']), Lang::translate('error.resource.id_purchaser', Conekta::$locale));
         }
         $base = self::_getBase($class, 'className', $class);
+
         return "/{$base}s";
     }
 
     protected static function _scpWhere($class, $params)
     {
-        if (Conekta::$apiVersion == "2.0.0") {
+        if (Conekta::$apiVersion == '2.0.0') {
             $path = explode('\\', $class);
             $instance = new ConektaList(array_pop($path));
         } else {
@@ -99,15 +109,17 @@ abstract class ConektaResource extends ConektaObject
     {
         if (!$id) {
             $error = new ParameterValidationError(
-                Lang::translate('error.resource.id', Lang::EN, array('RESOURCE' => get_class())),
+                Lang::translate('error.resource.id', Lang::EN, ['RESOURCE' => get_class()]),
                 Lang::translate('error.resource.id_purchaser', Conekta::$locale)
             );
 
-            if (Conekta::$apiVersion == "2.0.0") {
+            if (Conekta::$apiVersion == '2.0.0') {
                 $handler = new Handler();
                 $handler = $error;
+
                 throw $handler;
             }
+
             throw $error;
         }
     }
@@ -115,14 +127,17 @@ abstract class ConektaResource extends ConektaObject
     protected function _delete($parent = null, $member = null)
     {
         self::_customAction('delete', null, null);
+
         if (isset($parent) && isset($member)) {
             $obj = $this->$parent->$member;
+
             if (strpos(get_class($obj), 'ConektaObject') !== false) {
                 foreach ($this->$parent->$member as $k => $v) {
                     if (strpos($v->id, $this->id) !== false) {
                         $this->$parent->$member->_values = Util::shiftArray($this->$parent->$member->_values, $k);
                         $this->$parent->$member->loadFromArray($this->$parent->$member->_values);
                         $this->$parent->$member->offsetUnset(count($this->$parent->$member) - 1);
+
                         break;
                     }
                 }
@@ -145,7 +160,7 @@ abstract class ConektaResource extends ConektaObject
     protected function _createMember($member, $params)
     {
         $requestor = new Requestor();
-        $url = $this->instanceUrl().'/'.$member;
+        $url = $this->instanceUrl() . '/' . $member;
         $response = $requestor->request('post', $url, $params);
 
         if (strpos(get_class($this->$member), 'ConektaList') !== false ||
@@ -165,7 +180,7 @@ abstract class ConektaResource extends ConektaObject
             } else {
                 $this->$member->loadFromArray(array_merge(
                     $this->$member->_toArray(),
-                    array($response)
+                    [$response]
                 ));
 
                 $this->loadFromArray();
@@ -188,8 +203,9 @@ abstract class ConektaResource extends ConektaObject
     protected function _customAction($method = 'post', $action = null, $params = null)
     {
         $requestor = new Requestor();
+
         if (isset($action)) {
-            $url = $this->instanceUrl().'/'.$action;
+            $url = $this->instanceUrl() . '/' . $action;
         } else {
             $url = $this->instanceUrl();
         }
@@ -205,7 +221,7 @@ abstract class ConektaResource extends ConektaObject
         $parent_class = strtolower((new \ReflectionClass($parent))->getShortName());
         $child = self::_createMember($member, $params);
         $child->$parent_class = $parent;
-    
+
         return $child;
     }
 }

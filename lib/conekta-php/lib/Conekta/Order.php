@@ -1,20 +1,44 @@
 <?php
+/**
+ * NOTICE OF LICENSE
+ * Title   : Conekta Card Payment Gateway for Prestashop
+ * Author  : Conekta.io
+ * URL     : https://www.conekta.io/es/docs/plugins/prestashop.
+ * PHP Version 7.0.0
+ * Conekta File Doc Comment
+ *
+ * @author    Conekta <support@conekta.io>
+ * @copyright 2012-2023 Conekta
+ * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ *
+ * @category  Conekta
+ *
+ * @version   GIT: @2.3.6@
+ *
+ * @see       https://conekta.com/
+ */
 
 namespace Conekta;
 
-use \Conekta\ConektaResource;
-
 class Order extends ConektaResource
 {
-    public $livemode      = "";
-    public $amount        = "";
-    public $paymentStatus = "";
-    public $customerId    = "";
-    public $currency      = "";
-    public $capture       = "";
-    public $metadata      = "";
-    public $createdAt     = "";
-    public $updatedAt     = "";
+    public $livemode = '';
+
+    public $amount = '';
+
+    public $paymentStatus = '';
+
+    public $customerId = '';
+
+    public $currency = '';
+
+    public $capture = '';
+
+    public $metadata = '';
+
+    public $createdAt = '';
+
+    public $updatedAt = '';
 
     public function __get($property)
     {
@@ -34,9 +58,9 @@ class Order extends ConektaResource
             parent::loadFromArray($values);
         }
 
-        $submodels = array(
-      'tax_lines', 'shipping_lines', 'discount_lines', 'line_items', 'charges', 'returns'
-      );
+        $submodels = [
+      'tax_lines', 'shipping_lines', 'discount_lines', 'line_items', 'charges', 'returns',
+      ];
 
         foreach ($submodels as $submodel) {
             if (isset($values[$submodel])) {
@@ -49,7 +73,7 @@ class Order extends ConektaResource
                     $val->order = $this;
                 }
             } else {
-                $this->$submodel = new ConektaList($submodel, array());
+                $this->$submodel = new ConektaList($submodel, []);
             }
         }
     }
