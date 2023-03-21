@@ -1,28 +1,60 @@
 <?php
+/**
+ * NOTICE OF LICENSE
+ * Title   : Conekta Card Payment Gateway for Prestashop
+ * Author  : Conekta.io
+ * URL     : https://www.conekta.io/es/docs/plugins/prestashop.
+ * PHP Version 7.0.0
+ * Conekta File Doc Comment
+ *
+ * @author    Conekta <support@conekta.io>
+ * @copyright 2012-2023 Conekta
+ * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ *
+ * @category  Conekta
+ *
+ * @version   GIT: @2.3.6@
+ *
+ * @see       https://conekta.com/
+ */
 
 namespace Conekta;
 
-use \Conekta\ConektaResource;
-
 class Charge extends ConektaResource
 {
-    public $livemode                = "";
-    public $amount                  = "";
-    public $createdAt               = "";
-    public $currency                = "";
-    public $description             = "";
-    public $referenceId             = "";
-    public $failureCode             = "";
-    public $failureMessage          = "";
-    public $fee                     = "";
-    public $monthlyInstallments     = "";
-    public $deviceFingerprint       = "";
-    public $status                  = "";
-    public $exchangeRate            = "";
-    public $foreignCurrency         = "";
-    public $amountInForeignCurrency = "";
-    public $checkoutId              = "";
-    public $checkoutOrderCount      = "";
+    public $livemode = '';
+
+    public $amount = '';
+
+    public $createdAt = '';
+
+    public $currency = '';
+
+    public $description = '';
+
+    public $referenceId = '';
+
+    public $failureCode = '';
+
+    public $failureMessage = '';
+
+    public $fee = '';
+
+    public $monthlyInstallments = '';
+
+    public $deviceFingerprint = '';
+
+    public $status = '';
+
+    public $exchangeRate = '';
+
+    public $foreignCurrency = '';
+
+    public $amountInForeignCurrency = '';
+
+    public $checkoutId = '';
+
+    public $checkoutOrderCount = '';
 
     public function __get($property)
     {
@@ -65,8 +97,9 @@ class Charge extends ConektaResource
     public function refund($amount = null)
     {
         $params = null;
+
         if (isset($amount)) {
-            $params = array('amount' => $amount);
+            $params = ['amount' => $amount];
         }
 
         return parent::_customAction('post', 'refund', $params);

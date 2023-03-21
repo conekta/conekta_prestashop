@@ -1,35 +1,34 @@
 <?php
 /**
- * 2007-2019 PrestaShop
- *
  * NOTICE OF LICENSE
  * Title   : Conekta Card Payment Gateway for Prestashop
  * Author  : Conekta.io
- * Url     : https://www.conekta.io/es/docs/plugins/prestashop.
+ * URL     : https://www.conekta.io/es/docs/plugins/prestashop.
  * PHP Version 7.0.0
- *
- * Notification File Doc Comment
+ * Conekta File Doc Comment
  *
  * @author    Conekta <support@conekta.io>
- * @copyright 2012-2019 Conekta
+ * @copyright 2012-2023 Conekta
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
- * @category  Notification
- * @package   Notification
- * @version   GIT: @2.3.5@
- * @link      https://conekta.com/
  *
+ * @category  Conekta
+ *
+ * @version   GIT: @2.3.6@
+ *
+ * @see       https://conekta.com/
  */
-
 require_once dirname(__FILE__) . '/../../config/config.inc.php';
+
 require_once dirname(__FILE__) . '/../../init.php';
+
 require_once dirname(__FILE__) . '/model/Database.php';
 
 if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-define("ORDER_CANCELED", 6);
-define("ORDER_REFUNDED", 7);
+define('ORDER_CANCELED', 6);
+define('ORDER_REFUNDED', 7);
 
 /*
     To configure, add webhook in account
@@ -39,9 +38,10 @@ define("ORDER_REFUNDED", 7);
 $body = Tools::file_get_contents('php://input');
 authenticateEvent($body, filter_input(INPUT_SERVER, 'HTTP_DIGEST'));
 $event_json = Tools::jsonDecode($body);
+
 if ($event_json->type == 'order.paid' && isset($event_json->data)) {
     $conekta_order = $event_json->data->object;
-    
+
     $reference_id = (string) $conekta_order->metadata->reference_id;
     $result = Database::getOrderByReferenceId($reference_id);
     $id_order = $result['id_order'];
@@ -56,7 +56,7 @@ if ($event_json->type == 'order.paid' && isset($event_json->data)) {
 
     if ($currency_payment[0]['iso_code'] === $conekta_order->currency) {
         if ($str_total_order_amount == $conekta_order->amount) {
-            $orderHistory           = new OrderHistory();
+            $orderHistory = new OrderHistory();
             $orderHistory->id_order = (int) $order->id;
             $orderHistory->changeIdOrderState(
                 (int) Configuration::get('PS_OS_PAYMENT'),
@@ -66,45 +66,45 @@ if ($event_json->type == 'order.paid' && isset($event_json->data)) {
             $addIdTransaction = '';
 
             if (isset($conekta_order->checkout->plan_id)) {
-                $addIdTransaction = ', id_transaction = '. json_encode($conekta_order->charges->data[0]->id);
+                $addIdTransaction = ', id_transaction = ' . json_encode($conekta_order->charges->data[0]->id);
             }
-            
+
             Db::getInstance()->Execute(
                 'UPDATE ' . _DB_PREFIX_
-                .'conekta_transaction SET status = "paid"' . $addIdTransaction . ' WHERE id_order = '
+                . 'conekta_transaction SET status = "paid"' . $addIdTransaction . ' WHERE id_order = '
                 . pSQL($id_order)
             );
         }
     }
 } elseif ($event_json->type == 'order.expired' && isset($event_json->data)) {
     $conekta_order = $event_json->data->object;
-      
-    $reference_id           = (string) $conekta_order->metadata->reference_id;
-    $result                 = Database::getOrderByReferenceId($reference_id);
-    $id_order               = $result['id_order'];
+
+    $reference_id = (string) $conekta_order->metadata->reference_id;
+    $result = Database::getOrderByReferenceId($reference_id);
+    $id_order = $result['id_order'];
     Db::getInstance()->Execute(
         'UPDATE ' . _DB_PREFIX_
-        . 'orders SET current_state = '. ORDER_CANCELED .' WHERE id_order = '
+        . 'orders SET current_state = ' . ORDER_CANCELED . ' WHERE id_order = '
         . pSQL($id_order)
     );
 } elseif ($event_json->type == 'order.canceled' && isset($event_json->data)) {
     $conekta_order = $event_json->data->object;
-    $reference_id           = (string) $conekta_order->metadata->reference_id;
-    $result                 = Database::getOrderByReferenceId($reference_id);
-    $id_order               = $result['id_order'];
+    $reference_id = (string) $conekta_order->metadata->reference_id;
+    $result = Database::getOrderByReferenceId($reference_id);
+    $id_order = $result['id_order'];
     Db::getInstance()->Execute(
         'UPDATE ' . _DB_PREFIX_
-        . 'orders SET current_state = '. ORDER_CANCELED .' WHERE id_order = '
+        . 'orders SET current_state = ' . ORDER_CANCELED . ' WHERE id_order = '
         . pSQL($id_order)
     );
 } elseif ($event_json->type == 'order.refunded' && isset($event_json->data)) {
     $conekta_order = $event_json->data->object;
-    $reference_id           = (string) $conekta_order->metadata->reference_id;
-    $result                 = Database::getOrderByReferenceId($reference_id);
-    $id_order               = $result['id_order'];
+    $reference_id = (string) $conekta_order->metadata->reference_id;
+    $result = Database::getOrderByReferenceId($reference_id);
+    $id_order = $result['id_order'];
     Db::getInstance()->Execute(
         'UPDATE ' . _DB_PREFIX_
-        . 'orders SET current_state = '. ORDER_REFUNDED .' WHERE id_order = '
+        . 'orders SET current_state = ' . ORDER_REFUNDED . ' WHERE id_order = '
         . pSQL($id_order)
     );
 } elseif ($event_json->type == 'plan.deleted' && isset($event_json->data)) {
@@ -132,21 +132,23 @@ function authenticateEvent($body, $digest)
     } else {
         $private_key_string = Configuration::get('CONEKTA_SIGNATURE_KEY_TEST');
     }
+
     if (!empty($private_key_string) && !empty($body)) {
         if (!empty($digest)) {
-            $private_key       = openssl_pkey_get_private($private_key_string);
+            $private_key = openssl_pkey_get_private($private_key_string);
             $encrypted_message = urldecode($digest);
-            $sha256_message    = "";
+            $sha256_message = '';
             openssl_private_decrypt(
                 $encrypted_message,
                 $sha256_message,
                 $private_key
             );
-            if (hash("sha256", $body) != $sha256_message) {
-                authenticateLogger("unauthenticated event");
+
+            if (hash('sha256', $body) != $sha256_message) {
+                authenticateLogger('unauthenticated event');
             }
         } else {
-            authenticateLogger("Empty digest");
+            authenticateLogger('Empty digest');
         }
     }
 }
@@ -166,4 +168,5 @@ function authenticateLogger($log_message)
 }
 
 header('HTTP/1.1 200 OK');
+
 exit;

@@ -1,47 +1,27 @@
 <?php
+/**
+ * NOTICE OF LICENSE
+ * Title   : Conekta Card Payment Gateway for Prestashop
+ * Author  : Conekta.io
+ * URL     : https://www.conekta.io/es/docs/plugins/prestashop.
+ * PHP Version 7.0.0
+ * Conekta File Doc Comment
+ *
+ * @author    Conekta <support@conekta.io>
+ * @copyright 2012-2023 Conekta
+ * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ *
+ * @category  Conekta
+ *
+ * @version   GIT: @2.3.6@
+ *
+ * @see       https://conekta.com/
+ */
+header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+header('Cache-Control: no-store, no-cache, must-revalidate');
+header('Cache-Control: post-check=0, pre-check=0', false);
+header('Pragma: no-cache');
+header('Location: ../');
 
-namespace Conekta;
-
-class SourceTest extends BaseTest
-{
-    public static $validCustomer = array(
-        'email' => 'hola@hola.com',
-        'name' => 'John Constantine',
-        'payment_sources' => array(
-            array(
-                'token_id' => 'tok_test_visa_4242',
-                'type' => 'card'
-            )
-        )
-    );
-
-    public function testSuccesfulDeleteSources()
-    {
-        $this->setApiKey();
-        $customer = Customer::create(self::$validCustomer);
-        $paymentSource = $customer->payment_sources[0];
-        $paymentSource->delete();
-        $this->assertTrue($paymentSource->deleted == true);
-    }
-
-    public function testSuccesfulUpdateSources()
-    {
-        $this->setApiKey();
-        $customer = Customer::create(self::$validCustomer);
-        $paymentSource = $customer->payment_sources[0];
-        $paymentSource->update(array('exp_month' => '11'));
-        $this->assertTrue($paymentSource->exp_month == '11');
-    }
-
-    public function testUnsuccesfulUpdateSources()
-    {
-        $this->setApiKey();
-        $customer = Customer::create(self::$validCustomer);
-        $paymentSource = $customer->payment_sources[0];
-        try {
-            $paymentSource->update(array('token_id' => 'tok_test_visa_4241'));
-        } catch (\Exception $e) {
-            $this->assertTrue(strpos(get_class($e), 'ParameterValidationError') == true);
-        }
-    }
-}
+exit;

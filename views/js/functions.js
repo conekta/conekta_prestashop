@@ -1,5 +1,5 @@
 /**
-* 2007-2023 Conekta
+* @copyright  2012-2023 Conekta
 *
 * NOTICE OF LICENSE
 *
@@ -18,53 +18,52 @@
 * needs please refer to http://www.prestashop.com for more information.
 *
 *  @author Conekta <support@conekta.io>
-*  @copyright  2012-2022 Conekta
 *  @version  v2.0.0
 *  @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
 
 function manageInstallments() {
-    let select = $("#PAYMENT_MONTHS_INSTALLMENT")
-    let elements = $(".checkbox > label[for^='INSTALLMENTS_'][for$='_MONTHS']").parent().parent().parent()
+    let select = $("#PAYMENT_MONTHS_INSTALLMENT");
+    let elements = $(".checkbox > label[for^='INSTALLMENTS_'][for$='_MONTHS']").parent().parent().parent();
 
-    if (select.val() === 'YES') {
-        elements.removeClass("hidden")
+    if (select.val() === "YES") {
+        elements.removeClass("hidden");
     } else {
-        elements.addClass("hidden")
+        elements.addClass("hidden");
     }
 }
 
 function showInstalmentsOptions() {
 
     const paymentCard = $("#PAYMENT_METHS_CARD");
-    const selectMonthInstallments = $("#PAYMENT_MONTHS_INSTALLMENT")
+    const selectMonthInstallments = $("#PAYMENT_MONTHS_INSTALLMENT");
 
 
-    if (paymentCard.is(':checked')) {
-        selectMonthInstallments.parent().parent().removeClass('hidden')
+    if (paymentCard.is(":checked")) {
+        selectMonthInstallments.parent().parent().removeClass("hidden");
     }
 
-    if (!paymentCard.is(':checked')) {
-        selectMonthInstallments.parent().parent().addClass('hidden')
-        selectMonthInstallments.val('NO')
+    if (!paymentCard.is(":checked")) {
+        selectMonthInstallments.parent().parent().addClass("hidden");
+        selectMonthInstallments.val("NO");
     }
-    manageInstallments()
+    manageInstallments();
 }
 
 
 $(document).ready(function () {
     //initial state
     let paymentCash = $("#PAYMENT_METHS_CASH");
-    let expirationDateLimit = $("#EXPIRATION_DATE_LIMIT")
-    let paymentCashChecked = paymentCash.is(":checked")
+    let expirationDateLimit = $("#EXPIRATION_DATE_LIMIT");
+    let paymentCashChecked = paymentCash.is(":checked");
 
     $("#EXPIRATION_DATE_TYPE_DAYS").prop("disabled", !paymentCashChecked);
     $("#EXPIRATION_DATE_TYPE_HOURS").prop("disabled", !paymentCashChecked);
     expirationDateLimit.prop("disabled", !paymentCashChecked);
-    showInstalmentsOptions()
+    showInstalmentsOptions();
     $("#PAYMENT_MONTHS_INSTALLMENT").change(manageInstallments);
-    $("#PAYMENT_METHS_CARD").change(showInstalmentsOptions)
+    $("#PAYMENT_METHS_CARD").change(showInstalmentsOptions);
 
     //onchange value
     paymentCash.change(function () {

@@ -1,24 +1,44 @@
 <?php
+/**
+ * NOTICE OF LICENSE
+ * Title   : Conekta Card Payment Gateway for Prestashop
+ * Author  : Conekta.io
+ * URL     : https://www.conekta.io/es/docs/plugins/prestashop.
+ * PHP Version 7.0.0
+ * Conekta File Doc Comment
+ *
+ * @author    Conekta <support@conekta.io>
+ * @copyright 2012-2023 Conekta
+ * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ *
+ * @category  Conekta
+ *
+ * @version   GIT: @2.3.6@
+ *
+ * @see       https://conekta.com/
+ */
 
 namespace Conekta;
 
 class CustomerTest extends BaseTest
 {
-    public static $validCustomer = array(
+    public static $validCustomer = [
     'email' => 'hola@hola.com',
-    'name'  => 'John Constantine'
-    );
-    public static $invalidCustomer = array(
+    'name' => 'John Constantine',
+    ];
+
+    public static $invalidCustomer = [
     'email' => 'hola@hola.com',
-    'names'  => 'John Constantine'
-    );
-    public static $validRecurrentCustomer = array(
+    'names' => 'John Constantine',
+    ];
+
+    public static $validRecurrentCustomer = [
     'name' => 'John Constantine',
     'email' => 'john_constantine@conekta.com',
-    'payment_sources' => array(array(
+    'payment_sources' => [[
       'type' => 'oxxo_recurrent',
-    ))
-  );
+    ]],
+  ];
 
     public function testSuccesfulCustomerCreate()
     {
@@ -48,10 +68,11 @@ class CustomerTest extends BaseTest
     public function testUnsuccesfulCustomerCreate()
     {
         $this->setApiKey();
+
         try {
             $customer = Customer::create(self::$invalidCustomer);
         } catch (\Exception $e) {
-            $this->assertTrue(strpos($e->getMessage(), "El parametro \"name\" es requerido") !== false);
+            $this->assertTrue(strpos($e->getMessage(), 'El parametro "name" es requerido') !== false);
         }
     }
 
@@ -59,10 +80,10 @@ class CustomerTest extends BaseTest
     {
         $this->setApiKey();
         $customer = Customer::create(self::$validCustomer);
-        $source = $customer->createPaymentSource(array(
+        $source = $customer->createPaymentSource([
       'token_id' => 'tok_test_visa_4242',
-      'type' => 'card'
-      ));
+      'type' => 'card',
+      ]);
         $this->assertTrue(strpos(get_class($source), 'PaymentSource') !== false);
         $this->assertTrue($source->isCard());
         $this->assertTrue(strpos(get_class($customer->payment_sources), 'ConektaList') !== false);
@@ -73,14 +94,14 @@ class CustomerTest extends BaseTest
     {
         $this->setApiKey();
         $customer = Customer::create(self::$validCustomer);
-        $firstSource = $customer->createPaymentSource(array(
+        $firstSource = $customer->createPaymentSource([
       'token_id' => 'tok_test_visa_4242',
-      'type' => 'card'
-      ));
-        $secondSource = $customer->createPaymentSource(array(
+      'type' => 'card',
+      ]);
+        $secondSource = $customer->createPaymentSource([
       'token_id' => 'tok_test_mastercard_4444',
-      'type' => 'card'
-      ));
+      'type' => 'card',
+      ]);
         $customer->deletePaymentSourceById($customer->payment_sources[1]->id);
         $this->assertTrue($customer->payment_sources[1]->deleted);
     }
@@ -90,18 +111,18 @@ class CustomerTest extends BaseTest
         $this->setApiKey();
         $customer = Customer::create(self::$validCustomer);
         $shippingContact = $customer->createShippingContact(
-            array(
+            [
       'receiver' => 'John Williams',
       'phone' => '+523333350360',
       'email' => 'test@conekta.io',
-      'address' => array(
+      'address' => [
         'street1' => 'Wallaaby',
         'city' => 'Sydney',
         'state' => 'P. Sherman',
         'country' => 'MX',
-        'postal_code' => '78215'
-        )
-      )
+        'postal_code' => '78215',
+        ],
+      ]
         );
         $this->assertTrue(strpos(get_class($shippingContact), 'ShippingContact') !== false);
         $this->assertTrue(strpos(get_class($customer->shipping_contacts), 'ConektaList') !== false);
@@ -112,9 +133,9 @@ class CustomerTest extends BaseTest
     {
         $this->setApiKey();
         $customer = Customer::create(self::$validCustomer);
-        $source = $customer->createPaymentSource(array(
-      'type' => 'oxxo_recurrent'
-    ));
+        $source = $customer->createPaymentSource([
+      'type' => 'oxxo_recurrent',
+    ]);
         $this->assertTrue(strpos(get_class($source), 'PaymentSource') !== false);
         $this->assertTrue(strpos(get_class($customer->payment_sources), 'ConektaList') !== false);
         $this->assertTrue($customer->payment_sources->total == 1);

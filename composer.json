@@ -13,8 +13,12 @@
     "php": ">=7.0"
   },
   "config": {
-    "preferred-install": "dist"
+    "preferred-install": "dist",
+    "prepend-autoloader": false
   },
   "type": "prestashop-module",
-  "version": "2.3.6"
+  "version": "2.3.6",
+  "require-dev": {
+    "prestashop/autoindex": "^2.1"
+  }
 }

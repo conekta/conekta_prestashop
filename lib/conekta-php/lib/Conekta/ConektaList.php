@@ -1,18 +1,30 @@
 <?php
+/**
+ * NOTICE OF LICENSE
+ * Title   : Conekta Card Payment Gateway for Prestashop
+ * Author  : Conekta.io
+ * URL     : https://www.conekta.io/es/docs/plugins/prestashop.
+ * PHP Version 7.0.0
+ * Conekta File Doc Comment
+ *
+ * @author    Conekta <support@conekta.io>
+ * @copyright 2012-2023 Conekta
+ * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ *
+ * @category  Conekta
+ *
+ * @version   GIT: @2.3.6@
+ *
+ * @see       https://conekta.com/
+ */
 
 namespace Conekta;
 
-use \Conekta\ConektaResource;
-use \Conekta\Requestor;
-use \Conekta\Util;
-use \Conekta\Exceptions;
-use \Conekta\Conekta;
-
 class ConektaList extends ConektaObject
 {
-    const LIMIT = 5;
+    public const LIMIT = 5;
 
-    public function __construct($elements_type, $params = array())
+    public function __construct($elements_type, $params = [])
     {
         parent::__construct();
         $this->elements_type = $elements_type;
@@ -34,7 +46,7 @@ class ConektaList extends ConektaObject
     {
         if (isset($values)) {
             $this->has_more = $values['has_more'];
-            $this->total    = $values['total'];
+            $this->total = $values['total'];
 
             foreach ($this as $key => $value) {
                 $this->_unsetKey($key);
@@ -46,19 +58,20 @@ class ConektaList extends ConektaObject
         }
     }
 
-    public function next($options = array('limit' => self::LIMIT))
+    public function next($options = ['limit' => self::LIMIT])
     {
-        if (sizeOf($this) > 0) {
+        if (sizeof($this) > 0) {
             $this->params['next'] = end($this)->id;
         }
 
         $this->params['previous'] = null;
+
         return $this->_moveCursor($options['limit']);
     }
 
-    public function previous($options = array('limit' => self::LIMIT))
+    public function previous($options = ['limit' => self::LIMIT])
     {
-        if (sizeOf($this) > 0) {
+        if (sizeof($this) > 0) {
             $this->params['previous'] = $this[0]->id;
         }
 

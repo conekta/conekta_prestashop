@@ -1,53 +1,59 @@
 <?php
 /**
- * 2007-2019 PrestaShop
- *
  * NOTICE OF LICENSE
  * Title   : Conekta Card Payment Gateway for Prestashop
  * Author  : Conekta.io
  * URL     : https://www.conekta.io/es/docs/plugins/prestashop.
  * PHP Version 7.0.0
- *
  * Conekta File Doc Comment
  *
  * @author    Conekta <support@conekta.io>
- * @copyright 2012-2019 Conekta
+ * @copyright 2012-2023 Conekta
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ *
  * @category  Conekta
- * @package   Conekta
+ *
  * @version   GIT: @2.3.6@
- * @link      https://conekta.com/
+ *
+ * @see       https://conekta.com/
  */
 
 use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
 
 require_once __DIR__ . '/model/Config.php';
+
 require_once __DIR__ . '/model/Database.php';
+
 require_once __DIR__ . '/lib/conekta-php/lib/Conekta.php';
 
-if (! defined('_PS_VERSION_')) {
-    die(403);
+if (!defined('_PS_VERSION_')) {
+    exit(403);
 }
 
-define("METADATA_LIMIT", 12);
+define('METADATA_LIMIT', 12);
 
 /**
  * Conekta Class Doc Comment
  *
  * @category Class
- * @package  Conekta
+ *
  * @author   Conekta <support@conekta.io>
  * @license  http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
- * @link     https://conekta.com/
+ *
+ * @see      https://conekta.com/
  */
 class Conekta extends PaymentModule
 {
     protected $html = '';
-    protected $postErrors = array();
+
+    protected $postErrors = [];
 
     public $details;
+
     public $owner;
+
     public $address;
+
     public $extra_mail_vars;
 
     /**
@@ -58,15 +64,15 @@ class Conekta extends PaymentModule
         $this->name = 'conekta';
         $this->tab = 'payments_gateways';
         $this->version = '2.3.6';
-        $this->ps_versions_compliancy = array(
+        $this->ps_versions_compliancy = [
             'min' => '1.7',
-            'max' => _PS_VERSION_
-        );
+            'max' => _PS_VERSION_,
+        ];
         $this->author = 'Conekta';
-        $this->module_key = 'db59557d5fe73f63180043679985c8c4';
+        $this->module_key = 'ccca95e436e967df0e6021787a3d1948';
         $this->displayName = $this->l('Conekta');
         $this->description = $this->l('Accept payments by Credit and Debit Card with Conekta (Visa, Mastercard, Amex)');
-        $this->controllers = array('validation');
+        $this->controllers = ['validation'];
         $this->is_eu_compatible = 1;
         $this->currencies = true;
         $this->currencies_mode = 'checkbox';
@@ -98,10 +104,12 @@ class Conekta extends PaymentModule
         ];
 
         $order_elements = array_keys(get_class_vars('Cart'));
+
         foreach ($order_elements as $element) {
             $settings[] = 'ORDER_' . Tools::strtoupper($element);
         }
         $product_elements = self::CART_PRODUCT_ATTR;
+
         foreach ($product_elements as $element) {
             $settings[] = 'PRODUCT_' . Tools::strtoupper($element);
         }
@@ -109,11 +117,10 @@ class Conekta extends PaymentModule
         $config = Configuration::getMultiple($settings);
         $this->setConfiguration($config);
 
-
         $this->bootstrap = true;
         parent::__construct();
 
-        if (! count(Currency::checkPaymentCurrencies($this->id))) {
+        if (!count(Currency::checkPaymentCurrencies($this->id))) {
             $this->warning = $this->l('No currency has been set for this module.');
         }
     }
@@ -121,12 +128,14 @@ class Conekta extends PaymentModule
     private function setConfiguration(array $config)
     {
         $mappedConfig = $this->mappedConfig();
+
         foreach ($config as $key => $value) {
-            if (! isset($mappedConfig[$key])) {
+            if (!isset($mappedConfig[$key])) {
                 continue;
             }
             $attr = $mappedConfig[$key];
             $this->$attr = $value;
+
             if ($key == 'MODE') {
                 $this->conekta_mode = ($this->mode) ? 'live' : 'test';
             }
@@ -136,86 +145,88 @@ class Conekta extends PaymentModule
     private function mappedConfig()
     {
         return [
-            'PAYEE_NAME'                => 'checkName',
-            'PAYEE_ADDRESS'             => 'address',
-            'MODE'                      => 'mode',
-            'WEB_HOOK'                  => 'web_hook',
-            'PAYMENT_METHS_CARD'        => 'paymnt_method_card',
+            'PAYEE_NAME' => 'checkName',
+            'PAYEE_ADDRESS' => 'address',
+            'MODE' => 'mode',
+            'WEB_HOOK' => 'web_hook',
+            'PAYMENT_METHS_CARD' => 'paymnt_method_card',
             'PAYMENT_MONTHS_INSTALLMENT' => 'payment_months_installment',
-            'PAYMENT_METHS_CASH'        => 'payment_method_cash',
-            'PAYMENT_METHS_SPEI'        => 'payment_method_spei',
-            'EXPIRATION_DATE_TYPE'      => 'expiration_date_type',
-            'EXPIRATION_DATE_LIMIT'     => 'expiration_date_limit',
-            'TEST_PRIVATE_KEY'          => 'test_private_key',
-            'TEST_PUBLIC_KEY'           => 'test_public_key',
-            'LIVE_PRIVATE_KEY'          => 'live_private_key',
-            'LIVE_PUBLIC_KEY'           => 'live_public_key',
-            'CHARGE_ON_DEMAND_ENABLE'   => 'charge_on_demand',
-            '3DS_FORCE'                 => 'charge_on_demand',
-            'INSTALLMENTS_3_MONTHS'     => 'installments_3_months',
-            'INSTALLMENTS_6_MONTHS'     => 'installments_6_months',
-            'INSTALLMENTS_9_MONTHS'     => 'installments_9_months',
-            'INSTALLMENTS_12_MONTHS'    => 'installments_12_months',
-            'INSTALLMENTS_18_MONTHS'    => 'installments_18_months'
+            'PAYMENT_METHS_CASH' => 'payment_method_cash',
+            'PAYMENT_METHS_SPEI' => 'payment_method_spei',
+            'EXPIRATION_DATE_TYPE' => 'expiration_date_type',
+            'EXPIRATION_DATE_LIMIT' => 'expiration_date_limit',
+            'TEST_PRIVATE_KEY' => 'test_private_key',
+            'TEST_PUBLIC_KEY' => 'test_public_key',
+            'LIVE_PRIVATE_KEY' => 'live_private_key',
+            'LIVE_PUBLIC_KEY' => 'live_public_key',
+            'CHARGE_ON_DEMAND_ENABLE' => 'charge_on_demand',
+            '3DS_FORCE' => 'charge_on_demand',
+            'INSTALLMENTS_3_MONTHS' => 'installments_3_months',
+            'INSTALLMENTS_6_MONTHS' => 'installments_6_months',
+            'INSTALLMENTS_9_MONTHS' => 'installments_9_months',
+            'INSTALLMENTS_12_MONTHS' => 'installments_12_months',
+            'INSTALLMENTS_18_MONTHS' => 'installments_18_months',
         ];
     }
 
     /**
      * Install configuration, create table in database and register hooks
      *
-     * @return boolean
+     * @return bool
      */
     public function install()
     {
-        $updateConfig = array(
-            'PS_OS_CHEQUE'      => 1,
-            'PS_OS_PAYMENT'     => 2,
+        $updateConfig = [
+            'PS_OS_CHEQUE' => 1,
+            'PS_OS_PAYMENT' => 2,
             'PS_OS_PREPARATION' => 3,
-            'PS_OS_SHIPPING'    => 4,
-            'PS_OS_DELIVERED'   => 5,
-            'PS_OS_CANCELED'    => 6,
-            'PS_OS_REFUND'      => 7,
-            'PS_OS_ERROR'       => 8,
-            'PS_OS_OUTOFSTOCK'  => 9,
-            'PS_OS_BANKWIRE'    => 10,
-            'PS_OS_PAYPAL'      => 11,
-            'PS_OS_WS_PAYMENT'  => 12
-        );
+            'PS_OS_SHIPPING' => 4,
+            'PS_OS_DELIVERED' => 5,
+            'PS_OS_CANCELED' => 6,
+            'PS_OS_REFUND' => 7,
+            'PS_OS_ERROR' => 8,
+            'PS_OS_OUTOFSTOCK' => 9,
+            'PS_OS_BANKWIRE' => 10,
+            'PS_OS_PAYPAL' => 11,
+            'PS_OS_WS_PAYMENT' => 12,
+        ];
 
         foreach ($updateConfig as $u => $v) {
-            if (! Configuration::get($u) || (int)Configuration::get($u) < 1) {
-                if (defined('_' . $u . '_') && (int)constant('_' . $u . '_') > 0) {
+            if (!Configuration::get($u) || (int) Configuration::get($u) < 1) {
+                if (defined('_' . $u . '_') && (int) constant('_' . $u . '_') > 0) {
                     Configuration::updateValue($u, constant('_' . $u . '_'));
                 } else {
                     Configuration::updateValue($u, $v);
                 }
             }
         }
-        if (! parent::install() || ! $this->createPendingCashState()
-            || ! $this->createPendingSpeiState() || ! $this->registerHook('header')
-            || ! $this->registerHook('paymentOptions')
-            || ! $this->registerHook('paymentReturn')
-            || ! $this->registerHook('adminOrder')
-            || ! $this->registerHook('updateOrderStatus')
+
+        if (!parent::install() || !$this->createPendingCashState()
+            || !$this->createPendingSpeiState() || !$this->registerHook('header')
+            || !$this->registerHook('paymentOptions')
+            || !$this->registerHook('paymentReturn')
+            || !$this->registerHook('adminOrder')
+            || !$this->registerHook('updateOrderStatus')
             && Configuration::updateValue('PAYMENT_METHS_CARD', 1)
             && Configuration::updateValue('PAYMENT_MONTHS_INSTALLMENT', 1)
             && Configuration::updateValue('PAYMENT_METHS_CASH', 1)
             && Configuration::updateValue('PAYMENT_METHS_SPEI', 1)
-            && Configuration::updateValue('MODE', 0) || ! Database::installDb()
-            || ! Database::createTableConektaOrder()
-            || ! Database::createTableMetaData()
+            && Configuration::updateValue('MODE', 0) || !Database::installDb()
+            || !Database::createTableConektaOrder()
+            || !Database::createTableMetaData()
         ) {
             return false;
         }
 
         Configuration::updateValue('CONEKTA_PRESTASHOP_VERSION', $this->version);
+
         return true;
     }
 
     /**
      * Delete configuration and drop table in database.
      *
-     * @return boolean
+     * @return bool
      */
     public function uninstall()
     {
@@ -258,41 +269,42 @@ class Conekta extends PaymentModule
     public function hookPaymentReturn($params)
     {
         if ($params['order'] && Validate::isLoadedObject($params['order'])) {
-            $id_order = (int)$params['order']->id;
+            $id_order = (int) $params['order']->id;
             $conekta_tran_details = Database::getOrderById($id_order);
+
             if ($conekta_tran_details['barcode']) {
                 $this->smarty->assign('cash', true);
                 $this->smarty->assign(
                     'conekta_order',
-                    array(
-                        'barcode'     => $conekta_tran_details['reference'],
-                        'type'        => 'cash',
+                    [
+                        'barcode' => $conekta_tran_details['reference'],
+                        'type' => 'cash',
                         'barcode_url' => $conekta_tran_details['barcode'],
-                        'amount'      => $conekta_tran_details['amount'],
-                        'currency'    => $conekta_tran_details['currency']
-                    )
+                        'amount' => $conekta_tran_details['amount'],
+                        'currency' => $conekta_tran_details['currency'],
+                    ]
                 );
-            } elseif (isset($conekta_tran_details['reference']) && ! empty($conekta_tran_details['reference'])) {
+            } elseif (isset($conekta_tran_details['reference']) && !empty($conekta_tran_details['reference'])) {
                 if (strpos($conekta_tran_details['reference'], '6461801118') !== false) {
                     $this->smarty->assign('spei', true);
                     $this->smarty->assign(
                         'conekta_order',
-                        array(
+                        [
                             'receiving_account_number' => $conekta_tran_details['reference'],
-                            'amount'                   => $conekta_tran_details['amount'],
-                            'currency'                 => $conekta_tran_details['currency']
-                        )
+                            'amount' => $conekta_tran_details['amount'],
+                            'currency' => $conekta_tran_details['currency'],
+                        ]
                     );
                 }
             } else {
                 $this->smarty->assign('card', true);
                 $this->smarty->assign(
                     'conekta_order',
-                    array(
-                        'type'      => 'card',
+                    [
+                        'type' => 'card',
                         'reference' => $params['order']->reference ?? '#' . sprintf('%06d', $params['order']->id),
-                        'valid'     => $params['order']->valid
-                    )
+                        'valid' => $params['order']->valid,
+                    ]
                 );
             }
         }
@@ -303,14 +315,14 @@ class Conekta extends PaymentModule
     /**
      * The order is refunded
      *
-     * @param array $params Information of order to update it.
+     * @param array $params information of order to update it
      *
      * @return void
      */
     public function hookUpdateOrderStatus($params)
     {
         if ($params['newOrderStatus']->id == 7) {
-            //order refunded
+            // order refunded
             $key = Configuration::get('CONEKTA_MODE') ?
                 Configuration::get('CONEKTA_PRIVATE_KEY_LIVE') :
                 Configuration::get('CONEKTA_PRIVATE_KEY_TEST');
@@ -318,18 +330,18 @@ class Conekta extends PaymentModule
             $iso_code = $this->context->language->iso_code;
 
             \Conekta\Conekta::setApiKey($key);
-            \Conekta\Conekta::setPlugin("Prestashop1.7");
-            \Conekta\Conekta::setApiVersion("2.0.0");
+            \Conekta\Conekta::setPlugin('Prestashop1.7');
+            \Conekta\Conekta::setApiVersion('2.0.0');
             \Conekta\Conekta::setPluginVersion($this->version);
             \Conekta\Conekta::setLocale($iso_code);
 
-            $id_order = (int)$params['id_order'];
+            $id_order = (int) $params['id_order'];
             $conekta_tran_details = Database::getOrderById($id_order);
 
-            //only credit card refund
-            if (! $conekta_tran_details['barcode']
-                && ! (isset($conekta_tran_details['reference'])
-                    && ! empty($conekta_tran_details['reference']))
+            // only credit card refund
+            if (!$conekta_tran_details['barcode']
+                && !(isset($conekta_tran_details['reference'])
+                    && !empty($conekta_tran_details['reference']))
             ) {
                 $order = \Conekta\Order::find($conekta_tran_details['id_conekta_order']);
                 $order->refund(['reason' => 'requested_by_client']);
@@ -340,13 +352,13 @@ class Conekta extends PaymentModule
     /**
      * Create pending chash state
      *
-     * @return boolean
+     * @return bool
      */
     private function createPendingCashState()
     {
         $state = new OrderState();
         $languages = Language::getLanguages();
-        $names = array();
+        $names = [];
 
         foreach ($languages as $lang) {
             $names[$lang['id_lang']] = 'En espera de pago';
@@ -356,7 +368,7 @@ class Conekta extends PaymentModule
         $state->color = '#4169E1';
         $state->send_email = true;
         $state->module_name = 'conekta';
-        $templ = array();
+        $templ = [];
 
         foreach ($languages as $lang) {
             $templ[$lang['id_lang']] = 'conektaefectivo';
@@ -367,6 +379,7 @@ class Conekta extends PaymentModule
         if ($state->save()) {
             Configuration::updateValue('waiting_cash_payment', $state->id);
             $directory = _PS_MAIL_DIR_;
+
             if ($dhvalue = opendir($directory)) {
                 while (($file = readdir($dhvalue)) !== false) {
                     if (is_dir($directory . $file) && $file[0] != '.') {
@@ -381,6 +394,7 @@ class Conekta extends PaymentModule
                             Tools::copy($new_txt_file, $txt_folder);
                         } catch (\Exception $e) {
                             $error_copy = $e->getMessage() . ' ';
+
                             if (class_exists('Logger')) {
                                 Logger::addLog(json_encode($error_copy), 1, null, null, null, true);
                             }
@@ -392,19 +406,20 @@ class Conekta extends PaymentModule
         } else {
             return false;
         }
+
         return true;
     }
 
     /**
      * Create pending spei state
      *
-     * @return boolean
+     * @return bool
      */
     private function createPendingSpeiState()
     {
         $state = new OrderState();
         $languages = Language::getLanguages();
-        $names = array();
+        $names = [];
 
         foreach ($languages as $lang) {
             $names[$lang['id_lang']] = 'En espera de pago';
@@ -414,16 +429,18 @@ class Conekta extends PaymentModule
         $state->color = '#4169E1';
         $state->send_email = true;
         $state->module_name = 'conekta';
-        $templ = array();
+        $templ = [];
 
         foreach ($languages as $lang) {
             $templ[$lang['id_lang']] = 'conektaspei';
         }
 
         $state->template = $templ;
+
         if ($state->save()) {
             Configuration::updateValue('waiting_spei_payment', $state->id);
             $directory = _PS_MAIL_DIR_;
+
             if ($dhvalue = opendir($directory)) {
                 while (($file = readdir($dhvalue)) !== false) {
                     if (is_dir($directory . $file) && $file[0] != '.') {
@@ -438,6 +455,7 @@ class Conekta extends PaymentModule
                             Tools::copy($new_txt_file, $txt_folder);
                         } catch (\Exception $e) {
                             $error_copy = $e->getMessage() . ' ';
+
                             if (class_exists('Logger')) {
                                 Logger::addLog(json_encode($error_copy), 1, null, null, null, true);
                             }
@@ -449,6 +467,7 @@ class Conekta extends PaymentModule
         } else {
             return false;
         }
+
         return true;
     }
 
@@ -464,40 +483,41 @@ class Conekta extends PaymentModule
         );
         $iso_code = $this->context->language->iso_code;
         \Conekta\Conekta::setApiKey($key);
-        \Conekta\Conekta::setPlugin("Prestashop1.7");
-        \Conekta\Conekta::setApiVersion("2.0.0");
+        \Conekta\Conekta::setPlugin('Prestashop1.7');
+        \Conekta\Conekta::setApiVersion('2.0.0');
         \Conekta\Conekta::setLocale($iso_code);
 
         if (Tools::getValue('controller') != 'order-opc'
             && (
-            ! ($_SERVER['PHP_SELF'] == __PS_BASE_URI__ . 'order.php'
-                || $_SERVER['PHP_SELF'] == __PS_BASE_URI__ . 'order-opc.php'
-                || Tools::getValue('controller') == 'order'
-                || Tools::getValue('controller') == 'orderopc'
-                || Tools::getValue('step') == 3
-            )
+                !(
+                    $_SERVER['PHP_SELF'] == __PS_BASE_URI__ . 'order.php'
+                    || $_SERVER['PHP_SELF'] == __PS_BASE_URI__ . 'order-opc.php'
+                    || Tools::getValue('controller') == 'order'
+                    || Tools::getValue('controller') == 'orderopc'
+                    || Tools::getValue('step') == 3
+                )
             )
         ) {
             return;
         }
         Media::addJsDef(
-            array(
-                "ajax_link" => $this->_path . 'ajax.php'
-            )
+            [
+                'ajax_link' => $this->_path . 'ajax.php',
+            ]
         );
         $this->context->controller->addCSS($this->_path . 'views/css/conekta-prestashop.css');
 
         if (Configuration::get('MODE')) {
-            $this->smarty->assign("api_key", addslashes(Configuration::get('LIVE_PUBLIC_KEY')));
+            $this->smarty->assign('api_key', addslashes(Configuration::get('LIVE_PUBLIC_KEY')));
         } else {
-            $this->smarty->assign("api_key", addslashes(Configuration::get('TEST_PUBLIC_KEY')));
+            $this->smarty->assign('api_key', addslashes(Configuration::get('TEST_PUBLIC_KEY')));
         }
 
-        $this->smarty->assign("path", $this->_path);
+        $this->smarty->assign('path', $this->_path);
 
         $cart = $this->context->cart;
         $customer = $this->context->customer;
-        $payment_options = array();
+        $payment_options = [];
 
         if (Configuration::get('PAYMENT_METHS_SPEI')) {
             array_push($payment_options, 'bank_transfer');
@@ -514,22 +534,22 @@ class Conekta extends PaymentModule
         // $msi = false;
         $force_3ds = false;
         $on_demand_enabled = false;
-        $address_delivery = new Address((int)$cart->id_address_delivery);
+        $address_delivery = new Address((int) $cart->id_address_delivery);
         $state = State::getNameById($address_delivery->id_state);
         $country = Country::getIsoById($address_delivery->id_country);
-        $carrier = new Carrier((int)$cart->id_carrier);
+        $carrier = new Carrier((int) $cart->id_carrier);
         $shp_price = $cart->getTotalShippingCost();
-        $shp_carrier = "other";
-        $shp_service = "other";
+        $shp_carrier = 'other';
+        $shp_service = 'other';
         $discounts = $cart->getCartRules();
         $items = $cart->getProducts();
         $shippingLines = null;
         $shippingContact = null;
 
-        if (! empty($carrier)) {
+        if (!empty($carrier)) {
             if ($carrier->name != null) {
                 $shp_carrier = $carrier->name;
-                $shp_service = implode(",", $carrier->delay);
+                $shp_service = implode(',', $carrier->delay);
                 $shippingLines = Config::getShippingLines($shp_service, $shp_carrier, $shp_price);
             }
         }
@@ -537,13 +557,13 @@ class Conekta extends PaymentModule
         $shippingContact = Config::getShippingContact($customer, $address_delivery, $state, $country);
         $customerInfo = Config::getCustomerInfo($customer, $address_delivery);
 
-        $result = Database::getConektaMetadata($customer->id, $this->conekta_mode, "conekta_customer_id");
+        $result = Database::getConektaMetadata($customer->id, $this->conekta_mode, 'conekta_customer_id');
 
         if (count($payment_options) > 0
-            && ! empty($shippingContact['address']['postal_code'])
-            && ! empty($shippingLines)) {
-            $order_details = array();
-            $taxlines = array();
+            && !empty($shippingContact['address']['postal_code'])
+            && !empty($shippingLines)) {
+            $order_details = [];
+            $taxlines = [];
 
             if (empty($result['meta_value'])) {
                 $customer_id = $this->createCustomer($customer, $customerInfo);
@@ -552,9 +572,6 @@ class Conekta extends PaymentModule
                 $customerConekta = \Conekta\Customer::find($customer_id);
                 $customerConekta->update($customerInfo);
             }
-
-
-
 
             if (Configuration::get('CHARGE_ON_DEMAND_ENABLE')) {
                 $on_demand_enabled = true;
@@ -567,54 +584,58 @@ class Conekta extends PaymentModule
             $taxlines = Config::getTaxLines($items);
 
             $checkout = [
-                "type"                    => 'Integration',
-                "allowed_payment_methods" => $payment_options,
-                "on_demand_enabled"       => $on_demand_enabled,
-                "force_3ds_flow"          => Configuration::get('CONEKTA_MODE') ? $force_3ds : false
+                'type' => 'Integration',
+                'allowed_payment_methods' => $payment_options,
+                'on_demand_enabled' => $on_demand_enabled,
+                'force_3ds_flow' => Configuration::get('CONEKTA_MODE') ? $force_3ds : false,
             ];
-            if ((Configuration::get('PAYMENT_MONTHS_INSTALLMENT'))) {
+
+            if (Configuration::get('PAYMENT_MONTHS_INSTALLMENT') === 'YES') {
                 $checkout['monthly_installments_enabled'] = true;
                 $checkout['monthly_installments_options'] = $this->getMonthlyInstallments();
             }
 
             if (in_array('cash', $payment_options)) {
-                $checkout["expires_at"] = time() + (Configuration::get('EXPIRATION_DATE_LIMIT') * (Configuration::get(
-                            'EXPIRATION_DATE_TYPE'
-                        ) == 0 ? 86400 : 3600));
+                $checkout['expires_at'] = time() + (Configuration::get('EXPIRATION_DATE_LIMIT') * (Configuration::get(
+                    'EXPIRATION_DATE_TYPE'
+                ) == 0 ? 86400 : 3600));
             }
 
             $order_details = [
-                'currency'         => $this->context->currency->iso_code,
-                'line_items'       => Config::getLineItems($items),
-                'customer_info'    => array("customer_id" => $customer_id),
-                'discount_lines'   => Config::getDiscountLines($discounts),
-                'shipping_lines'   => array(),
+                'currency' => $this->context->currency->iso_code,
+                'line_items' => Config::getLineItems($items),
+                'customer_info' => ['customer_id' => $customer_id],
+                'discount_lines' => Config::getDiscountLines($discounts),
+                'shipping_lines' => [],
                 'shipping_contact' => $shippingContact,
-                'tax_lines'        => array(),
-                'metadata'         => [
-                    "plugin"         => "Prestashop",
-                    "plugin_version" => _PS_VERSION_,
-                    "reference_id"   => $this->context->cart->id
+                'tax_lines' => [],
+                'metadata' => [
+                    'plugin' => 'Prestashop',
+                    'plugin_version' => _PS_VERSION_,
+                    'reference_id' => $this->context->cart->id,
                 ],
-                'checkout'         => $checkout
+                'checkout' => $checkout,
             ];
 
             $order_elements = array_keys(get_class_vars('Cart'));
+
             foreach ($order_elements as $element) {
-                if (! empty(Configuration::get('ORDER_' . Tools::strtoupper($element))) && property_exists(
-                        $this->context->cart,
-                        $element
-                    )) {
+                if (!empty(Configuration::get('ORDER_' . Tools::strtoupper($element))) && property_exists(
+                    $this->context->cart,
+                    $element
+                )) {
                     $order_details['metadata'][$element] = $this->context->cart->$element;
                 }
             }
 
             $product_elements = self::CART_PRODUCT_ATTR;
+
             foreach ($items as $item) {
                 $index = 'product-' . $item['id_product'];
                 $order_details['metadata'][$index] = '';
+
                 foreach ($product_elements as $element) {
-                    if (! empty(Configuration::get('PRODUCT_' . Tools::strtoupper($element)))
+                    if (!empty(Configuration::get('PRODUCT_' . Tools::strtoupper($element)))
                         && array_key_exists($element, $item)
                     ) {
                         $order_details['metadata'][$index] .= $this->buildRecursiveMetadata($item[$element], $element);
@@ -625,24 +646,24 @@ class Conekta extends PaymentModule
 
             $amount = 0;
 
-            if (! empty($shippingLines)) {
+            if (!empty($shippingLines)) {
                 foreach ($shippingLines as $shipping) {
-                    $order_details['shipping_lines'][] = array(
-                        'amount'          => $shipping['amount'],
+                    $order_details['shipping_lines'][] = [
+                        'amount' => $shipping['amount'],
                         'tracking_number' => $this->removeSpecialCharacter($shipping['tracking_number']),
-                        'carrier'         => $this->removeSpecialCharacter($shipping['carrier']),
-                        'method'          => $this->removeSpecialCharacter($shipping['method'])
-                    );
+                        'carrier' => $this->removeSpecialCharacter($shipping['carrier']),
+                        'method' => $this->removeSpecialCharacter($shipping['method']),
+                    ];
                     $amount = $amount + $shipping['amount'];
                 }
             }
 
             if (isset($taxlines)) {
                 foreach ($taxlines as $tax) {
-                    $order_details['tax_lines'][] = array(
+                    $order_details['tax_lines'][] = [
                         'description' => $this->removeSpecialCharacter($tax['description']),
-                        'amount'      => $tax['amount']
-                    );
+                        'amount' => $tax['amount'],
+                    ];
                     $amount = $amount + $tax['amount'];
                 }
             }
@@ -661,12 +682,13 @@ class Conekta extends PaymentModule
 
             try {
                 if ($order_details['currency'] == 'MXN' && $amount < $this->amount_min) {
-                    $message = "El monto minimo de compra con Conekta tiene que ser mayor a $20.00 ";
+                    $message = 'El monto minimo de compra con Conekta tiene que ser mayor a $20.00 ';
                     $this->context->smarty->assign(
-                        array(
+                        [
                             'message' => $message,
-                        )
+                        ]
                     );
+
                     return false;
                 }
 
@@ -715,35 +737,38 @@ class Conekta extends PaymentModule
                         2,
                         null,
                         'Cart',
-                        (int)$this->context->cart->id,
+                        (int) $this->context->cart->id,
                         true
                     );
                 }
 
                 $message = $e->getMessage();
 
-                $this->context->smarty->assign("message", $message);
+                $this->context->smarty->assign('message', $message);
             }
         }
+
         if (isset($order)) {
-            $this->smarty->assign("orderID", $order->id);
-            $this->smarty->assign("checkoutRequestId", $order->checkout['id']);
-            $this->smarty->assign("amount", $amount);
+            $this->smarty->assign('orderID', $order->id);
+            $this->smarty->assign('checkoutRequestId', $order->checkout['id']);
+            $this->smarty->assign('amount', $amount);
         } else {
-            $this->smarty->assign("checkoutRequestId", "");
-            $this->smarty->assign("orderID", "");
-            $this->smarty->assign("amount", "");
+            $this->smarty->assign('checkoutRequestId', '');
+            $this->smarty->assign('orderID', '');
+            $this->smarty->assign('amount', '');
         }
-        return $this->fetchTemplate("hook-header.tpl");
+
+        return $this->fetchTemplate('hook-header.tpl');
     }
 
     /**
      * Generate string with msi for checkout
+     *
      * @return array
      */
     private function getMonthlyInstallments()
     {
-        $monthlyInstallments =[
+        $monthlyInstallments = [
             3 => Configuration::get('INSTALLMENTS_3_MONTHS'),
             6 => Configuration::get('INSTALLMENTS_6_MONTHS'),
             9 => Configuration::get('INSTALLMENTS_9_MONTHS'),
@@ -769,22 +794,25 @@ class Conekta extends PaymentModule
     public function buildRecursiveMetadata($data_object, $key)
     {
         $string = '';
+
         if (gettype($data_object) == 'array') {
             foreach (array_keys($data_object) as $data_key) {
-                $key_concat = (string)($key) . '-' . (string)($data_key);
+                $key_concat = (string) $key . '-' . (string) $data_key;
+
                 if (empty($data_object[$data_key])) {
-                    $string .= (string)($key_concat) . ': NULL | ';
+                    $string .= (string) $key_concat . ': NULL | ';
                 } else {
                     $string .= $this->buildRecursiveMetadata($data_object[$data_key], $key_concat);
                 }
             }
         } else {
             if (empty($data_object)) {
-                $string .= (string)($key) . ': NULL | ';
+                $string .= (string) $key . ': NULL | ';
             } else {
-                $string .= (string)($key) . ': ' . (string)($data_object) . ' | ';
+                $string .= (string) $key . ': ' . (string) $data_object . ' | ';
             }
         }
+
         return $string;
     }
 
@@ -797,7 +825,7 @@ class Conekta extends PaymentModule
      */
     public function hookAdminOrder($params)
     {
-        $id_order = (int)$params['id_order'];
+        $id_order = (int) $params['id_order'];
         $status = $this->getTransactionStatus($id_order);
 
         return $status;
@@ -812,19 +840,19 @@ class Conekta extends PaymentModule
      */
     public function hookPaymentOptions($params)
     {
-        if (! $this->active) {
+        if (!$this->active) {
             return;
         }
 
-        if (! $this->checkCurrency($params['cart'])) {
+        if (!$this->checkCurrency($params['cart'])) {
             return;
         }
         $this->smarty->assign(
-            array(
-                'test_private_key' => Configuration::get('TEST_PRIVATE_KEY')
-            )
+            [
+                'test_private_key' => Configuration::get('TEST_PRIVATE_KEY'),
+            ]
         );
-        $payment_options = array();
+        $payment_options = [];
 
         if (Configuration::get('PAYMENT_METHS_CARD')
             || Configuration::get('PAYMENT_METHS_CASH')
@@ -832,6 +860,7 @@ class Conekta extends PaymentModule
         ) {
             array_push($payment_options, $this->getConektaPaymentOption());
         }
+
         return $payment_options;
     }
 
@@ -845,6 +874,7 @@ class Conekta extends PaymentModule
     public function removeSpecialCharacter($param)
     {
         $param = str_replace(['#', '-', '_', '.', '/', '(', ')', '[', ']', '!', '¡', '%'], ' ', $param);
+
         return $param;
     }
 
@@ -853,7 +883,7 @@ class Conekta extends PaymentModule
      *
      * @param array $cart payment cart
      *
-     * @return boolean
+     * @return bool
      */
     public function checkCurrency($cart)
     {
@@ -881,7 +911,7 @@ class Conekta extends PaymentModule
         $embeddedOption = new PaymentOption();
         $embeddedOption->setModuleName($this->name)->setCallToActionText(
             $this->l('Pago por medio de Conekta ')
-        )->setAction($this->context->link->getModuleLink($this->name, 'validation', array(), true))->setForm(
+        )->setAction($this->context->link->getModuleLink($this->name, 'validation', [], true))->setForm(
             $this->generateCardPaymentForm()
         )->setLogo(Media::getMediaPath(_PS_MODULE_DIR_ . $this->name . '/views/img/cards2.png'));
 
@@ -896,48 +926,50 @@ class Conekta extends PaymentModule
     private function postValidation()
     {
         if (Tools::isSubmit('btnSubmit')) {
-            if (! Tools::getValue('PAYEE_NAME')) {
-                $this->postErrors[] = $this->trans('The "Payee" field is required.', array(), 'Modules.Conekta.Admin');
-            } elseif (! Tools::getValue('PAYEE_ADDRESS')) {
+            if (!Tools::getValue('PAYEE_NAME')) {
+                $this->postErrors[] = $this->trans('The "Payee" field is required.', [], 'Modules.Conekta.Admin');
+            } elseif (!Tools::getValue('PAYEE_ADDRESS')) {
                 $this->postErrors[] = $this->trans(
                     'The "Address" field is required.',
-                    array(),
+                    [],
                     'Modules.Conekta.Admin'
                 );
             }
 
-            if (! Tools::getValue('WEB_HOOK')) {
+            if (!Tools::getValue('WEB_HOOK')) {
                 $this->postErrors[] = $this->trans(
                     'The "Web Hook" field is required.',
-                    array(),
+                    [],
                     'Modules.Conekta.Admin'
                 );
             }
 
-            if (Tools::getValue('PAYMENT_METHS_CASH') && ! Tools::getValue('EXPIRATION_DATE_LIMIT')) {
+            if (Tools::getValue('PAYMENT_METHS_CASH') && !Tools::getValue('EXPIRATION_DATE_LIMIT')) {
                 $this->postErrors[] = $this->trans(
                     'The "Expiration date limit" field is required.',
-                    array(),
+                    [],
                     'Modules.Conekta.Admin'
                 );
             }
+
             if (Tools::getValue('PAYMENT_METHS_CASH') && ((Tools::getValue(
-                            'EXPIRATION_DATE_TYPE'
-                        ) == 0 && (Tools::getValue('EXPIRATION_DATE_LIMIT') < 0 || Tools::getValue(
-                                'EXPIRATION_DATE_LIMIT'
-                            ) > 31)) || (Tools::getValue('EXPIRATION_DATE_TYPE') == 1 && (Tools::getValue(
-                                'EXPIRATION_DATE_LIMIT'
-                            ) < 0 || Tools::getValue('EXPIRATION_DATE_LIMIT') > 24)))) {
+                'EXPIRATION_DATE_TYPE'
+            ) == 0 && (Tools::getValue('EXPIRATION_DATE_LIMIT') < 0 || Tools::getValue(
+                'EXPIRATION_DATE_LIMIT'
+            ) > 31)) || (Tools::getValue('EXPIRATION_DATE_TYPE') == 1 && (Tools::getValue(
+                'EXPIRATION_DATE_LIMIT'
+            ) < 0 || Tools::getValue('EXPIRATION_DATE_LIMIT') > 24)))) {
                 $this->postErrors[] = $this->trans(
                     'The "Expiration date limit" is out of range.',
-                    array(),
+                    [],
                     'Modules.Conekta.Admin'
                 );
             }
-            if (Tools::getValue('PAYMENT_METHS_CASH') && ! is_numeric(Tools::getValue('EXPIRATION_DATE_LIMIT'))) {
+
+            if (Tools::getValue('PAYMENT_METHS_CASH') && !is_numeric(Tools::getValue('EXPIRATION_DATE_LIMIT'))) {
                 $this->postErrors[] = $this->trans(
                     'The "Expiration date limit" must be a number.',
-                    array(),
+                    [],
                     'Modules.Conekta.Admin'
                 );
             }
@@ -945,72 +977,73 @@ class Conekta extends PaymentModule
             $order_elements = array_keys(get_class_vars('Cart'));
             $i = 0;
             $attributes_count = 0;
+
             while ($i < count($order_elements) && $attributes_count <= METADATA_LIMIT) {
-                if (! empty(Tools::getValue('ORDER_' . Tools::strtoupper($order_elements[$i])))) {
-                    $attributes_count++;
+                if (!empty(Tools::getValue('ORDER_' . Tools::strtoupper($order_elements[$i])))) {
+                    ++$attributes_count;
                 }
-                $i++;
+                ++$i;
             }
             $i = 0;
             $product_elements = self::CART_PRODUCT_ATTR;
+
             while ($i < count($product_elements) && $attributes_count <= METADATA_LIMIT) {
-                if (! empty(Tools::getValue('PRODUCT_' . Tools::strtoupper($product_elements[$i])))) {
-                    $attributes_count++;
+                if (!empty(Tools::getValue('PRODUCT_' . Tools::strtoupper($product_elements[$i])))) {
+                    ++$attributes_count;
                 }
-                $i++;
+                ++$i;
             }
+
             if ($attributes_count > METADATA_LIMIT) {
                 $this->postErrors[] = $this->trans(
                     'No more than 12 attributes can be sent as metadata',
-                    array(),
+                    [],
                     'Modules.Conekta.Admin'
                 );
             }
 
-            if (! Tools::getValue('TEST_PRIVATE_KEY')) {
+            if (!Tools::getValue('TEST_PRIVATE_KEY')) {
                 $this->postErrors[] = $this->trans(
                     'The "Test Private Key" field is required.',
-                    array(),
+                    [],
                     'Modules.Conekta.Admin'
                 );
             }
 
-            if (! Tools::getValue('TEST_PUBLIC_KEY')) {
+            if (!Tools::getValue('TEST_PUBLIC_KEY')) {
                 $this->postErrors[] = $this->trans(
                     'The "Test Public Key" field is required.',
-                    array(),
+                    [],
                     'Modules.Conekta.Admin'
                 );
             }
 
-            if (Tools::getValue('LIVE_PRIVATE_KEY') && ! Tools::getValue('LIVE_PUBLIC_KEY')) {
+            if (Tools::getValue('LIVE_PRIVATE_KEY') && !Tools::getValue('LIVE_PUBLIC_KEY')) {
                 $this->postErrors[] = $this->trans(
                     'The "Live Public Key" field is required.',
-                    array(),
+                    [],
                     'Modules.Conekta.Admin'
                 );
             }
 
-            if (! Tools::getValue('LIVE_PRIVATE_KEY') && Tools::getValue('LIVE_PUBLIC_KEY')) {
+            if (!Tools::getValue('LIVE_PRIVATE_KEY') && Tools::getValue('LIVE_PUBLIC_KEY')) {
                 $this->postErrors[] = $this->trans(
                     'The "Live Private Key" field is required.',
-                    array(),
+                    [],
                     'Modules.Conekta.Admin'
                 );
             }
 
-            if ( Tools::getValue('PAYMENT_METHS_CARD') && Tools::getValue('PAYMENT_MONTHS_INSTALLMENT') &&
-
-                ! Tools::getValue('INSTALLMENTS_3_MONTHS') &&
-                ! Tools::getValue('INSTALLMENTS_6_MONTHS') &&
-                ! Tools::getValue('INSTALLMENTS_9_MONTHS') &&
-                ! Tools::getValue('INSTALLMENTS_12_MONTHS') &&
-                ! Tools::getValue('INSTALLMENTS_18_MONTHS')
-
+            if (Tools::getValue('PAYMENT_METHS_CARD') && Tools::getValue('PAYMENT_MONTHS_INSTALLMENT') &&
+                !Tools::getValue('INSTALLMENTS_3_MONTHS') &&
+                !Tools::getValue('INSTALLMENTS_6_MONTHS') &&
+                !Tools::getValue('INSTALLMENTS_9_MONTHS') &&
+                !Tools::getValue('INSTALLMENTS_12_MONTHS') &&
+                !Tools::getValue('INSTALLMENTS_18_MONTHS')
             ) {
                 $this->postErrors[] = $this->trans(
-                    'Almost one installment, must be selected.'.$result,
-                    array(),
+                    'Almost one installment, must be selected.' . $result,
+                    [],
                     'Modules.Conekta.Admin'
                 );
             }
@@ -1049,6 +1082,7 @@ class Conekta extends PaymentModule
             Configuration::updateValue('INSTALLMENTS_18_MONTHS', Tools::getValue('INSTALLMENTS_18_MONTHS'));
 
             $order_elements = array_keys(get_class_vars('Cart'));
+
             foreach ($order_elements as $element) {
                 Configuration::updateValue(
                     'ORDER_' . Tools::strtoupper($element),
@@ -1056,6 +1090,7 @@ class Conekta extends PaymentModule
                 );
             }
             $product_elements = self::CART_PRODUCT_ATTR;
+
             foreach ($product_elements as $element) {
                 Configuration::updateValue(
                     'PRODUCT_' . Tools::strtoupper($element),
@@ -1065,7 +1100,7 @@ class Conekta extends PaymentModule
         }
 
         $this->html .= $this->displayConfirmation(
-            $this->trans('Settings updated', array(), 'Admin.Notifications.Success')
+            $this->trans('Settings updated', [], 'Admin.Notifications.Success')
         );
     }
 
@@ -1086,12 +1121,12 @@ class Conekta extends PaymentModule
      */
     public function getConfigFieldsValues()
     {
-        $ret = array(
-            'PAYEE_NAME'                => Tools::getValue('PAYEE_NAME', Configuration::get('PAYEE_NAME')),
-            'PAYEE_ADDRESS'             => Tools::getValue('PAYEE_ADDRESS', Configuration::get('PAYEE_ADDRESS')),
-            'MODE'                      => Tools::getValue('MODE', Configuration::get('MODE')),
-            'WEB_HOOK'                  => Tools::getValue('WEB_HOOK', Configuration::get('WEB_HOOK')),
-            'PAYMENT_METHS_CARD'        => Tools::getValue(
+        $ret = [
+            'PAYEE_NAME' => Tools::getValue('PAYEE_NAME', Configuration::get('PAYEE_NAME')),
+            'PAYEE_ADDRESS' => Tools::getValue('PAYEE_ADDRESS', Configuration::get('PAYEE_ADDRESS')),
+            'MODE' => Tools::getValue('MODE', Configuration::get('MODE')),
+            'WEB_HOOK' => Tools::getValue('WEB_HOOK', Configuration::get('WEB_HOOK')),
+            'PAYMENT_METHS_CARD' => Tools::getValue(
                 'PAYMENT_METHS_CARD',
                 Configuration::get('PAYMENT_METHS_CARD')
             ),
@@ -1099,61 +1134,63 @@ class Conekta extends PaymentModule
                 'PAYMENT_MONTHS_INSTALLMENT',
                 Configuration::get('PAYMENT_MONTHS_INSTALLMENT')
             ),
-            'PAYMENT_METHS_CASH'        => Tools::getValue(
+            'PAYMENT_METHS_CASH' => Tools::getValue(
                 'PAYMENT_METHS_CASH',
                 Configuration::get('PAYMENT_METHS_CASH')
             ),
-            'PAYMENT_METHS_BANORTE'     => Tools::getValue(
+            'PAYMENT_METHS_BANORTE' => Tools::getValue(
                 'PAYMENT_METHS_BANORTE',
                 Configuration::get('PAYMENT_METHS_BANORTE')
             ),
-            'PAYMENT_METHS_SPEI'        => Tools::getValue(
+            'PAYMENT_METHS_SPEI' => Tools::getValue(
                 'PAYMENT_METHS_SPEI',
                 Configuration::get('PAYMENT_METHS_SPEI')
             ),
-            'EXPIRATION_DATE_TYPE'      => Tools::getValue(
+            'EXPIRATION_DATE_TYPE' => Tools::getValue(
                 'EXPIRATION_DATE_TYPE',
                 Configuration::get('EXPIRATION_DATE_TYPE')
             ),
-            'EXPIRATION_DATE_LIMIT'     => Tools::getValue(
+            'EXPIRATION_DATE_LIMIT' => Tools::getValue(
                 'EXPIRATION_DATE_LIMIT',
                 Configuration::get('EXPIRATION_DATE_LIMIT')
             ),
-            'TEST_PRIVATE_KEY'          => Tools::getValue('TEST_PRIVATE_KEY', Configuration::get('TEST_PRIVATE_KEY')),
-            'TEST_PUBLIC_KEY'           => Tools::getValue('TEST_PUBLIC_KEY', Configuration::get('TEST_PUBLIC_KEY')),
-            'LIVE_PRIVATE_KEY'          => Tools::getValue('LIVE_PRIVATE_KEY', Configuration::get('LIVE_PRIVATE_KEY')),
-            'LIVE_PUBLIC_KEY'           => Tools::getValue('LIVE_PUBLIC_KEY', Configuration::get('LIVE_PUBLIC_KEY')),
-            'CHARGE_ON_DEMAND_ENABLE'   => Tools::getValue(
+            'TEST_PRIVATE_KEY' => Tools::getValue('TEST_PRIVATE_KEY', Configuration::get('TEST_PRIVATE_KEY')),
+            'TEST_PUBLIC_KEY' => Tools::getValue('TEST_PUBLIC_KEY', Configuration::get('TEST_PUBLIC_KEY')),
+            'LIVE_PRIVATE_KEY' => Tools::getValue('LIVE_PRIVATE_KEY', Configuration::get('LIVE_PRIVATE_KEY')),
+            'LIVE_PUBLIC_KEY' => Tools::getValue('LIVE_PUBLIC_KEY', Configuration::get('LIVE_PUBLIC_KEY')),
+            'CHARGE_ON_DEMAND_ENABLE' => Tools::getValue(
                 'CHARGE_ON_DEMAND_ENABLE',
                 Configuration::get('CHARGE_ON_DEMAND_ENABLE')
             ),
-            '3DS_FORCE'                 => Tools::getValue('3DS_FORCE', Configuration::get('3DS_FORCE')),
-            'INSTALLMENTS_3_MONTHS'     => Tools::getValue(
+            '3DS_FORCE' => Tools::getValue('3DS_FORCE', Configuration::get('3DS_FORCE')),
+            'INSTALLMENTS_3_MONTHS' => Tools::getValue(
                 'INSTALLMENTS_3_MONTHS',
                 Configuration::get('INSTALLMENTS_3_MONTHS')
             ),
-            'INSTALLMENTS_6_MONTHS'     => Tools::getValue(
+            'INSTALLMENTS_6_MONTHS' => Tools::getValue(
                 'INSTALLMENTS_6_MONTHS',
                 Configuration::get('INSTALLMENTS_6_MONTHS')
             ),
-            'INSTALLMENTS_9_MONTHS'     => Tools::getValue(
+            'INSTALLMENTS_9_MONTHS' => Tools::getValue(
                 'INSTALLMENTS_9_MONTHS',
                 Configuration::get('INSTALLMENTS_9_MONTHS')
             ),
-            'INSTALLMENTS_12_MONTHS'    => Tools::getValue(
+            'INSTALLMENTS_12_MONTHS' => Tools::getValue(
                 'INSTALLMENTS_12_MONTHS',
                 Configuration::get('INSTALLMENTS_12_MONTHS')
             ),
-            'INSTALLMENTS_18_MONTHS'    => Tools::getValue(
+            'INSTALLMENTS_18_MONTHS' => Tools::getValue(
                 'INSTALLMENTS_18_MONTHS',
                 Configuration::get('INSTALLMENTS_18_MONTHS')
-            )
-        );
+            ),
+        ];
         $order_elements = array_keys(get_class_vars('Cart'));
+
         foreach ($order_elements as $element) {
             $ret['ORDER_' . Tools::strtoupper($element)] = Configuration::get('ORDER_' . Tools::strtoupper($element));
         }
         $product_elements = self::CART_PRODUCT_ATTR;
+
         foreach ($product_elements as $element) {
             $ret['PRODUCT_' . Tools::strtoupper($element)] = Configuration::get(
                 'PRODUCT_' . Tools::strtoupper($element)
@@ -1163,78 +1200,78 @@ class Conekta extends PaymentModule
         return $ret;
     }
 
-    const CART_PRODUCT_ATTR = array(
-        "id_product_attribute",
-        "id_product",
-        "cart_quantity",
-        "id_shop",
-        "id_customization",
-        "name",
-        "is_virtual",
-        "description_short",
-        "available_now",
-        "available_later",
-        "id_category_default",
-        "id_supplier",
-        "id_manufacturer",
-        "manufacturer_name",
-        "on_sale",
-        "ecotax",
-        "additional_shipping_cost",
-        "available_for_order",
-        "show_price",
-        "price",
-        "active",
-        "unity",
-        "unit_price_ratio",
-        "quantity_available",
-        "width",
-        "height",
-        "depth",
-        "out_of_stock",
-        "weight",
-        "available_date",
-        "date_add",
-        "date_upd",
-        "quantity",
-        "link_rewrite",
-        "category",
-        "unique_id",
-        "id_address_delivery",
-        "advanced_stock_management",
-        "supplier_reference",
-        "customization_quantity",
-        "price_attribute",
-        "ecotax_attr",
-        "reference",
-        "weight_attribute",
-        "ean13",
-        "isbn",
-        "upc",
-        "minimal_quantity",
-        "wholesale_price",
-        "id_image",
-        "legend",
-        "reduction_type",
-        "is_gift",
-        "reduction",
-        "reduction_without_tax",
-        "price_without_reduction",
-        "attributes",
-        "attributes_small",
-        "rate",
-        "tax_name",
-        "stock_quantity",
-        "price_without_reduction_without_tax",
-        "price_with_reduction",
-        "price_with_reduction_without_tax",
-        "total",
-        "total_wt",
-        "price_wt",
-        "reduction_applies",
-        "quantity_discount_applies",
-        "allow_oosp"
-    );
+    public const CART_PRODUCT_ATTR = [
+        'id_product_attribute',
+        'id_product',
+        'cart_quantity',
+        'id_shop',
+        'id_customization',
+        'name',
+        'is_virtual',
+        'description_short',
+        'available_now',
+        'available_later',
+        'id_category_default',
+        'id_supplier',
+        'id_manufacturer',
+        'manufacturer_name',
+        'on_sale',
+        'ecotax',
+        'additional_shipping_cost',
+        'available_for_order',
+        'show_price',
+        'price',
+        'active',
+        'unity',
+        'unit_price_ratio',
+        'quantity_available',
+        'width',
+        'height',
+        'depth',
+        'out_of_stock',
+        'weight',
+        'available_date',
+        'date_add',
+        'date_upd',
+        'quantity',
+        'link_rewrite',
+        'category',
+        'unique_id',
+        'id_address_delivery',
+        'advanced_stock_management',
+        'supplier_reference',
+        'customization_quantity',
+        'price_attribute',
+        'ecotax_attr',
+        'reference',
+        'weight_attribute',
+        'ean13',
+        'isbn',
+        'upc',
+        'minimal_quantity',
+        'wholesale_price',
+        'id_image',
+        'legend',
+        'reduction_type',
+        'is_gift',
+        'reduction',
+        'reduction_without_tax',
+        'price_without_reduction',
+        'attributes',
+        'attributes_small',
+        'rate',
+        'tax_name',
+        'stock_quantity',
+        'price_without_reduction_without_tax',
+        'price_with_reduction',
+        'price_with_reduction_without_tax',
+        'total',
+        'total_wt',
+        'price_wt',
+        'reduction_applies',
+        'quantity_discount_applies',
+        'allow_oosp',
+    ];
 
     /**
      * Build Admin Content
@@ -1245,265 +1282,280 @@ class Conekta extends PaymentModule
     {
         $this->context->controller->addJS($this->_path . 'views/js/functions.js');
         $order_elements = array_keys(
-            array_diff_key(get_class_vars('Cart'), array('definition' => '', 'htmlFields' => ''))
+            array_diff_key(get_class_vars('Cart'), ['definition' => '', 'htmlFields' => ''])
         );
         sort($order_elements);
-        $order_meta = array();
+        $order_meta = [];
+
         foreach ($order_elements as $val) {
-            $order_meta[] = array(
-                "id"   => Tools::strtoupper($val),
-                "name" => $val,
-                "val"  => $val
-            );
+            $order_meta[] = [
+                'id' => Tools::strtoupper($val),
+                'name' => $val,
+                'val' => $val,
+            ];
         }
         $product_elements = self::CART_PRODUCT_ATTR;
         sort($product_elements);
-        $product_meta = array();
+        $product_meta = [];
+
         foreach ($product_elements as $val) {
-            $product_meta[] = array(
-                "id"   => Tools::strtoupper($val),
-                "name" => $val,
-                "val"  => $val
-            );
+            $product_meta[] = [
+                'id' => Tools::strtoupper($val),
+                'name' => $val,
+                'val' => $val,
+            ];
         }
-        $fields_form = array(
-            'form' => array(
-                'legend' => array(
-                    'title' => $this->trans('Contact details', array(), 'Modules.Conekta.Admin'),
-                    'icon'  => 'icon-envelope'
-                ),
-                'input'  => array(
-                    array(
-                        'type'     => 'text',
-                        'label'    => $this->trans('Payee (name)', array(), 'Modules.Conekta.Admin'),
-                        'name'     => 'PAYEE_NAME',
-                        'required' => true
-                    ),
-                    array(
-                        'type'     => 'textarea',
-                        'label'    => $this->trans('Address', array(), 'Modules.Conekta.Admin'),
-                        'desc'     => $this->trans(
+        $fields_form = [
+            'form' => [
+                'legend' => [
+                    'title' => $this->trans('Contact details', [], 'Modules.Conekta.Admin'),
+                    'icon' => 'icon-envelope',
+                ],
+                'input' => [
+                    [
+                        'type' => 'text',
+                        'label' => $this->trans('Payee (name)', [], 'Modules.Conekta.Admin'),
+                        'name' => 'PAYEE_NAME',
+                        'required' => true,
+                    ],
+                    [
+                        'type' => 'textarea',
+                        'label' => $this->trans('Address', [], 'Modules.Conekta.Admin'),
+                        'desc' => $this->trans(
                             'Address where the check should be sent to.',
-                            array(),
+                            [],
                             'Modules.Conekta.Admin'
                         ),
-                        'name'     => 'PAYEE_ADDRESS',
-                        'required' => true
-                    ),
-                    array(
-                        'type'     => 'radio',
-                        'label'    => $this->l('Mode'),
-                        'name'     => 'MODE',
+                        'name' => 'PAYEE_ADDRESS',
                         'required' => true,
-                        'class'    => 't',
-                        'is_bool'  => true,
-                        'values'   => array(
-                            array('id' => 'active_on', 'value' => 1, 'label' => $this->l('Production')),
-                            array('id' => 'active_off', 'value' => 0, 'label' => $this->l('Sandbox'))
-                        )
-                    ),
-                    array(
-                        'type'     => 'text',
-                        'label'    => $this->trans('Webhook', array(), 'Modules.Conekta.Admin'),
-                        'name'     => 'WEB_HOOK',
-                        'required' => true
-                    ),
-                    array(
-                        'type'   => 'checkbox',
-                        'label'  => $this->l('Payment Method'),
-                        'desc'   => $this->l('Choose options.'),
-                        'name'   => 'PAYMENT_METHS',
-                        'values' => array(
-                            'query' => array(
-                                array('id' => 'CARD', 'name' => $this->l('Card'), 'val' => 'card_payment_method'),
-                                array('id' => 'CASH', 'name' => $this->l('Cash'), 'val' => 'cash_payment_method'),
-                                array('id' => 'SPEI', 'name' => $this->l('SPEI'), 'val' => 'spei_payment_method')
-                            ),
-                            'id'    => 'id',
-                            'name'  => 'name'
-                        ),
-                        'expand' => array(
-                            'print_total' => 3,
-                            'default'     => 'show',
-                            'show'        => array('text' => $this->l('show'), 'icon' => 'plus-sign-alt'),
-                            'hide'        => array('text' => $this->l('hide'), 'icon' => 'minus-sign-alt')
-                        )
-                    ),
+                    ],
                     [
-                        'type'   => 'select',
-                        'label'  => $this->l('Monthly Installments enable'),
-                        'desc'   => $this->l('Choose options.'),
-                        'name'   => 'PAYMENT_MONTHS_INSTALLMENT',
+                        'type' => 'radio',
+                        'label' => $this->l('Mode'),
+                        'name' => 'MODE',
+                        'required' => true,
+                        'class' => 't',
+                        'is_bool' => true,
+                        'values' => [
+                            ['id' => 'active_on', 'value' => 1, 'label' => $this->l('Production')],
+                            ['id' => 'active_off', 'value' => 0, 'label' => $this->l('Sandbox')],
+                        ],
+                    ],
+                    [
+                        'type' => 'text',
+                        'label' => $this->trans('Webhook', [], 'Modules.Conekta.Admin'),
+                        'name' => 'WEB_HOOK',
+                        'required' => true,
+                    ],
+                    [
+                        'type' => 'checkbox',
+                        'label' => $this->l('Payment Method'),
+                        'desc' => $this->l('Choose options.'),
+                        'name' => 'PAYMENT_METHS',
+                        'values' => [
+                            'query' => [
+                                ['id' => 'CARD', 'name' => $this->l('Card'), 'val' => 'card_payment_method'],
+                                ['id' => 'CASH', 'name' => $this->l('Cash'), 'val' => 'cash_payment_method'],
+                                ['id' => 'SPEI', 'name' => $this->l('SPEI'), 'val' => 'spei_payment_method'],
+                            ],
+                            'id' => 'id',
+                            'name' => 'name',
+                        ],
+                        'expand' => [
+                            'print_total' => 3,
+                            'default' => 'show',
+                            'show' => ['text' => $this->l('show'), 'icon' => 'plus-sign-alt'],
+                            'hide' => ['text' => $this->l('hide'), 'icon' => 'minus-sign-alt'],
+                        ],
+                    ],
+                    [
+                        'type' => 'select',
+                        'label' => $this->l('Monthly Installments enable'),
+                        'desc' => $this->l('Choose options.'),
+                        'name' => 'PAYMENT_MONTHS_INSTALLMENT',
                         'options' => [
                             'query' => [
                                 [
                                     'id' => 'NO',
                                     'name' => $this->l('No'),
-                                    'val'  => 'No'
+                                    'val' => 'No',
                                 ],
                                 [
                                     'id' => 'YES',
                                     'name' => $this->l('Yes'),
-                                    'val'  => 'yes'
+                                    'val' => 'yes',
                                 ],
                             ],
-                            'id'    => 'id',
-                            'name'  => 'name'
+                            'id' => 'id',
+                            'name' => 'name',
                         ],
                     ],
                     [
-                        'type'   => 'checkbox',
-                        'label'  => $this->l('Monthly Installments'),
-                        'desc'   => $this->l('Choose options.'),
-                        'name'   => 'INSTALLMENTS',
+                        'type' => 'checkbox',
+                        'label' => $this->l('Monthly Installments'),
+                        'desc' => $this->l('Choose options.'),
+                        'name' => 'INSTALLMENTS',
                         'values' => [
                             'query' => [
-                                ['id' => '3_MONTHS', 'name' => $this->l('3 Months'), 'val' => 'installments_3_months'],
-                                ['id' => '6_MONTHS', 'name' => $this->l('6 Months'), 'val' => 'installments_6_months'],
-                                ['id' => '9_MONTHS', 'name' => $this->l('9 Months'), 'val' => 'installments_9_months'],
                                 [
-                                    'id'   => '12_MONTHS',
-                                    'name' => $this->l('12 Months'),
-                                    'val'  => 'installments_12_months'
+                                    'id' => '3_MONTHS',
+                                    'name' => $this->l('3 Months'),
+                                    'val' => 'installments_3_months',
                                 ],
                                 [
-                                    'id'   => '18_MONTHS',
+                                    'id' => '6_MONTHS',
+                                    'name' => $this->l('6 Months'),
+                                    'val' => 'installments_6_months',
+                                ],
+                                [
+                                    'id' => '9_MONTHS',
+                                    'name' => $this->l('9 Months'),
+                                    'val' => 'installments_9_months',
+                                ],
+                                [
+                                    'id' => '12_MONTHS',
+                                    'name' => $this->l('12 Months'),
+                                    'val' => 'installments_12_months',
+                                ],
+                                [
+                                    'id' => '18_MONTHS',
                                     'name' => $this->l('18 Months'),
-                                    'val'  => 'installments_18_months'
-                                ]
+                                    'val' => 'installments_18_months',
+                                ],
                             ],
-                            'id'    => 'id',
-                            'name'  => 'name'
+                            'id' => 'id',
+                            'name' => 'name',
                         ],
                         'expand' => [
                             'print_total' => 5,
-                            'default'     => 'show',
-                            'show'        => ['text' => $this->l('show'), 'icon' => 'plus-sign-alt'],
-                            'hide'        => ['text' => $this->l('hide'), 'icon' => 'minus-sign-alt']
-                        ]
+                            'default' => 'show',
+                            'show' => ['text' => $this->l('show'), 'icon' => 'plus-sign-alt'],
+                            'hide' => ['text' => $this->l('hide'), 'icon' => 'minus-sign-alt'],
+                        ],
                     ],
-                    array(
-                        'type'    => 'radio',
-                        'label'   => $this->l('Expiration date type'),
-                        'name'    => 'EXPIRATION_DATE_TYPE',
-                        'class'   => 't',
+                    [
+                        'type' => 'radio',
+                        'label' => $this->l('Expiration date type'),
+                        'name' => 'EXPIRATION_DATE_TYPE',
+                        'class' => 't',
                         'is_bool' => true,
-                        'values'  => array(
-                            array('id' => 'EXPIRATION_DATE_TYPE_DAYS', 'value' => 0, 'label' => $this->l('Days')),
-                            array('id' => 'EXPIRATION_DATE_TYPE_HOURS', 'value' => 1, 'label' => $this->l('Hours'))
-                        )
-                    ),
-                    array(
-                        'type'  => 'text',
-                        'label' => $this->trans('Expiration date limit', array(), 'Modules.Conekta.Admin'),
-                        'name'  => 'EXPIRATION_DATE_LIMIT',
-                    ),
-                    array(
-                        'type'     => 'text',
-                        'label'    => $this->trans('Test Private Key', array(), 'Modules.Conekta.Admin'),
-                        'name'     => 'TEST_PRIVATE_KEY',
-                        'required' => true
-                    ),
-                    array(
-                        'type'     => 'text',
-                        'label'    => $this->trans('Test Public Key', array(), 'Modules.Conekta.Admin'),
-                        'name'     => 'TEST_PUBLIC_KEY',
-                        'required' => true
-                    ),
-                    array(
-                        'type'     => 'password',
-                        'label'    => $this->trans('Live Private Key', array(), 'Modules.Conekta.Admin'),
-                        'name'     => 'LIVE_PRIVATE_KEY',
-                        'required' => true
-                    ),
-                    array(
-                        'type'     => 'password',
-                        'label'    => $this->trans('Live Public Key', array(), 'Modules.Conekta.Admin'),
-                        'name'     => 'LIVE_PUBLIC_KEY',
-                        'required' => true
-                    ),
-                    array(
-                        'type'   => 'checkbox',
-                        'label'  => $this->l('Additional Order Metadata'),
-                        'name'   => 'ORDER',
-                        'values' => array(
+                        'values' => [
+                            ['id' => 'EXPIRATION_DATE_TYPE_DAYS', 'value' => 0, 'label' => $this->l('Days')],
+                            ['id' => 'EXPIRATION_DATE_TYPE_HOURS', 'value' => 1, 'label' => $this->l('Hours')],
+                        ],
+                    ],
+                    [
+                        'type' => 'text',
+                        'label' => $this->trans('Expiration date limit', [], 'Modules.Conekta.Admin'),
+                        'name' => 'EXPIRATION_DATE_LIMIT',
+                    ],
+                    [
+                        'type' => 'text',
+                        'label' => $this->trans('Test Private Key', [], 'Modules.Conekta.Admin'),
+                        'name' => 'TEST_PRIVATE_KEY',
+                        'required' => true,
+                    ],
+                    [
+                        'type' => 'text',
+                        'label' => $this->trans('Test Public Key', [], 'Modules.Conekta.Admin'),
+                        'name' => 'TEST_PUBLIC_KEY',
+                        'required' => true,
+                    ],
+                    [
+                        'type' => 'password',
+                        'label' => $this->trans('Live Private Key', [], 'Modules.Conekta.Admin'),
+                        'name' => 'LIVE_PRIVATE_KEY',
+                        'required' => true,
+                    ],
+                    [
+                        'type' => 'password',
+                        'label' => $this->trans('Live Public Key', [], 'Modules.Conekta.Admin'),
+                        'name' => 'LIVE_PUBLIC_KEY',
+                        'required' => true,
+                    ],
+                    [
+                        'type' => 'checkbox',
+                        'label' => $this->l('Additional Order Metadata'),
+                        'name' => 'ORDER',
+                        'values' => [
                             'query' => $order_meta,
-                            'id'    => 'id',
-                            'name'  => 'name'
-                        ),
-                        'expand' => array(
+                            'id' => 'id',
+                            'name' => 'name',
+                        ],
+                        'expand' => [
                             'print_total' => count($order_meta),
-                            'default'     => 'show',
-                            'show'        => array(
+                            'default' => 'show',
+                            'show' => [
                                 'text' => $this->l('show'),
-                                'icon' => 'plus-sign-alt'
-                            ),
-                            'hide'        => array(
+                                'icon' => 'plus-sign-alt',
+                            ],
+                            'hide' => [
                                 'text' => $this->l('hide'),
-                                'icon' => 'minus-sign-alt'
-                            )
-                        )
-                    ),
-                    array(
-                        'type'   => 'checkbox',
-                        'label'  => $this->l('Additional Product Metadata'),
-                        'name'   => 'PRODUCT',
-                        'values' => array(
+                                'icon' => 'minus-sign-alt',
+                            ],
+                        ],
+                    ],
+                    [
+                        'type' => 'checkbox',
+                        'label' => $this->l('Additional Product Metadata'),
+                        'name' => 'PRODUCT',
+                        'values' => [
                             'query' => $product_meta,
-                            'id'    => 'id',
-                            'name'  => 'name'
-                        ),
-                        'expand' => array(
+                            'id' => 'id',
+                            'name' => 'name',
+                        ],
+                        'expand' => [
                             'print_total' => count($product_meta),
-                            'default'     => 'show',
-                            'show'        => array(
+                            'default' => 'show',
+                            'show' => [
                                 'text' => $this->l('show'),
-                                'icon' => 'plus-sign-alt'
-                            ),
-                            'hide'        => array(
+                                'icon' => 'plus-sign-alt',
+                            ],
+                            'hide' => [
                                 'text' => $this->l('hide'),
-                                'icon' => 'minus-sign-alt'
-                            )
-                        )
-                    ),
-                    array(
-                        'type'   => 'checkbox',
-                        'label'  => $this->l('Charge on Demand'),
-                        'name'   => 'CHARGE_ON_DEMAND',
-                        'values' => array(
-                            'query' => array(
-                                array(
-                                    'id'   => 'ENABLE',
+                                'icon' => 'minus-sign-alt',
+                            ],
+                        ],
+                    ],
+                    [
+                        'type' => 'checkbox',
+                        'label' => $this->l('Charge on Demand'),
+                        'name' => 'CHARGE_ON_DEMAND',
+                        'values' => [
+                            'query' => [
+                                [
+                                    'id' => 'ENABLE',
                                     'name' => $this->l('Enable card save'),
-                                    'val'  => 'charge_on_demand_enabled'
-                                ),
-                            ),
-                            'id'    => 'id',
-                            'name'  => 'name',
-                        )
-                    ),
-                    array(
-                        'type'   => 'checkbox',
-                        'label'  => $this->l('3DS'),
-                        'name'   => '3DS',
-                        'values' => array(
-                            'query' => array(
-                                array(
-                                    'id'   => 'FORCE',
+                                    'val' => 'charge_on_demand_enabled',
+                                ],
+                            ],
+                            'id' => 'id',
+                            'name' => 'name',
+                        ],
+                    ],
+                    [
+                        'type' => 'checkbox',
+                        'label' => $this->l('3DS'),
+                        'name' => '3DS',
+                        'values' => [
+                            'query' => [
+                                [
+                                    'id' => 'FORCE',
                                     'name' => $this->l('Activar 3DS'),
-                                    'val'  => 'force_3ds'
-                                ),
-                            ),
-                            'id'    => 'id',
-                            'name'  => 'name',
-                        )
-                    )
-                ),
-                'submit' => array(
-                    'title' => $this->trans('Save', array(), 'Admin.Actions')
-                )
-            )
-        );
+                                    'val' => 'force_3ds',
+                                ],
+                            ],
+                            'id' => 'id',
+                            'name' => 'name',
+                        ],
+                    ],
+                ],
+                'submit' => [
+                    'title' => $this->trans('Save', [], 'Admin.Actions'),
+                ],
+            ],
+        ];
+
         return $fields_form;
     }
 
@@ -1517,17 +1569,18 @@ class Conekta extends PaymentModule
         $fields_form = $this->buildAdminContent();
         $helper = new HelperForm();
         $helper->show_toolbar = false;
-        $helper->id = (int)Tools::getValue('id_carrier');
+        $helper->id = (int) Tools::getValue('id_carrier');
         $helper->identifier = $this->identifier;
         $helper->submit_action = 'btnSubmit';
         $helper->currentIndex = $this->context->link->getAdminLink(
-                'AdminModules',
-                false
-            ) . '&configure=' . $this->name . '&tab_module=' . $this->tab . '&module_name=' . $this->name;
+            'AdminModules',
+            false
+        ) . '&configure=' . $this->name . '&tab_module=' . $this->tab . '&module_name=' . $this->name;
         $helper->token = Tools::getAdminTokenLite('AdminModules');
-        $helper->tpl_vars = array('fields_value' => $this->getConfigFieldsValues());
-        $this->fields_form = array();
-        return $helper->generateForm(array($fields_form));
+        $helper->tpl_vars = ['fields_value' => $this->getConfigFieldsValues()];
+        $this->fields_form = [];
+
+        return $helper->generateForm([$fields_form]);
     }
 
     /**
@@ -1535,7 +1588,7 @@ class Conekta extends PaymentModule
      *
      * @param $mode configuration type
      *
-     * @return boolean
+     * @return bool
      */
     public function checkSettings($mode = 'global')
     {
@@ -1547,12 +1600,12 @@ class Conekta extends PaymentModule
 
         if ($mode) {
             $valid = Configuration::get('CONEKTA_PUBLIC_KEY_LIVE') != '' && Configuration::get(
-                    'CONEKTA_PRIVATE_KEY_LIVE'
-                ) != '';
+                'CONEKTA_PRIVATE_KEY_LIVE'
+            ) != '';
         } else {
             $valid = Configuration::get('CONEKTA_PUBLIC_KEY_TEST') != '' && Configuration::get(
-                    'CONEKTA_PRIVATE_KEY_TEST'
-                ) != '';
+                'CONEKTA_PRIVATE_KEY_TEST'
+            ) != '';
         }
 
         return $valid;
@@ -1561,51 +1614,51 @@ class Conekta extends PaymentModule
     /**
      * Check requirements
      *
-     * @return boolean
+     * @return bool
      */
     public function checkRequirements()
     {
-        $tests = array(
-            'result' => true
-        );
+        $tests = [
+            'result' => true,
+        ];
 
-        $tests['curl'] = array(
-            'name'   => $this->l('PHP cURL extension must be enabled on your server'),
-            'result' => (integer)function_exists('curl_init')
-        );
+        $tests['curl'] = [
+            'name' => $this->l('PHP cURL extension must be enabled on your server'),
+            'result' => (int) function_exists('curl_init'),
+        ];
 
         if (Configuration::get('CONEKTA_MODE')) {
-            $tests['ssl'] = array(
-                'name'   => $this->l('SSL must be enabled on your store (before entering Live mode)'),
-                'result' => (integer)Configuration::get('PS_SSL_ENABLED') || (! empty(
-                        filter_input(
-                            INPUT_SERVER,
-                            'HTTPS'
-                        )
-                        ) && Tools::strtolower(filter_input(INPUT_SERVER, 'HTTPS')) != 'off')
-            );
+            $tests['ssl'] = [
+                'name' => $this->l('SSL must be enabled on your store (before entering Live mode)'),
+                'result' => (int) Configuration::get('PS_SSL_ENABLED') || (!empty(
+                    filter_input(
+                        INPUT_SERVER,
+                        'HTTPS'
+                    )
+                ) && Tools::strtolower(filter_input(INPUT_SERVER, 'HTTPS')) != 'off'),
+            ];
         }
 
-        $tests['php52'] = array(
-            'name'   => $this->l('Your server must run PHP 5.2 or greater'),
-            'result' => (integer)version_compare(PHP_VERSION, '5.2.0', '>=')
-        );
+        $tests['php52'] = [
+            'name' => $this->l('Your server must run PHP 5.2 or greater'),
+            'result' => (int) version_compare(PHP_VERSION, '5.2.0', '>='),
+        ];
 
-        $tests['configuration'] = array(
-            'name'   => $this->l('You must sign-up for CONEKTA and configure your account settings in the module'),
-            'result' => (integer)$this->checkSettings()
-        );
+        $tests['configuration'] = [
+            'name' => $this->l('You must sign-up for CONEKTA and configure your account settings in the module'),
+            'result' => (int) $this->checkSettings(),
+        ];
 
         if (version_compare(_PS_VERSION_, '1.5', '<')) {
-            $tests['backward'] = array(
-                'name'       => $this->l('You are using the backward compatibility module'),
-                'result'     => $this->backward,
-                'resolution' => $this->backward_error
-            );
+            $tests['backward'] = [
+                'name' => $this->l('You are using the backward compatibility module'),
+                'result' => $this->backward,
+                'resolution' => $this->backward_error,
+            ];
         }
 
         foreach ($tests as $k => $test) {
-            if ($k != 'result' && ! $test['result']) {
+            if ($k != 'result' && !$test['result']) {
                 $tests['result'] = false;
             }
         }
@@ -1620,34 +1673,34 @@ class Conekta extends PaymentModule
      */
     public function getContent()
     {
-        //CODE FOR WEBHOOK VALIDATION UNTESTED DONT ERASE
+        // CODE FOR WEBHOOK VALIDATION UNTESTED DONT ERASE
 
-        $this->smarty->assign("base_uri", __PS_BASE_URI__);
-        $this->smarty->assign("mode", Configuration::get('MODE'));
+        $this->smarty->assign('base_uri', __PS_BASE_URI__);
+        $this->smarty->assign('mode', Configuration::get('MODE'));
         $url = Configuration::get('WEB_HOOK');
 
         if (empty($url)) {
-            $url = _PS_BASE_URL_ . __PS_BASE_URI__ . "modules/conekta/notification.php";
+            $url = _PS_BASE_URL_ . __PS_BASE_URI__ . 'modules/conekta/notification.php';
         }
 
         if (Tools::isSubmit('btnSubmit') && Tools::getValue('TEST_PUBLIC_KEY') && Tools::getValue('TEST_PRIVATE_KEY')) {
             $configuration_values = [
-                'CONEKTA_MODE'             => Tools::getValue('MODE'),
-                'CONEKTA_PUBLIC_KEY_TEST'  => rtrim(Tools::getValue('TEST_PUBLIC_KEY')),
-                'CONEKTA_PUBLIC_KEY_LIVE'  => rtrim(Tools::getValue('LIVE_PUBLIC_KEY')),
+                'CONEKTA_MODE' => Tools::getValue('MODE'),
+                'CONEKTA_PUBLIC_KEY_TEST' => rtrim(Tools::getValue('TEST_PUBLIC_KEY')),
+                'CONEKTA_PUBLIC_KEY_LIVE' => rtrim(Tools::getValue('LIVE_PUBLIC_KEY')),
                 'CONEKTA_PRIVATE_KEY_TEST' => rtrim(Tools::getValue('TEST_PRIVATE_KEY')),
                 'CONEKTA_PRIVATE_KEY_LIVE' => rtrim(Tools::getValue('LIVE_PRIVATE_KEY')),
-                'CONEKTA_CARDS'            => rtrim(Tools::getValue('PAYMENT_METHS_CARD')),
-                'CONEKTA_MSI'              => rtrim(Tools::getValue('PAYMENT_MONTHS_INSTALLMENT')),
-                'PAYMENT_METHS_CASH'       => rtrim(Tools::getValue('PAYMENT_METHS_CASH')),
-                'PAYMENT_METHS_SPEI'       => rtrim(Tools::getValue('PAYMENT_METHS_SPEI')),
-                'EXPIRATION_DATE_LIMIT'    => rtrim(Tools::getValue('EXPIRATION_DATE_LIMIT')),
-                'EXPIRATION_DATE_TYPE'     => rtrim(Tools::getValue('EXPIRATION_DATE_TYPE')),
-                'INSTALLMENTS_3_MONTHS'    => rtrim(Tools::getValue('INSTALLMENTS_3_MONTHS')),
-                'INSTALLMENTS_6_MONTHS'    => rtrim(Tools::getValue('INSTALLMENTS_6_MONTHS')),
-                'INSTALLMENTS_9_MONTHS'    => rtrim(Tools::getValue('INSTALLMENTS_9_MONTHS')),
-                'INSTALLMENTS_12_MONTHS'   => rtrim(Tools::getValue('INSTALLMENTS_12_MONTHS')),
-                'INSTALLMENTS_18_MONTHS'   => rtrim(Tools::getValue('INSTALLMENTS_18_MONTHS')),
+                'CONEKTA_CARDS' => rtrim(Tools::getValue('PAYMENT_METHS_CARD')),
+                'CONEKTA_MSI' => rtrim(Tools::getValue('PAYMENT_MONTHS_INSTALLMENT')),
+                'PAYMENT_METHS_CASH' => rtrim(Tools::getValue('PAYMENT_METHS_CASH')),
+                'PAYMENT_METHS_SPEI' => rtrim(Tools::getValue('PAYMENT_METHS_SPEI')),
+                'EXPIRATION_DATE_LIMIT' => rtrim(Tools::getValue('EXPIRATION_DATE_LIMIT')),
+                'EXPIRATION_DATE_TYPE' => rtrim(Tools::getValue('EXPIRATION_DATE_TYPE')),
+                'INSTALLMENTS_3_MONTHS' => rtrim(Tools::getValue('INSTALLMENTS_3_MONTHS')),
+                'INSTALLMENTS_6_MONTHS' => rtrim(Tools::getValue('INSTALLMENTS_6_MONTHS')),
+                'INSTALLMENTS_9_MONTHS' => rtrim(Tools::getValue('INSTALLMENTS_9_MONTHS')),
+                'INSTALLMENTS_12_MONTHS' => rtrim(Tools::getValue('INSTALLMENTS_12_MONTHS')),
+                'INSTALLMENTS_18_MONTHS' => rtrim(Tools::getValue('INSTALLMENTS_18_MONTHS')),
             ];
 
             foreach ($configuration_values as $configuration_key => $configuration_value) {
@@ -1661,29 +1714,31 @@ class Conekta extends PaymentModule
                 $webhook_message = false;
             }
 
-            $this->smarty->assign("error_webhook_message", Configuration::get('CONEKTA_WEBHOOK_ERROR_MESSAGE'));
+            $this->smarty->assign('error_webhook_message', Configuration::get('CONEKTA_WEBHOOK_ERROR_MESSAGE'));
         } else {
-            $this->smarty->assign("error_webhook_message", false);
+            $this->smarty->assign('error_webhook_message', false);
         }
 
         $requirements = $this->checkRequirements();
-        $this->smarty->assign("_path", $this->_path);
-        $this->smarty->assign("requirements", $requirements);
-        $this->smarty->assign("config_check", $requirements['result']);
+        $this->smarty->assign('_path', $this->_path);
+        $this->smarty->assign('requirements', $requirements);
+        $this->smarty->assign('config_check', $requirements['result']);
+
         if ($requirements['result']) {
             $this->smarty->assign(
-                "msg_show",
+                'msg_show',
                 $this->l('All the checks were successfully performed. You can now start using your module.')
             );
         } else {
-            $this->smarty->assign("msg_show", $this->l('Please resolve the following errors:'));
+            $this->smarty->assign('msg_show', $this->l('Please resolve the following errors:'));
         }
 
         $this->html = '';
 
         if (Tools::isSubmit('btnSubmit')) {
             $this->postValidation();
-            if (! count($this->postErrors)) {
+
+            if (!count($this->postErrors)) {
                 $this->postProcess();
             } else {
                 foreach ($this->postErrors as $err) {
@@ -1714,7 +1769,7 @@ class Conekta extends PaymentModule
             Database::updateConektaMetadata(
                 $customer->id,
                 $this->conekta_mode,
-                "conekta_customer_id",
+                'conekta_customer_id',
                 $customerConekta->id
             );
 
@@ -1737,17 +1792,17 @@ class Conekta extends PaymentModule
         $iso_code = $this->context->language->iso_code;
 
         \Conekta\Conekta::setApiKey($key);
-        \Conekta\Conekta::setPlugin("Prestashop1.7");
-        \Conekta\Conekta::setApiVersion("2.0.0");
+        \Conekta\Conekta::setPlugin('Prestashop1.7');
+        \Conekta\Conekta::setApiVersion('2.0.0');
         \Conekta\Conekta::setPluginVersion($this->version);
         \Conekta\Conekta::setLocale($iso_code);
 
-        $events = array(
-            "events" => array(
-                "order.paid",
-                "order.expired",
-            )
-        );
+        $events = [
+            'events' => [
+                'order.paid',
+                'order.expired',
+            ],
+        ];
 
         $url = Tools::safeOutput(Tools::getValue('WEB_HOOK'));
 
@@ -1755,36 +1810,37 @@ class Conekta extends PaymentModule
 
         // Obtain stored value
         $config_url = Tools::safeOutput(Configuration::get('CONEKTA_WEBHOOK'));
-        $is_valid_url = ! empty($url) && ! filter_var($url, FILTER_VALIDATE_URL) === false;
-        $failed_attempts = (integer)Configuration::get('CONEKTA_WEBHOOK_FAILED_ATTEMPTS');
+        $is_valid_url = !empty($url) && !filter_var($url, FILTER_VALIDATE_URL) === false;
+        $failed_attempts = (int) Configuration::get('CONEKTA_WEBHOOK_FAILED_ATTEMPTS');
 
         // If input is valid, has not been stored and has not failed more than 5 times
         if ($is_valid_url && ($config_url != $url) && ($failed_attempts < 5 && $url != Configuration::get(
-                    'CONEKTA_WEBHOOK_FAILED_URL'
-                ))) {
+            'CONEKTA_WEBHOOK_FAILED_URL'
+        ))) {
             try {
                 $webhooks = \Conekta\Webhook::where();
 
-                $urls = array();
+                $urls = [];
 
                 foreach ($webhooks as $webhook) {
                     array_push($urls, $webhook->webhook_url);
                 }
-                if (! in_array($url, $urls)) {
+
+                if (!in_array($url, $urls)) {
                     if (Configuration::get('CONEKTA_MODE')) {
-                        $mode = array(
-                            "production_enabled" => 1
-                        );
+                        $mode = [
+                            'production_enabled' => 1,
+                        ];
                     } else {
-                        $mode = array(
-                            "development_enabled" => 1
-                        );
+                        $mode = [
+                            'development_enabled' => 1,
+                        ];
                     }
                     \Conekta\Webhook::create(
                         array_merge(
-                            array(
-                                "url" => $url
-                            ),
+                            [
+                                'url' => $url,
+                            ],
                             $mode,
                             $events
                         )
@@ -1805,22 +1861,23 @@ class Conekta extends PaymentModule
             if ($url == Configuration::get('CONEKTA_WEBHOOK_FAILED_URL')) {
                 Configuration::updateValue(
                     'CONEKTA_WEBHOOK_ERROR_MESSAGE',
-                    "Webhook was already register, try changing webhook!"
+                    'Webhook was already register, try changing webhook!'
                 );
                 Configuration::deleteByName('CONEKTA_WEBHOOK_FAILED_ATTEMPTS');
                 $failed_attempts = 0;
             } elseif ($failed_attempts >= 5) {
-                Configuration::updateValue('CONEKTA_WEBHOOK_ERROR_MESSAGE', "Maximum failed attempts reached!");
-            } elseif (! $is_valid_url) {
-                Configuration::updateValue('CONEKTA_WEBHOOK_ERROR_MESSAGE', "Not a valid url!");
+                Configuration::updateValue('CONEKTA_WEBHOOK_ERROR_MESSAGE', 'Maximum failed attempts reached!');
+            } elseif (!$is_valid_url) {
+                Configuration::updateValue('CONEKTA_WEBHOOK_ERROR_MESSAGE', 'Not a valid url!');
             } else {
                 Configuration::updateValue(
                     'CONEKTA_WEBHOOK_ERROR_MESSAGE',
-                    "Webhook was already registered in your shop!"
+                    'Webhook was already registered in your shop!'
                 );
             }
         }
-        if (! empty(Configuration::get('CONEKTA_WEBHOOK_ERROR_MESSAGE'))) {
+
+        if (!empty(Configuration::get('CONEKTA_WEBHOOK_ERROR_MESSAGE'))) {
             $failed_attempts = $failed_attempts + 1;
             Configuration::updateValue('CONEKTA_WEBHOOK_FAILED_ATTEMPTS', $failed_attempts);
             Configuration::updateValue('CONEKTA_WEBHOOK_FAILED_URL', $url);
@@ -1838,14 +1895,15 @@ class Conekta extends PaymentModule
     public function getJumps($total, $jumps)
     {
         if ($total >= 300 && $total < 600) {
-            $jumps[0] = array(1, 3);
+            $jumps[0] = [1, 3];
         } elseif ($total >= 600 && $total < 900) {
-            $jumps[0] = array(1, 3, 6);
+            $jumps[0] = [1, 3, 6];
         } elseif ($total >= 900 && $total < 1200) {
-            $jumps[0] = array(1, 3, 6, 9);
+            $jumps[0] = [1, 3, 6, 9];
         } elseif ($total >= 1200) {
-            $jumps[0] = array(1, 3, 6, 9, 12);
+            $jumps[0] = [1, 3, 6, 9, 12];
         }
+
         return $jumps;
     }
 
@@ -1856,36 +1914,40 @@ class Conekta extends PaymentModule
      */
     protected function generateCardPaymentForm()
     {
-        //value by default
+        // value by default
         $msi = 0;
-        $jumps = array(1);
+        $jumps = [1];
+
         if (Configuration::get('PAYMENT_MONTHS_INSTALLMENT')) {
             $msi = 1;
             $total = $this->context->cart->getOrderTotal();
             $jumps = $this->getJumps($total, $jumps);
         }
-        $months = array();
-        for ($i = 1; $i <= 12; $i++) {
-            $months[] = sprintf("%02d", $i);
+        $months = [];
+
+        for ($i = 1; $i <= 12; ++$i) {
+            $months[] = sprintf('%02d', $i);
         }
 
-        $years = array();
-        for ($i = 0; $i <= 10; $i++) {
+        $years = [];
+
+        for ($i = 0; $i <= 10; ++$i) {
             $years[] = date('Y', strtotime('+' . $i . ' years'));
         }
 
         $this->context->smarty->assign(
-            array(
-                'action'           => $this->context->link->getModuleLink($this->name, 'validation', array(), true),
-                'months'           => $months,
-                'years'            => $years,
-                'msi'              => $msi,
-                'msi_jumps'        => $jumps[0],
+            [
+                'action' => $this->context->link->getModuleLink($this->name, 'validation', [], true),
+                'months' => $months,
+                'years' => $years,
+                'msi' => $msi,
+                'msi_jumps' => $jumps[0],
                 'test_private_key' => Configuration::get('TEST_PRIVATE_KEY'),
                 'charge_on_demand' => $this->charge_on_demand,
-                'path'             => $this->_path
-            )
+                'path' => $this->_path,
+            ]
         );
+
         return $this->context->smarty->fetch('module:conekta/views/templates/front/payment_form.tpl');
     }
 
@@ -1904,46 +1966,49 @@ class Conekta extends PaymentModule
         $iso_code = $this->context->language->iso_code;
 
         \Conekta\Conekta::setApiKey($key);
-        \Conekta\Conekta::setPlugin("Prestashop 1.7");
-        \Conekta\Conekta::setApiVersion("2.0.0");
+        \Conekta\Conekta::setPlugin('Prestashop 1.7');
+        \Conekta\Conekta::setApiVersion('2.0.0');
         \Conekta\Conekta::setPluginVersion($this->version);
         \Conekta\Conekta::setLocale($iso_code);
         // $cart = $this->context->cart;
+
         try {
             $order = \Conekta\Order::find($conektaOrderId->id);
             $charge_response = $order->charges[0];
-            $order_status = (int)Configuration::get('PS_OS_PAYMENT');
+            $order_status = (int) Configuration::get('PS_OS_PAYMENT');
+            $createAtDate = new DateTime();
+            $createAtDate->setTimestamp($charge_response->created_at);
 
             $message = $this->l('Conekta Transaction Details:') . "\n\n" . $this->l(
-                    'Amount:'
-                ) . ' ' . ($charge_response->amount * 0.01) . "\n" . $this->l(
-                    'Status:'
-                ) . ' ' . ($charge_response->status == 'paid' ? $this->l('Paid') : $this->l(
-                    'Unpaid'
-                )) . "\n" . $this->l('Processed on:') . ' ' . strftime(
-                    '%Y-%m-%d %H:%M:%S',
-                    $charge_response->created_at
-                ) . "\n" . $this->l('Currency:') . ' ' . Tools::strtoupper(
+                'Amount:'
+            ) . ' ' . ($charge_response->amount * 0.01) . "\n" . $this->l(
+                'Status:'
+            ) . ' ' . ($charge_response->status == 'paid' ? $this->l('Paid') : $this->l(
+                'Unpaid'
+            )) . "\n" . $this->l('Processed on:') . ' ' . $createAtDate->format('Y-m-d H:i:s')
+                . "\n" . $this->l('Currency:') . ' ' . Tools::strtoupper(
                     $charge_response->currency
                 ) . "\n" . $this->l('Mode:') . ' ' . ($charge_response->livemode == 'true' ? $this->l(
                     'Live'
                 ) : $this->l('Test')) . "\n";
             $this->validateOrder(
-                (int)$this->context->cart->id,
-                (int)$order_status,
+                (int) $this->context->cart->id,
+                (int) $order_status,
                 $order->amount / 100,
                 $this->displayName,
                 $message,
-                array(),
+                [],
                 null,
                 false,
                 $this->context->customer->secure_key
             );
 
             if (version_compare(_PS_VERSION_, '1.5', '>=')) {
-                $new_order = new Order((int)$this->currentOrder);
+                $new_order = new Order((int) $this->currentOrder);
+
                 if (Validate::isLoadedObject($new_order)) {
                     $payment = $new_order->getOrderPaymentCollection();
+
                     if (isset($payment[0])) {
                         $payment[0]->transaction_id = pSQL($charge_response->id);
                         $payment[0]->save();
@@ -1952,7 +2017,8 @@ class Conekta extends PaymentModule
             }
 
             $reference = $charge_response->payment_method->reference;
-            if (isset($charge_response->id) && $charge_response->payment_method->type == "cash") {
+
+            if (isset($charge_response->id) && $charge_response->payment_method->type == 'cash') {
                 Database::insertOxxoPayment(
                     $order,
                     $charge_response,
@@ -1960,7 +2026,7 @@ class Conekta extends PaymentModule
                     $this->currentOrder,
                     $this->context->cart->id
                 );
-            } elseif (isset($charge_response->id) && $charge_response->payment_method->type == "spei") {
+            } elseif (isset($charge_response->id) && $charge_response->payment_method->type == 'spei') {
                 Database::insertSpeiPayment(
                     $order,
                     $charge_response,
@@ -1983,12 +2049,12 @@ class Conekta extends PaymentModule
                 'order-confirmation',
                 true,
                 null,
-                array(
-                    'id_order'  => (int)$this->currentOrder,
-                    'id_cart'   => (int)$this->context->cart->id,
-                    'key'       => $this->context->customer->secure_key,
-                    'id_module' => (int)$this->id
-                )
+                [
+                    'id_order' => (int) $this->currentOrder,
+                    'id_cart' => (int) $this->context->cart->id,
+                    'key' => $this->context->customer->secure_key,
+                    'id_module' => (int) $this->id,
+                ]
             );
             Tools::redirect($redirect);
         } catch (\Exception $e) {
@@ -2000,7 +2066,7 @@ class Conekta extends PaymentModule
                     2,
                     null,
                     'Cart',
-                    (int)$this->context->cart->id,
+                    (int) $this->context->cart->id,
                     true
                 );
             }
@@ -2009,9 +2075,9 @@ class Conekta extends PaymentModule
 
             $controller = Configuration::get('PS_ORDER_PROCESS_TYPE') ? 'order-opc.php' : 'order.php';
             $location = $this->context->link->getPageLink($controller, true) . (strpos(
-                    $controller,
-                    '?'
-                ) !== false ? '&' : '?') . 'step=3&conekta_error=1&message=' . $message . '#conekta_error';
+                $controller,
+                '?'
+            ) !== false ? '&' : '?') . 'step=3&conekta_error=1&message=' . $message . '#conekta_error';
 
             Tools::redirectLink($location);
         }
@@ -2027,6 +2093,7 @@ class Conekta extends PaymentModule
     public function fetchTemplate($name)
     {
         $views = 'views/templates/';
+
         if (@filemtime(dirname(__FILE__) . '/' . $name)) {
             return $this->display(__FILE__, $name);
         } elseif (@filemtime(dirname(__FILE__) . '/' . $views . 'hook/' . $name)) {
@@ -2055,28 +2122,28 @@ class Conekta extends PaymentModule
             $this->smarty->assign('conekta_tran_details', $conekta_tran_details);
 
             if ($conekta_tran_details['status'] === 'paid') {
-                $this->smarty->assign("color_status", "green");
-                $this->smarty->assign("message_status", $this->l("Paid"));
+                $this->smarty->assign('color_status', 'green');
+                $this->smarty->assign('message_status', $this->l('Paid'));
             } else {
-                $this->smarty->assign("color_status", "#CC0000");
-                $this->smarty->assign("message_status", $this->l("Unpaid"));
+                $this->smarty->assign('color_status', '#CC0000');
+                $this->smarty->assign('message_status', $this->l('Unpaid'));
             }
             $this->smarty->assign(
-                "display_price",
+                'display_price',
                 Tools::displayPrice($conekta_tran_details['amount'])
             );
             $this->smarty->assign(
-                "processed_on",
+                'processed_on',
                 Tools::safeOutput($conekta_tran_details['date_add'])
             );
 
-            if ($conekta_tran_details['mode'] === "live") {
-                $this->smarty->assign("color_mode", "green");
-                $this->smarty->assign("txt_mode", $this->l("Live"));
+            if ($conekta_tran_details['mode'] === 'live') {
+                $this->smarty->assign('color_mode', 'green');
+                $this->smarty->assign('txt_mode', $this->l('Live'));
             } else {
-                $this->smarty->assign("color_mode", "#CC0000");
+                $this->smarty->assign('color_mode', '#CC0000');
                 $this->smarty->assign(
-                    "txt_mode",
+                    'txt_mode',
                     $this->l(
                         'Test (No payment has been processed and you will'
                         . ' need to enable the &quot;Live&quot; mode)'
@@ -2084,7 +2151,7 @@ class Conekta extends PaymentModule
                 );
             }
 
-            return $this->fetchTemplate("admin-order.tpl");
+            return $this->fetchTemplate('admin-order.tpl');
         }
     }
 }

@@ -1,39 +1,37 @@
 <?php
 /**
- * 2007-2019 PrestaShop
- *
  * NOTICE OF LICENSE
  * Title   : Conekta Card Payment Gateway for Prestashop
  * Author  : Conekta.io
  * URL     : https://www.conekta.io/es/docs/plugins/prestashop.
  * PHP Version 7.0.0
- *
- * HelperGateway File Doc Comment
+ * Conekta File Doc Comment
  *
  * @author    Conekta <support@conekta.io>
- * @copyright 2012-2019 Conekta
+ * @copyright 2012-2023 Conekta
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
- * @category  HelperGateway
- * @package   HelperGateway
- * @version   GIT: @2.3.5@
- * @link      https://conekta.com/
+ *
+ * @category  Conekta
+ *
+ * @version   GIT: @2.3.6@
+ *
+ * @see       https://conekta.com/
  */
-
 require_once dirname(__FILE__) . '/model/Database.php';
 
 /**
  * HelperGateway Class Doc Comment
  *
  * @author   Conekta <support@conekta.io>
+ *
  * @category Class
- * @package  HelperGateway
+ *
  * @license  http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
- * @link     https://conekta.com/
+ *
+ * @see     https://conekta.com/
  */
-
 class HelperGateway
 {
-
     /**
      * Add tax lines
      *
@@ -43,18 +41,18 @@ class HelperGateway
      */
     public static function addTaxLines($taxlines = null)
     {
-        $tax_lines = array(
-            'tax_lines' => array()
-        );
+        $tax_lines = [
+            'tax_lines' => [],
+        ];
 
         if (isset($taxlines)) {
             foreach ($taxlines as $tax) {
                 array_push(
                     $tax_lines['tax_lines'],
-                    array(
+                    [
                         'description' => HelperGateway::removeSpecialCharacter($tax['description']),
-                        'amount' => $tax['amount']
-                    )
+                        'amount' => $tax['amount'],
+                    ]
                 );
             }
         }
@@ -71,23 +69,24 @@ class HelperGateway
      */
     public static function addShippingLines($shippingLines = null)
     {
-        $shippingLinesArray = array(
-            'shipping_lines' => array()
-        );
-        
+        $shippingLinesArray = [
+            'shipping_lines' => [],
+        ];
+
         if (isset($shippingLines)) {
             foreach ($shippingLines as $shipping) {
                 array_push(
                     $shippingLinesArray['shipping_lines'],
-                    array(
+                    [
                         'amount' => $shipping['amount'],
                         'tracking_number' => HelperGateway::removeSpecialCharacter($shipping['tracking_number']),
                         'carrier' => HelperGateway::removeSpecialCharacter($shipping['carrier']),
-                        'method' => HelperGateway::removeSpecialCharacter($shipping['method'])
-                    )
+                        'method' => HelperGateway::removeSpecialCharacter($shipping['method']),
+                    ]
                 );
             }
         }
+
         return $shippingLinesArray['shipping_lines'];
     }
 
@@ -123,6 +122,7 @@ class HelperGateway
                 $amount = $amount - $discount['amount'];
             }
         }
+
         return $amount;
     }
 
@@ -131,7 +131,7 @@ class HelperGateway
      *
      * @param array $items items in the order
      *
-     * @return boolean
+     * @return bool
      */
     public static function validateSubscrition($items)
     {
@@ -149,7 +149,7 @@ class HelperGateway
      *
      * @param array $items items in the order
      *
-     * @return boolean
+     * @return bool
      */
     public static function validateItems($items)
     {
@@ -170,15 +170,17 @@ class HelperGateway
      * @param array $items items in the order
      * @param int $amount of the order
      *
-     * @return boolean
+     * @return bool
      */
     public static function validateAmounts($items, $amount)
     {
         if (Database::isProductSubscription($items[0]['id_product'])) {
             $plan_id = Database::getIdPlan($items[0]['id_product']);
             $conekta_plan = \Conekta\Plan::find($plan_id);
+
             return $conekta_plan->amount == $amount;
         }
+
         return true;
     }
 
@@ -187,7 +189,7 @@ class HelperGateway
      *
      * @param array $items items in the order
      *
-     * @return boolean
+     * @return bool
      */
     public static function validateItemsProduct($items)
     {
@@ -198,7 +200,7 @@ class HelperGateway
             if (Database::isProductSubscription($items[$i]['id_product'])) {
                 $non_subscription = false;
             }
-            $i++;
+            ++$i;
         }
 
         return $non_subscription;
@@ -213,14 +215,15 @@ class HelperGateway
      */
     public static function removeSpecialCharacter($param)
     {
-        $param =  str_replace(array('#', '-', '_', '.', '/', '(', ')', '[', ']', '!', '¡', '%'), ' ', $param);
+        $param = str_replace(['#', '-', '_', '.', '/', '(', ')', '[', ']', '!', '¡', '%'], ' ', $param);
+
         return $param;
     }
 
     /**
      * Generate Checkout
      *
-     * @param array $items           Items of the order
+     * @param array $items Items of the order
      * @param array $payment_options Payment options
      *
      * @return array
@@ -230,14 +233,14 @@ class HelperGateway
         $retorno = HelperGateway::validateSubscrition($items);
 
         if ($retorno) {
-            return array(
-                "allowed_payment_methods" => array('card'),
-                "plan_id" => Database::getIdPlan($items[0]['id_product'])
-            );
+            return [
+                'allowed_payment_methods' => ['card'],
+                'plan_id' => Database::getIdPlan($items[0]['id_product']),
+            ];
         } elseif (HelperGateway::validateItemsProduct($items)) {
-            return array(
-                "allowed_payment_methods" => $payment_options,
-            );
+            return [
+                'allowed_payment_methods' => $payment_options,
+            ];
         }
     }
 
@@ -252,23 +255,34 @@ class HelperGateway
     public static function getInterval($option, $frecuency)
     {
         $interval = '';
+
         switch ($option) {
             case 'minute':
-                ($frecuency > 1)? $interval = 'Minutos': $interval = 'Minuto';
+                ($frecuency > 1) ? $interval = 'Minutos' : $interval = 'Minuto';
+
                 break;
+
             case 'week':
-                ($frecuency > 1)? $interval = 'Semanas': $interval = 'Semana';
+                ($frecuency > 1) ? $interval = 'Semanas' : $interval = 'Semana';
+
                 break;
+
             case 'half_month':
-                ($frecuency > 1)? $interval = 'Quincenas': $interval = 'Quincena';
+                ($frecuency > 1) ? $interval = 'Quincenas' : $interval = 'Quincena';
+
                 break;
+
             case 'month':
-                ($frecuency > 1)? $interval = 'Meses': $interval = 'Mes';
+                ($frecuency > 1) ? $interval = 'Meses' : $interval = 'Mes';
+
                 break;
+
             case 'year':
-                ($frecuency > 1)? $interval = 'Años': $interval = 'Año';
+                ($frecuency > 1) ? $interval = 'Años' : $interval = 'Año';
+
                 break;
         }
+
         return $interval;
     }
 
@@ -277,21 +291,23 @@ class HelperGateway
      *
      * @param array $items Products
      *
-     * @return boolean
+     * @return bool
      */
     public static function isDigital($items)
     {
         $all_digital = true;
+
         if (empty($items)) {
             return false;
         }
 
         $i = 0;
+
         do {
             if (!$items[$i]['is_virtual']) {
-                $all_digital =  false;
+                $all_digital = false;
             }
-            $i++;
+            ++$i;
         } while ($i < count($items) && $all_digital);
 
         return $all_digital;

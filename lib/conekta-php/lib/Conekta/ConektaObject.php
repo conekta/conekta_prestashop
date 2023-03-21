@@ -1,9 +1,26 @@
 <?php
+/**
+ * NOTICE OF LICENSE
+ * Title   : Conekta Card Payment Gateway for Prestashop
+ * Author  : Conekta.io
+ * URL     : https://www.conekta.io/es/docs/plugins/prestashop.
+ * PHP Version 7.0.0
+ * Conekta File Doc Comment
+ *
+ * @author    Conekta <support@conekta.io>
+ * @copyright 2012-2023 Conekta
+ * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ *
+ * @category  Conekta
+ *
+ * @version   GIT: @2.3.6@
+ *
+ * @see       https://conekta.com/
+ */
 
 namespace Conekta;
 
-use \ArrayObject;
-use \Conekta\Util;
+use ArrayObject;
 
 class ConektaObject extends ArrayObject
 {
@@ -11,7 +28,7 @@ class ConektaObject extends ArrayObject
 
     public function __construct($id = null)
     {
-        $this->_values = array();
+        $this->_values = [];
         $this->id = $id;
     }
 
@@ -33,15 +50,18 @@ class ConektaObject extends ArrayObject
             if (is_array($val)) {
                 $val = Util::convertToConektaObject($val);
             }
+
             if (strpos(get_class($this), 'ConektaObject') !== false) {
                 $this[$object] = $val;
             } else {
                 if (strpos($object, 'url') !== false && strpos(get_class($this), 'Webhook') !== false) {
-                    $object = "webhook_url";
+                    $object = 'webhook_url';
                 }
                 $this->$object = $val;
-                if ($object == "metadata") {
+
+                if ($object == 'metadata') {
                     $this->metadata = new ConektaObject();
+
                     if (is_array($val) || is_object($val)) {
                         foreach ($val as $object2 => $val2) {
                             $this->metadata->$object2 = $val2;
@@ -65,7 +85,8 @@ class ConektaObject extends ArrayObject
 
     protected function _toArray()
     {
-        $array = array();
+        $array = [];
+
         foreach ($this->_values as $object => $val) {
             if (is_object($val) == true && get_class($val) != '') {
                 if (empty($val->_values) != true) {
