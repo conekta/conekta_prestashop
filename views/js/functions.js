@@ -24,8 +24,8 @@
 */
 
 function manageInstallments() {
-    let select = $("#PAYMENT_MONTHS_INSTALLMENT");
-    let elements = $(".checkbox > label[for^='INSTALLMENTS_'][for$='_MONTHS']").parent().parent().parent();
+    let select = $("#CONEKTA_MSI");
+    let elements = $(".checkbox > label[for^='CONEKTA_MSI_'][for$='_MONTHS']").parent().parent().parent();
 
     if (select.val() === "YES") {
         elements.removeClass("hidden");
@@ -36,8 +36,8 @@ function manageInstallments() {
 
 function showInstalmentsOptions() {
 
-    const paymentCard = $("#PAYMENT_METHS_CARD");
-    const selectMonthInstallments = $("#PAYMENT_MONTHS_INSTALLMENT");
+    const paymentCard = $("#CONEKTA_METHOD_CARD");
+    const selectMonthInstallments = $("#CONEKTA_MSI");
 
 
     if (paymentCard.is(":checked")) {
@@ -54,21 +54,21 @@ function showInstalmentsOptions() {
 
 $(document).ready(function () {
     //initial state
-    let paymentCash = $("#PAYMENT_METHS_CASH");
-    let expirationDateLimit = $("#EXPIRATION_DATE_LIMIT");
+    let paymentCash = $("#CONEKTA_METHOD_CASH");
+    let expirationDateLimit = $("#CONEKTA_EXPIRATION_DATE_LIMIT");
     let paymentCashChecked = paymentCash.is(":checked");
 
-    $("#EXPIRATION_DATE_TYPE_DAYS").prop("disabled", !paymentCashChecked);
-    $("#EXPIRATION_DATE_TYPE_HOURS").prop("disabled", !paymentCashChecked);
+    $("#CONEKTA_EXPIRATION_DATE_TYPE_DAYS").prop("disabled", !paymentCashChecked);
+    $("#CONEKTA_EXPIRATION_DATE_TYPE_HOURS").prop("disabled", !paymentCashChecked);
     expirationDateLimit.prop("disabled", !paymentCashChecked);
     showInstalmentsOptions();
-    $("#PAYMENT_MONTHS_INSTALLMENT").change(manageInstallments);
-    $("#PAYMENT_METHS_CARD").change(showInstalmentsOptions);
+    $("#CONEKTA_MSI").change(manageInstallments);
+    $("#CONEKTA_METHOD_CARD").change(showInstalmentsOptions);
 
     //onchange value
     paymentCash.change(function () {
-        $("#EXPIRATION_DATE_TYPE_DAYS").prop("disabled", !this.checked);
-        $("#EXPIRATION_DATE_TYPE_HOURS").prop("disabled", !this.checked);
+        $("#CONEKTA_EXPIRATION_DATE_TYPE_DAYS").prop("disabled", !this.checked);
+        $("#CONEKTA_EXPIRATION_DATE_TYPE_HOURS").prop("disabled", !this.checked);
         expirationDateLimit.prop("disabled", !this.checked);
         expirationDateLimit.prop("required", this.checked);
     });
