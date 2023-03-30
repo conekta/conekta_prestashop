@@ -2,7 +2,11 @@
 [Full Changelog](https://github.com/conekta/conekta_prestashop/compare/2.3.5...2.3.6)
 - Add MSI feature by @ElvisHeredia [#115](https://github.com/conekta/conekta_prestashop/pull/115)
 - Fix Coding standards to get approval from Prestashop Validator by @ElvisHeredia [#116](https://github.com/conekta/conekta_prestashop/pull/116)
-
+- Unify config var by @ElvisHeredia [#117](https://github.com/conekta/conekta_prestashop/pull/117)
+- Separate form validation by @ElvisHeredia [#117](https://github.com/conekta/conekta_prestashop/pull/117)
+- Add class to create the webhooks by @ElvisHeredia [#117](https://github.com/conekta/conekta_prestashop/pull/117)
+- Remove unnecessary validations by @ElvisHeredia [#117](https://github.com/conekta/conekta_prestashop/pull/117)
+- Remove duplicate code by @ElvisHeredia [#117](https://github.com/conekta/conekta_prestashop/pull/117)
 
 ## [v2.3.5] - 2022-11-04
 [Full Changelog](https://github.com/conekta/conekta_prestashop/compare/2.3.4...2.3.5)
