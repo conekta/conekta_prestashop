@@ -69,7 +69,7 @@ $(document).ready (function($) {
 			$form.append($('<input type="hidden" name="chargeId" id="chargeId" />').val((event.subscription) ? null : event.charge.id));
 			$form.append($('<input type="hidden" name="charge_currency" id="charge_currency" />').val((event.subscription) ? null : event.charge.currency));
 			$form.append($('<input type="hidden" name="charge_status" id="charge_status" />').val((event.subscription) ? event.subscription.status : event.charge.status));
-			$form.append($('<input type="hidden" name="payment_type" id="payment_type" />').val(event.charge.payment_method.type));
+			$form.append($('<input type="hidden" name="payment_type" id="payment_type" />').val(event.charge.paymentMethod.type));
 			$form.append($('<input type="hidden" name="createAt" id="createAt" />').val((event.subscription) ? event.subscription.created_at : null));
 			$form.append($('<input type="hidden" name="reference" id="reference" />').val((event.reference)? event.reference : null));
 			$form.append($('<input type="hidden" name="plan_id" id="plan_id" />').val((event.subscription)? event.subscription.plan_id : null));

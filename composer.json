@@ -10,7 +10,7 @@
     }
   ],
   "require": {
-    "php": ">=7.0"
+    "php": ">=7.1"
   },
   "config": {
     "preferred-install": "dist",
@@ -18,7 +18,7 @@
   },
   "type": "prestashop-module",
   "version": "2.3.6",
-  "require-dev": {
-    "prestashop/autoindex": "^2.1"
+  "autoload": {
+    "psr-4": {"Conekta\\Payments\\": "src/"}
   }
 }

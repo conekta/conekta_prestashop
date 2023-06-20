@@ -226,7 +226,8 @@ return $config->setRules([
         'single_line'                         => true,
         'space_before_parenthesis'            => true,
         'inline_constructor_arguments'        => true
-    ]
+    ],
+    'ordered_imports'                             => ['sort_algorithm' => 'alpha']
 
     //'not_operator_with_successor_space'           => false,
     //'no_superfluous_elseif'                       => true,
