@@ -13,7 +13,7 @@
  *
  * @category  Conekta
  *
- * @version   GIT: @2.3.6@
+ * @version   GIT: @3.0.0@
  *
  * @see       https://conekta.com/
  */
@@ -25,6 +25,8 @@ require_once __DIR__ . '/model/Database.php';
 
 require_once __DIR__ . '/lib/conekta-php/lib/Conekta.php';
 
+use Conekta\ApiException;
+use Conekta\Payments\Services\ConektaApiService;
 use Conekta\Payments\UseCases\CreateWebhook;
 use Conekta\Payments\UseCases\ValidateAdminForm;
 use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
@@ -178,7 +180,7 @@ class Conekta extends PaymentModule
     {
         $this->name = 'conekta';
         $this->tab = 'payments_gateways';
-        $this->version = '2.3.6';
+        $this->version = '3.0.0';
         $this->ps_versions_compliancy = [
             'min' => '1.7',
             'max' => _PS_VERSION_,
@@ -423,24 +425,18 @@ class Conekta extends PaymentModule
                 Configuration::get('CONEKTA_PRIVATE_KEY_LIVE') :
                 Configuration::get('CONEKTA_PRIVATE_KEY_TEST');
 
-            $iso_code = $this->context->language->iso_code;
-
-            \Conekta\Conekta::setApiKey($key);
-            \Conekta\Conekta::setPlugin('Prestashop1.7');
-            \Conekta\Conekta::setApiVersion('2.0.0');
-            \Conekta\Conekta::setPluginVersion($this->version);
-            \Conekta\Conekta::setLocale($iso_code);
+            $conektaApiService = new ConektaApiService($key);
 
             $id_order = (int) $params['id_order'];
-            $conekta_tran_details = Database::getOrderById($id_order);
+            $conektaTranDetails = Database::getOrderById($id_order);
 
             // only credit card refund
-            if (!$conekta_tran_details['barcode']
-                && !(isset($conekta_tran_details['reference'])
-                    && !empty($conekta_tran_details['reference']))
-            ) {
-                $order = \Conekta\Order::find($conekta_tran_details['id_conekta_order']);
-                $order->refund(['reason' => 'requested_by_client']);
+            if (!$conektaTranDetails['barcode'] && empty($conektaTranDetails['reference'])) {
+                $conektaApiService->refundOrder(
+                    $conektaTranDetails['id_conekta_order'],
+                    ['reason' => 'requested_by_client']
+                );
+
             }
         }
     }
@@ -571,16 +567,14 @@ class Conekta extends PaymentModule
      * Generate method payment and checkout conekta
      *
      * @return template
+     * @throws ApiException
      */
     public function hookHeader()
     {
         $key = Configuration::get('CONEKTA_MODE') ? Configuration::get('CONEKTA_PRIVATE_KEY_LIVE')
             : Configuration::get('CONEKTA_PRIVATE_KEY_TEST');
         $iso_code = $this->context->language->iso_code;
-        \Conekta\Conekta::setApiKey($key);
-        \Conekta\Conekta::setPlugin('Prestashop1.7');
-        \Conekta\Conekta::setApiVersion('2.0.0');
-        \Conekta\Conekta::setLocale($iso_code);
+        $conektaApi = new ConektaApiService($key);
 
         if (Tools::getValue('controller') != 'order-opc'
             && (!($_SERVER['PHP_SELF'] == __PS_BASE_URI__ . 'order.php'
@@ -655,11 +649,11 @@ class Conekta extends PaymentModule
             $taxlines = [];
 
             if (empty($result['meta_value'])) {
-                $customer_id = $this->createCustomer($customer, $customerInfo);
+                $conektaCustomer = $conektaApi->createCustomer($customerInfo);
+                $customer_id = $this->createCustomer($customer->id, $conektaCustomer->getId());
             } else {
                 $customer_id = $result['meta_value'];
-                $customerConekta = \Conekta\Customer::find($customer_id);
-                $customerConekta->update($customerInfo);
+                $conektaApi->updateCustomer($customer_id, $customerInfo);
             }
 
             $taxlines = Config::getTaxLines($items);
@@ -771,38 +765,41 @@ class Conekta extends PaymentModule
                 }
 
                 if (isset($result) && $result != false && $result['status'] == 'unpaid') {
-                    $order = \Conekta\Order::find($result['id_conekta_order']);
+                    $order = $conektaApi->getOrderByID($result['id_conekta_order']);
+                    $charges =$order->getCharges();
+                    $charge = !empty($charges) && count((array)$charges->getData()) >= 1 ? $charges->getData()[0]: null;
 
-                    if (isset($order->charges[0]->status) && $order->charges[0]->status == 'paid') {
+                    if (!empty($charge) && $charge->getStatus() == 'paid') {
                         Database::updateConektaOrder(
                             $customer->id,
                             $this->context->cart->id,
                             $this->conektaMode,
-                            $order->id,
-                            $order->charges[0]->status
+                            $order->getId(),
+                            $charge->getStatus()
                         );
                     }
                 }
 
                 if (empty($order)) {
-                    $order = \Conekta\Order::create($order_details);
+                    $order = $conektaApi->createOrder($order_details);
                     Database::updateConektaOrder(
                         $customer->id,
                         $this->context->cart->id,
                         $this->conektaMode,
-                        $order->id,
+                        $order->getId(),
                         'unpaid'
                     );
                 } elseif (empty($order->charges[0]->status) || $order->charges[0]->status != 'paid') {
                     unset($order_details['customer_info']);
+                    $conektaApi->updateOrder($order->getId(), $order_details);
                     $order->update($order_details);
                 } else {
-                    $order = \Conekta\Order::create($order_details);
+                    $order = $conektaApi->createOrder($order_details);
                     Database::updateConektaOrder(
                         $customer->id,
                         $this->context->cart->id,
                         $this->conektaMode,
-                        $order->id,
+                        $order->getId(),
                         'unpaid'
                     );
                 }
@@ -827,8 +824,8 @@ class Conekta extends PaymentModule
         }
 
         if (isset($order)) {
-            $this->smarty->assign('orderID', $order->id);
-            $this->smarty->assign('checkoutRequestId', $order->checkout['id']);
+            $this->smarty->assign('orderID', $order->getId());
+            $this->smarty->assign('checkoutRequestId', $order->getCheckout()->getId());
             $this->smarty->assign('amount', $amount);
         } else {
             $this->smarty->assign('checkoutRequestId', '');
@@ -1527,19 +1524,17 @@ class Conekta extends PaymentModule
      *
      * @return string
      */
-    public function createCustomer($customer, $params)
+    public function createCustomer($customerID, $conektaCustomerID)
     {
         try {
-            $customerConekta = \Conekta\Customer::create($params);
-
             Database::updateConektaMetadata(
-                $customer->id,
+                $customerID,
                 $this->conektaMode,
                 'conekta_customer_id',
-                $customerConekta->id
+                $conektaCustomerID
             );
 
-            return $customerConekta->id;
+            return $conektaCustomerID;
         } catch (\Exception $e) {
             return null;
         }
@@ -1645,33 +1640,28 @@ class Conekta extends PaymentModule
         );
         $iso_code = $this->context->language->iso_code;
 
-        \Conekta\Conekta::setApiKey($key);
-        \Conekta\Conekta::setPlugin('Prestashop 1.7');
-        \Conekta\Conekta::setApiVersion('2.0.0');
-        \Conekta\Conekta::setPluginVersion($this->version);
-        \Conekta\Conekta::setLocale($iso_code);
-        // $cart = $this->context->cart;
+        $conektaApi = new ConektaApiService($key);
 
         try {
-            $order = \Conekta\Order::find($conektaOrderId->id);
-            $charge_response = $order->charges[0];
+            $order = $conektaApi->getOrderByID($conektaOrderId->id);
+            $charge_response = $order->getCharges()->getData()[0];
             $order_status = (int) Configuration::get('PS_OS_PAYMENT');
             $createAtDate = new DateTime();
-            $createAtDate->setTimestamp($charge_response->created_at);
+            $createAtDate->setTimestamp($charge_response->getCreatedAt());
 
             $message = $this->l('Conekta Transaction Details:')
-                . "\n\n" . $this->l('Amount:') . ' ' . ($charge_response->amount * 0.01) . "\n"
+                . "\n\n" . $this->l('Amount:') . ' ' . ($charge_response->getAmount() * 0.01) . "\n"
                 . $this->l('Status:') . ' '
-                . ($charge_response->status == 'paid' ? $this->l('Paid') : $this->l('Unpaid'))
+                . ($charge_response->getStatus() == 'paid' ? $this->l('Paid') : $this->l('Unpaid'))
                 . "\n" . $this->l('Processed on:') . ' ' . $createAtDate->format('Y-m-d H:i:s')
-                . "\n" . $this->l('Currency:') . ' ' . Tools::strtoupper($charge_response->currency)
+                . "\n" . $this->l('Currency:') . ' ' . Tools::strtoupper($charge_response->getCurrency())
                 . "\n" . $this->l('Mode:') . ' '
-                . ($charge_response->livemode == 'true' ? $this->l('Live') : $this->l('Test')) . "\n";
+                . ($charge_response->getLivemode() == 'true' ? $this->l('Live') : $this->l('Test')) . "\n";
 
             $this->validateOrder(
                 (int) $this->context->cart->id,
                 (int) $order_status,
-                $order->amount / 100,
+                $order->getAmount() / 100,
                 $this->displayName,
                 $message,
                 [],

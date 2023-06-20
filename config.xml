@@ -2,7 +2,7 @@
 <module>
     <name>conekta</name>
     <displayName><![CDATA[Conekta]]></displayName>
-    <version><![CDATA[2.3.6]]></version>
+    <version><![CDATA[3.0.0]]></version>
     <description><![CDATA[Accept payments by Credit and Debit Card with Conekta (Visa, Mastercard, Amex)]]></description>
     <author><![CDATA[Conekta]]></author>
     <tab><![CDATA[payments_gateways]]></tab>

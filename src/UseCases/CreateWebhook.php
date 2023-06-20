@@ -13,7 +13,7 @@
  *
  * @category  Conekta
  *
- * @version   GIT: @2.3.6@
+ * @version   GIT: @3.0.0@
  *
  * @see       https://conekta.com/
  */
@@ -22,8 +22,7 @@ namespace Conekta\Payments\UseCases;
 
 require_once __DIR__ . '/../../lib/conekta-php/lib/Conekta.php';
 
-use Conekta\Conekta;
-use Conekta\Webhook;
+use Conekta\Payments\Services\ConektaApiService;
 use Configuration;
 use Tools;
 
@@ -39,18 +38,20 @@ class CreateWebhook
 
     public const MaxFailedAttempts = 5;
 
+    /**
+     * @var ConektaApiService
+     */
+    public $conektaApiService;
+
     public function __invoke(
-        bool $conektaMode,
+        bool   $conektaMode,
         string $privateKey,
         string $isoCode,
         string $pluginVersion,
         string $oldWebhook
-    ): bool {
-        Conekta::setApiKey($privateKey);
-        Conekta::setPlugin('Prestashop');
-        Conekta::setApiVersion('2.0.0');
-        Conekta::setPluginVersion($pluginVersion);
-        Conekta::setLocale($isoCode);
+    ): bool
+    {
+        $this->conektaApiService = new ConektaApiService($privateKey);
 
         $events = ['events' => ['order.paid', 'order.expired']];
 
@@ -61,7 +62,7 @@ class CreateWebhook
             return true;
         }
 
-        $failedAttempts = (int) Configuration::get(self::webhookAttemptsSetting);
+        $failedAttempts = (int)Configuration::get(self::webhookAttemptsSetting);
         $failedWebhook = Configuration::get(self::webhookFailedUrlSetting);
 
         if ($newWebhook === $failedWebhook && $failedAttempts >= self::MaxFailedAttempts) {
@@ -76,16 +77,15 @@ class CreateWebhook
 
         if ($failedAttempts < self::MaxFailedAttempts) {
             try {
-                $webhooks = Webhook::where();
-
-                $isWebhooksRegistered = array_filter((array) $webhooks, function ($webhook) use ($newWebhook) {
-                    return $webhook->webhook_url === $newWebhook;
+                $webhooks = $this->conektaApiService->getWebhooks();
+                $webhooks = $webhooks->getData();
+                $isWebhooksRegistered = array_filter($webhooks, function ($webhook) use ($newWebhook) {
+                    return $webhook->url === $newWebhook;
                 });
 
                 if (count($isWebhooksRegistered) <= 0) {
                     $mode = $conektaMode ? ['production_enabled' => 1] : ['development_enabled' => 1];
-                    Webhook::create(array_merge(['url' => $newWebhook], $mode, $events));
-
+                    $this->conektaApiService->createWebhook(array_merge(['url' => $newWebhook], $mode, $events));
                     Configuration::updateValue(self::webhookSetting, $newWebhook);
 
                     // delete error variables
