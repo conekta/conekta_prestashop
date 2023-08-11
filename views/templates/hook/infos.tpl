@@ -10,7 +10,7 @@
  * @copyright 2012-2023 Conekta
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  * @category  Conekta
- * @version   GIT: @2.3.6@
+ * @version   GIT: @2.3.7@
  * @see       https://conekta.com/
  *}
 <div class="alert alert-info">

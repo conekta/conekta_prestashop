@@ -13,7 +13,7 @@
  *
  * @category  Conekta
  *
- * @version   GIT: @2.3.6@
+ * @version   GIT: @2.3.7@
  *
  * @see       https://conekta.com/
  */
@@ -458,7 +458,7 @@ class Database
     public static function getOrderByReferenceId($reference_id)
     {
         $table = _DB_PREFIX_ . 'orders';
-        $sql = "SELECT id_order FROM $table WHERE reference = '{$reference_id}'";
+        $sql = "SELECT id_order FROM $table WHERE id_order = '{$reference_id}'";
 
         return Db::getInstance()->getRow($sql);
     }

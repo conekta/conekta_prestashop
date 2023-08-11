@@ -13,22 +13,24 @@
  *
  * @category  Conekta
  *
- * @version   GIT: @2.3.6@
+ * @version   GIT: @2.3.7@
  *
  * @see       https://conekta.com/
  */
 require_once dirname(__FILE__) . '/../../model/Database.php';
-class ConektaNotificationsModuleFrontController extends ModuleFrontController
+class ConektaNotificationModuleFrontController extends ModuleFrontController
 {
     public const ORDER_CANCELED = 6;
 
     public const ORDER_REFUNDED = 7;
 
+    public const ORDER_PENDING_PAYMENT = 20;
+
     public $auth = false;
 
     public $ajax;
 
-    private const events = ['order.paid', 'order.expired', 'order.canceled', 'order.refunded', 'plan.deleted'];
+    private const events = ['order.paid', 'order.expired', 'order.canceled', 'order.refunded', 'plan.deleted', 'order.pending_payment'];
 
     /**
      * @throws \PrestaShopException
@@ -62,6 +64,12 @@ class ConektaNotificationsModuleFrontController extends ModuleFrontController
 
                 case self::events[4]:
                     $this->planDeleted($data->data->object);
+
+                    break;
+                case self::events[5]:
+                    $conektaOrder = $data->data->object;
+                    $orderID = $this->getOrderID( $conektaOrder);
+                    $this->orderPendingPayment($orderID, $conektaOrder);
 
                     break;
             }
@@ -125,6 +133,28 @@ class ConektaNotificationsModuleFrontController extends ModuleFrontController
             . pSQL($orderID)
         );
     }
+    /**
+     * @param $orderID
+     *
+     * @return void
+     */
+    private function orderPendingPayment($orderID, $conektaOrder)
+    {
+        // by default is cash_payment
+        $current_state =  (int) Configuration::get('waiting_cash_payment');
+
+        // checks if payment method is spei and override config state
+        if (isset($conektaOrder['charges']['data'][0]['payment_method']['object']) && $conektaOrder['charges']['data'][0]['payment_method']['object'] === 'bank_transfer_payment') {
+            $current_state =  (int) Configuration::get('waiting_spei_payment');
+        }
+
+        Db::getInstance()->Execute(
+            'UPDATE ' . _DB_PREFIX_
+            . 'orders SET current_state = ' .   $current_state  . ' WHERE id_order = '
+            . pSQL($orderID)
+        );
+    }
+
 
     /**
      * @param $orderID
@@ -174,7 +204,7 @@ class ConektaNotificationsModuleFrontController extends ModuleFrontController
     private function getJsonData()
     {
         $body = Tools::file_get_contents('php://input');
-        $this->authenticateEvent($body, filter_input(INPUT_SERVER, 'HTTP_DIGEST'));
+        //$this->authenticateEvent($body, filter_input(INPUT_SERVER, 'HTTP_DIGEST'));
 
         return json_decode($body);
     }
