@@ -13,7 +13,7 @@
  *
  * @category  Conekta
  *
- * @version   GIT: @2.3.6@
+ * @version   GIT: @2.3.7@
  *
  * @see       https://conekta.com/
  */
@@ -105,7 +105,7 @@ class ConektaObject extends ArrayObject
         return $this->__toJSON();
     }
 
-    public function offsetGet(mixed $offset): mixed
+    public function offsetGet($offset)
     {
         return isset($this->_values[$offset]) ? $this->_values[$offset] : null;
     }

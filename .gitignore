@@ -1,4 +1,3 @@
 /composer.lock
 /.php-cs-fixer.cache
-/vendor/
 .DS_Store

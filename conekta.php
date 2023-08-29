@@ -13,7 +13,7 @@
  *
  * @category  Conekta
  *
- * @version   GIT: @2.3.6@
+ * @version   GIT: @2.3.7@
  *
  * @see       https://conekta.com/
  */
@@ -178,7 +178,7 @@ class Conekta extends PaymentModule
     {
         $this->name = 'conekta';
         $this->tab = 'payments_gateways';
-        $this->version = '2.3.6';
+        $this->version = '2.3.7';
         $this->ps_versions_compliancy = [
             'min' => '1.7',
             'max' => _PS_VERSION_,
@@ -187,7 +187,7 @@ class Conekta extends PaymentModule
         $this->module_key = 'ccca95e436e967df0e6021787a3d1948';
         $this->displayName = $this->l('Conekta');
         $this->description = $this->l('Accept payments by Credit and Debit Card with Conekta (Visa, Mastercard, Amex)');
-        $this->controllers = ['validation'];
+        $this->controllers = ['validation', 'notification'];
         $this->is_eu_compatible = 1;
         $this->currencies = true;
         $this->currencies_mode = 'checkbox';
@@ -341,6 +341,21 @@ class Conekta extends PaymentModule
         }, self::ConektaSettings), function ($result) {
             return !$result;
         });
+        $customStateId = Configuration::get('waiting_cash_payment'); // Reemplaza con el nombre de configuración correcto
+        if ($customStateId) {
+            $customState = new OrderState($customStateId);
+            if (Validate::isLoadedObject($customState)) {
+                $customState->delete();
+            }
+        }
+        $customStateSpeiId = Configuration::get('waiting_spei_payment'); // Reemplaza con el nombre de configuración correcto
+        if ($customStateSpeiId) {
+            $customStateSpei = new OrderState($customStateSpeiId);
+            if (Validate::isLoadedObject($customStateSpei)) {
+                $customStateSpei->delete();
+            }
+        }
+        
 
         return parent::uninstall()
             && count($configDeleted) == 0
@@ -1105,7 +1120,7 @@ class Conekta extends PaymentModule
             if ($setting === 'CONEKTA_WEBHOOK') {
                 $settingValue = !empty($settingValue) ? $settingValue : Context::getContext()->link->getModuleLink(
                     'conekta',
-                    'notifications',
+                    'notification',
                     ['ajax' => true]
                 );
             }
@@ -1191,7 +1206,7 @@ class Conekta extends PaymentModule
                         'type' => 'text',
                         'label' => $this->trans('Webhook', [], 'Modules.Conekta.Admin'),
                         'desc' => $this->trans(
-                            'https://{domain}/es/module/conekta/notifications?ajax=true',
+                            'https://{domain}/es/module/conekta/notification?ajax=true',
                             [],
                             'Modules.Conekta.Admin'
                         ),

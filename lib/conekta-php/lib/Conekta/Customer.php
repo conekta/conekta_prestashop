@@ -13,7 +13,7 @@
  *
  * @category  Conekta
  *
- * @version   GIT: @2.3.6@
+ * @version   GIT: @2.3.7@
  *
  * @see       https://conekta.com/
  */

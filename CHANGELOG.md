@@ -1,5 +1,11 @@
-## [v2.3.6] - 2023-03-15
-[Full Changelog](https://github.com/conekta/conekta_prestashop/compare/2.3.5...2.3.6)
+## [v2.3.7] - 2023-08-11
+[Full Changelog](https://github.com/conekta/conekta_prestashop/compare/2.3.7...2.3.7)
+ - Fix webhook change status
+ - Fix mixed type php
+ - Fix register webhook on prestashop panel
+ - Remove custom status when module has been unistalled 
+## [v2.3.7] - 2023-03-15
+[Full Changelog](https://github.com/conekta/conekta_prestashop/compare/2.3.5...2.3.7)
 - Add MSI feature by @ElvisHeredia [#115](https://github.com/conekta/conekta_prestashop/pull/115)
 - Fix Coding standards to get approval from Prestashop Validator by @ElvisHeredia [#116](https://github.com/conekta/conekta_prestashop/pull/116)
 - Unify config var by @ElvisHeredia [#117](https://github.com/conekta/conekta_prestashop/pull/117)
