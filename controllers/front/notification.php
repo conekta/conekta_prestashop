@@ -24,10 +24,6 @@ class ConektaNotificationModuleFrontController extends ModuleFrontController
 
     public const ORDER_REFUNDED = 7;
 
-    public const ORDER_PENDING_PAYMENT = 20;
-
-    public $auth = false;
-
     public $ajax;
 
     private const events = ['order.paid', 'order.expired', 'order.canceled', 'order.refunded', 'plan.deleted', 'order.pending_payment'];

@@ -164,20 +164,6 @@ p.conekta-payment-module.payment_module.cash-option a.conekta_title {
   background: url(../img/oxxo.png) 25px 38px no-repeat #fbfbfb;
 }
 
-p.conekta-payment-module.payment_module.card-option a.conekta_title {
-  background: url(../img/cards.png) 25px 22px no-repeat #fbfbfb;
-}
-
-p.conekta-payment-module.payment_module.spei-option a.conekta_title {
-  background: url(../img/spei.png) 20px 30px no-repeat #fbfbfb;
-}
-
-p.conekta-payment-module.payment_module.banorte-option a.conekta_title {
-  background: url(../img/banorte.png) 20px 30px no-repeat #fbfbfb;
-}
-p.conekta-payment-module.payment_module.banorte-option a.conekta_title{
-background: url(../img/banorte.png) 20px 30px no-repeat #fbfbfb;
-}
 div.conekta-payment-module.payment_module.active a, p.conekta-payment-module.payment_module.active a:after {
 content:"\f078";
 padding-right: 20px;

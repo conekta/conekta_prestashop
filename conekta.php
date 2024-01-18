@@ -286,7 +286,6 @@ class Conekta extends PaymentModule
 
         if (!parent::install()
             || !$this->createPendingCashState()
-            || !$this->createPendingSpeiState()
             || !$this->registerHook('header')
             || !$this->registerHook('paymentOptions')
             || !$this->registerHook('paymentReturn')
