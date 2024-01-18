@@ -29,16 +29,6 @@ class ValidateAdminForm
     {
         $arrayErrors = [];
 
-        if (empty(Tools::getValue('CONEKTA_PAYEE_NAME'))
-            || !Validate::isString(Tools::getValue('CONEKTA_PAYEE_NAME'))) {
-            $arrayErrors[] = 'The "Payee name" field is required.';
-        }
-
-        if (empty(Tools::getValue('CONEKTA_PAYEE_ADDRESS'))
-            || !Validate::isString(Tools::getValue('CONEKTA_PAYEE_ADDRESS'))) {
-            $arrayErrors[] = 'The "Payee address" field is required.';
-        }
-
         if (empty(Tools::getValue('CONEKTA_PUBLIC_KEY_TEST'))
             || !Validate::isString(Tools::getValue('CONEKTA_PUBLIC_KEY_TEST'))) {
             $arrayErrors[] = 'The "Test Public Key" field is required.';
@@ -64,9 +54,7 @@ class ValidateAdminForm
             $arrayErrors[] = 'The "Webhook" field is required or must be an url';
         }
 
-        if (empty(Tools::getValue('CONEKTA_METHOD_CARD'))
-            && empty(Tools::getValue('CONEKTA_METHOD_CASH'))
-            && empty(Tools::getValue('CONEKTA_METHOD_SPEI'))) {
+        if (empty(Tools::getValue('CONEKTA_METHOD_CASH'))) {
             $arrayErrors[] = 'You need select almost one payment method.';
         }
 
@@ -93,17 +81,6 @@ class ValidateAdminForm
             && $conektaExpirationDateType === 1
             && ($conektaExpirationDateLimit < 0 || $conektaExpirationDateLimit > 24)) {
             $arrayErrors[] = 'The "Expiration date limit" is out of range. must be a number between 0 and 24';
-        }
-
-        if (Tools::getValue('CONEKTA_METHOD_CARD')
-            && Tools::getValue('CONEKTA_MSI') === 'YES'
-            && !Tools::getValue('CONEKTA_MSI_3_MONTHS')
-            && !Tools::getValue('CONEKTA_MSI_6_MONTHS')
-            && !Tools::getValue('CONEKTA_MSI_9_MONTHS')
-            && !Tools::getValue('CONEKTA_MSI_12_MONTHS')
-            && !Tools::getValue('CONEKTA_MSI_18_MONTHS')
-        ) {
-            $arrayErrors[] = 'Almost one installment, must be selected.';
         }
 
         $productAttributesFiltered = array_filter($productAttributes, function ($attribute) {

@@ -138,15 +138,10 @@ class ConektaNotificationModuleFrontController extends ModuleFrontController
      *
      * @return void
      */
-    private function orderPendingPayment($orderID, $conektaOrder)
+    private function orderPendingPayment($orderID)
     {
         // by default is cash_payment
         $current_state =  (int) Configuration::get('waiting_cash_payment');
-
-        // checks if payment method is spei and override config state
-        if (isset($conektaOrder['charges']['data'][0]['payment_method']['object']) && $conektaOrder['charges']['data'][0]['payment_method']['object'] === 'bank_transfer_payment') {
-            $current_state =  (int) Configuration::get('waiting_spei_payment');
-        }
 
         Db::getInstance()->Execute(
             'UPDATE ' . _DB_PREFIX_
