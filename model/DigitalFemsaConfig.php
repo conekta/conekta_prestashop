@@ -21,7 +21,7 @@
 /**
  * Class Config
  */
-class FemseDigitalConfig
+class DigitalFemsaConfig
 {
     public static function getLineItems($items = '')
     {

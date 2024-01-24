@@ -29,7 +29,7 @@
  *
  * @see     https://conekta.com/
  */
-class FemsaDigitalDatabase
+class DigitalFemsaDatabase
 {
     /**
      * Returns the module that the payment of the order was made.
@@ -279,7 +279,7 @@ class FemsaDigitalDatabase
     {
         $table = _DB_PREFIX_ . 'conekta_metadata';
 
-        if (empty(FemsaDigitalDatabase::getConektaMetadata($user_id, $mode, $meta_options))) {
+        if (empty(DigitalFemsaDatabase::getConektaMetadata($user_id, $mode, $meta_options))) {
             $sql = "INSERT INTO $table(id_user, mode, meta_option, meta_value) "
             . "VALUES ('{$user_id}','{$mode}','{$meta_options}','{$meta_value}')";
         } else {
@@ -316,42 +316,6 @@ class FemsaDigitalDatabase
     }
 
     /**
-     * Return if the product is a subscription
-     *
-     * @param int $id_product User ID
-     *
-     * @return bool
-     */
-    public static function isProductSubscription($id_product)
-    {
-        $table = _DB_PREFIX_ . 'conekta_product_data';
-
-        $sql = "SELECT product_value FROM  $table WHERE id_product = '{$id_product}' "
-        . 'AND product_attribute = \'is_subscription\' ';
-
-        $result = Db::getInstance()->getValue($sql);
-
-        return $result == 'true';
-    }
-
-    /**
-     * Return the ID plan
-     *
-     * @param int $id_product User ID
-     *
-     * @return string
-     */
-    public static function getIdPlan($id_product)
-    {
-        $table = _DB_PREFIX_ . 'conekta_product_data';
-
-        $sql = "SELECT product_value FROM  $table WHERE id_product = '{$id_product}' "
-        . 'AND product_attribute = \'subscription_plan\' ';
-
-        return Db::getInstance()->getValue($sql);
-    }
-
-    /**
      * Returns the id of the order created by conekta
      *
      * @param int $user_id User ID
@@ -385,7 +349,7 @@ class FemsaDigitalDatabase
     {
         $table = _DB_PREFIX_ . 'conekta_order_checkout';
 
-        if (empty(FemsaDigitalDatabase::getConektaOrder($user_id, $mode, $cart_id))) {
+        if (empty(DigitalFemsaDatabase::getConektaOrder($user_id, $mode, $cart_id))) {
             $sql = "INSERT INTO $table(id_user,	id_cart, mode, id_conekta_order, `status`) "
             . "VALUES ('{$user_id}','{$cart_id}','{$mode}','{$id_conekta_order}', '{$status}')";
         } else {

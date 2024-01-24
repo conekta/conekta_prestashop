@@ -26,10 +26,7 @@ use Exception;
  * @construct __construct(String $message, String $messageToPurchaser, String $type, String $code, String $params, Array $errorStack)
  *
  * @method void object __get()
- * @method void object __isset()
  * @method exception build(Object $response, String $httpcode)
- * @method string getConektaMessage()
- * @method string getConektaMessage()
  * @method string errorHandler()
  */
 class Handler extends Exception

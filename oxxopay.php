@@ -19,11 +19,15 @@
  */
 require __DIR__ . '/vendor/autoload.php';
 
-require_once __DIR__ . '/model/FemseDigitalConfig.php';
+require_once __DIR__ . '/model/DigitalFemsaConfig.php';
 
-require_once __DIR__ . '/model/FemsaDigitalDatabase.php';
+require_once __DIR__ . '/model/DigitalFemsaDatabase.php';
 
 require_once __DIR__ . '/lib/conekta-php/lib/Conekta.php';
+
+require_once __DIR__ . '/src/UseCases/CreateWebhook.php';
+
+require_once __DIR__ . '/src/UseCases/ValidateAdminForm.php';
 
 use DigitalFemsa\Payments\UseCases\CreateWebhook;
 use DigitalFemsa\Payments\UseCases\ValidateAdminForm;
@@ -33,10 +37,10 @@ if (!defined('_PS_VERSION_')) {
     exit(403);
 }
 
-define('METADATA_LIMIT', 12);
+define('DIGITAL_FEMSA_METADATA_LIMIT', 12);
 
 /**
- * DigitalFemsa Class Doc Comment
+ * Conekta Class Doc Comment
  *
  * @category Class
  *
@@ -284,9 +288,9 @@ class OxxoPay extends PaymentModule
             || !$this->registerHook('updateOrderStatus')
             && Configuration::updateValue('FEMSA_DIGITAL_METHOD_CASH', 1)
             && Configuration::updateValue('FEMSA_DIGITAL_MODE', 0)
-            || !FemsaDigitalDatabase::installDb()
-            || !FemsaDigitalDatabase::createTableConektaOrder()
-            || !FemsaDigitalDatabase::createTableMetaData()
+            || !DigitalFemsaDatabase::installDb()
+            || !DigitalFemsaDatabase::createTableConektaOrder()
+            || !DigitalFemsaDatabase::createTableMetaData()
         ) {
             return false;
         }
@@ -342,7 +346,7 @@ class OxxoPay extends PaymentModule
     {
         if ($params['order'] && Validate::isLoadedObject($params['order'])) {
             $id_order = (int) $params['order']->id;
-            $conekta_tran_details = FemsaDigitalDatabase::getOrderById($id_order);
+            $conekta_tran_details = DigitalFemsaDatabase::getOrderById($id_order);
 
             $this->smarty->assign('cash', true);
             $this->smarty->assign(
@@ -384,7 +388,7 @@ class OxxoPay extends PaymentModule
             \DigitalFemsa\Conekta::setLocale($iso_code);
 
             $id_order = (int) $params['id_order'];
-            $conekta_tran_details = FemsaDigitalDatabase::getOrderById($id_order);
+            $conekta_tran_details = DigitalFemsaDatabase::getOrderById($id_order);
 
             // only credit card refund
             if (!$conekta_tran_details['barcode']
@@ -506,25 +510,22 @@ class OxxoPay extends PaymentModule
         $country = Country::getIsoById($address_delivery->id_country);
         $carrier = new Carrier((int) $cart->id_carrier);
         $shp_price = $cart->getTotalShippingCost();
-        $shp_carrier = 'other';
-        $shp_service = 'other';
         $discounts = $cart->getCartRules();
         $items = $cart->getProducts();
         $shippingLines = null;
-        $shippingContact = null;
 
         if (!empty($carrier)) {
             if ($carrier->name != null) {
                 $shp_carrier = $carrier->name;
                 $shp_service = implode(',', $carrier->delay);
-                $shippingLines = FemseDigitalConfig::getShippingLines($shp_service, $shp_carrier, $shp_price);
+                $shippingLines = DigitalFemsaConfig::getShippingLines($shp_service, $shp_carrier, $shp_price);
             }
         }
 
-        $shippingContact = FemseDigitalConfig::getShippingContact($customer, $address_delivery, $state, $country);
-        $customerInfo = FemseDigitalConfig::getCustomerInfo($customer, $address_delivery);
+        $shippingContact = DigitalFemsaConfig::getShippingContact($customer, $address_delivery, $state, $country);
+        $customerInfo = DigitalFemsaConfig::getCustomerInfo($customer, $address_delivery);
 
-        $result = FemsaDigitalDatabase::getConektaMetadata($customer->id, $this->conektaMode, 'conekta_customer_id');
+        $result = DigitalFemsaDatabase::getConektaMetadata($customer->id, $this->conektaMode, 'conekta_customer_id');
 
         if (count($payment_options) > 0
             && !empty($shippingContact['address']['postal_code'])
@@ -540,7 +541,7 @@ class OxxoPay extends PaymentModule
                 $customerConekta->update($customerInfo);
             }
 
-            $taxlines = FemseDigitalConfig::getTaxLines($items);
+            $taxlines = DigitalFemsaConfig::getTaxLines($items);
 
             $checkout = [
                 'type' => 'HostedPayment',
@@ -557,9 +558,9 @@ class OxxoPay extends PaymentModule
 
             $order_details = [
                 'currency' => $this->context->currency->iso_code,
-                'line_items' => FemseDigitalConfig::getLineItems($items),
+                'line_items' => DigitalFemsaConfig::getLineItems($items),
                 'customer_info' => ['customer_id' => $customer_id],
-                'discount_lines' => FemseDigitalConfig::getDiscountLines($discounts),
+                'discount_lines' => DigitalFemsaConfig::getDiscountLines($discounts),
                 'shipping_lines' => [],
                 'shipping_contact' => $shippingContact,
                 'tax_lines' => [],
@@ -629,7 +630,7 @@ class OxxoPay extends PaymentModule
                 }
             }
 
-            $result = FemsaDigitalDatabase::getConektaOrder($customer->id, $this->conektaMode, $this->context->cart->id);
+            $result = DigitalFemsaDatabase::getConektaOrder($customer->id, $this->conektaMode, $this->context->cart->id);
 
             try {
                 if ($order_details['currency'] == 'MXN' && $amount < $this->amount_min) {
@@ -647,7 +648,7 @@ class OxxoPay extends PaymentModule
                     $order = \DigitalFemsa\Order::find($result['id_conekta_order']);
 
                     if (isset($order->charges[0]->status) && $order->charges[0]->status == 'paid') {
-                        FemsaDigitalDatabase::updateConektaOrder(
+                        DigitalFemsaDatabase::updateConektaOrder(
                             $customer->id,
                             $this->context->cart->id,
                             $this->conektaMode,
@@ -659,7 +660,7 @@ class OxxoPay extends PaymentModule
 
                 if (empty($order)) {
                     $order = \DigitalFemsa\Order::create($order_details);
-                    FemsaDigitalDatabase::updateConektaOrder(
+                    DigitalFemsaDatabase::updateConektaOrder(
                         $customer->id,
                         $this->context->cart->id,
                         $this->conektaMode,
@@ -671,7 +672,7 @@ class OxxoPay extends PaymentModule
                     $order->update($order_details);
                 } else {
                     $order = \DigitalFemsa\Order::create($order_details);
-                    FemsaDigitalDatabase::updateConektaOrder(
+                    DigitalFemsaDatabase::updateConektaOrder(
                         $customer->id,
                         $this->context->cart->id,
                         $this->conektaMode,
@@ -1274,7 +1275,7 @@ class OxxoPay extends PaymentModule
         try {
             $customerConekta = \DigitalFemsa\Customer::create($params);
 
-            FemsaDigitalDatabase::updateConektaMetadata(
+            DigitalFemsaDatabase::updateConektaMetadata(
                 $customer->id,
                 $this->conektaMode,
                 'conekta_customer_id',
@@ -1305,29 +1306,6 @@ class OxxoPay extends PaymentModule
             $this->version,
             $oldWebhook
         );
-    }
-
-    /**
-     * Insert monthly fees
-     *
-     * @param $total Total price of order
-     * @param $jumps monthly fees
-     *
-     * @return array
-     */
-    public function getJumps($total, $jumps)
-    {
-        if ($total >= 300 && $total < 600) {
-            $jumps[0] = [1, 3];
-        } elseif ($total >= 600 && $total < 900) {
-            $jumps[0] = [1, 3, 6];
-        } elseif ($total >= 900 && $total < 1200) {
-            $jumps[0] = [1, 3, 6, 9];
-        } elseif ($total >= 1200) {
-            $jumps[0] = [1, 3, 6, 9, 12];
-        }
-
-        return $jumps;
     }
 
     /**
@@ -1371,9 +1349,9 @@ class OxxoPay extends PaymentModule
      */
     public function processPayment($conektaOrderId)
     {
-        $key = Configuration::get('FEMSA_DIGITAL_MODE') ? Configuration::get('FEMSA_DIGITAL_PRIVATE_KEY_LIVE') : Configuration::get(
-            'FEMSA_DIGITAL_PRIVATE_KEY_TEST'
-        );
+        $key = Configuration::get('FEMSA_DIGITAL_MODE') ?
+            Configuration::get('FEMSA_DIGITAL_PRIVATE_KEY_LIVE') :
+            Configuration::get('FEMSA_DIGITAL_PRIVATE_KEY_TEST');
         $iso_code = $this->context->language->iso_code;
 
         \DigitalFemsa\Conekta::setApiKey($key);
@@ -1381,7 +1359,6 @@ class OxxoPay extends PaymentModule
         \DigitalFemsa\Conekta::setApiVersion('2.0.0');
         \DigitalFemsa\Conekta::setPluginVersion($this->version);
         \DigitalFemsa\Conekta::setLocale($iso_code);
-        // $cart = $this->context->cart;
 
         try {
             $order = \DigitalFemsa\Order::find($conektaOrderId->id);
@@ -1426,7 +1403,7 @@ class OxxoPay extends PaymentModule
 
             $reference = $charge_response->payment_method->reference;
 
-            FemsaDigitalDatabase::insertOxxoPayment(
+            DigitalFemsaDatabase::insertOxxoPayment(
                 $order,
                 $charge_response,
                 $reference,
@@ -1434,7 +1411,7 @@ class OxxoPay extends PaymentModule
                 $this->context->cart->id
             );
 
-            FemsaDigitalDatabase::updateConektaOrder(
+            DigitalFemsaDatabase::updateConektaOrder(
                 $this->context->customer->id,
                 $this->context->cart->id,
                 $this->conektaMode,
@@ -1512,8 +1489,8 @@ class OxxoPay extends PaymentModule
      */
     public function getTransactionStatus($order_id)
     {
-        if (FemsaDigitalDatabase::getOrderConekta($order_id) == $this->name) {
-            $conekta_tran_details = FemsaDigitalDatabase::getConektaTransaction($order_id);
+        if (DigitalFemsaDatabase::getOrderConekta($order_id) == $this->name) {
+            $conekta_tran_details = DigitalFemsaDatabase::getConektaTransaction($order_id);
 
             $this->smarty->assign('conekta_tran_details', $conekta_tran_details);
 

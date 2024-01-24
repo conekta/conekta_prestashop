@@ -95,7 +95,7 @@ class ValidateAdminForm
             return !empty(Tools::getValue($key));
         });
 
-        if ((count($productAttributesFiltered) + count($orderAttributesFiltered)) > METADATA_LIMIT) {
+        if ((count($productAttributesFiltered) + count($orderAttributesFiltered)) > DIGITAL_FEMSA_METADATA_LIMIT) {
             $arrayErrors[] = 'No more than 12 ("Additional Order Metadata" or "Additional Product Metadata") attributes can be sent as metadata';
         }
 
