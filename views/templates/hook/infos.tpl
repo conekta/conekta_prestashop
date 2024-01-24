@@ -17,7 +17,7 @@
 	<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 		<span aria-hidden="true">&times;</span>
 	</button>
-	<img src="../modules/conekta/logo.png" style="float:left; margin-right:15px;" width="60" height="60">
+	<img src="../modules/oxxopay/logo.png" style="float:left; margin-right:15px;" width="60" height="60">
 	<p><strong>{l s='This module allows you to accept payments by check.' d='Modules.Checkpayment.Admin' mod='conekta'}</strong></p>
 	<p>{l s='If the client chooses this payment method, the order status will change to Waiting for payment.'  d='Modules.Checkpayment.Admin' mod='conekta'}</p>
 	<p>{l s='You will need to manually confirm the order as soon as you receive a check.'  d='Modules.Checkpayment.Admin' mod='conekta'}</p>

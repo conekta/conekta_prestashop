@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <module>
-    <name>conekta</name>
-    <displayName><![CDATA[Conekta]]></displayName>
-    <version><![CDATA[2.3.7]]></version>
-    <description><![CDATA[Accept payments by Credit and Debit Card with Conekta (Visa, Mastercard, Amex)]]></description>
-    <author><![CDATA[Conekta]]></author>
+    <name>OxxoPay</name>
+    <displayName><![CDATA[OxxoPay]]></displayName>
+    <version><![CDATA[1.0.0]]></version>
+    <description><![CDATA[Accept cash payments]]></description>
+    <author><![CDATA[FemsaDigital]]></author>
     <tab><![CDATA[payments_gateways]]></tab>
     <is_configurable>1</is_configurable>
     <need_instance>1</need_instance>

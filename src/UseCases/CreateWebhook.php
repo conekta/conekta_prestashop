@@ -18,12 +18,12 @@
  * @see       https://conekta.com/
  */
 
-namespace Conekta\Payments\UseCases;
+namespace DigitalFemsa\Payments\UseCases;
 
 require_once __DIR__ . '/../../lib/conekta-php/lib/Conekta.php';
 
-use Conekta\Conekta;
-use Conekta\Webhook;
+use DigitalFemsa\Conekta;
+use DigitalFemsa\Webhook;
 use Configuration;
 use Tools;
 

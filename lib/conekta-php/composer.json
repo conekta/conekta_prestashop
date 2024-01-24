@@ -2,7 +2,7 @@
   "name": "conekta/conekta-php",
   "description": "Conekta PHP Library",
   "keywords": [
-    "conekta",
+    "OxxoPay",
     "payment processing",
     "api"
   ],
@@ -24,6 +24,6 @@
     "phpunit/phpunit": "~6.1"
   },
   "autoload": {
-    "classmap": ["lib/Conekta/"]
+    "classmap": ["lib/DigitalFemsa/"]
   }
 }

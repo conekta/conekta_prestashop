@@ -17,7 +17,7 @@
  *
  * @see       https://conekta.com/
  */
-require_once dirname(__FILE__) . '/../../model/Database.php';
+require_once dirname(__FILE__) . '/../../model/FemsaDigitalDatabase.php';
 class ConektaNotificationModuleFrontController extends ModuleFrontController
 {
     public const ORDER_CANCELED = 6;
@@ -168,11 +168,11 @@ class ConektaNotificationModuleFrontController extends ModuleFrontController
      */
     private function planDeleted($conektaPlan)
     {
-        $result = Database::getProductIdProductData($conektaPlan->id);
+        $result = FemsaDigitalDatabase::getProductIdProductData($conektaPlan->id);
 
         foreach ($result as $product) {
-            Database::updateConektaProductData($product['id_product'], 'is_subscription', 'false');
-            Database::updateConektaProductData($product['id_product'], 'subscription_plan', '');
+            FemsaDigitalDatabase::updateConektaProductData($product['id_product'], 'is_subscription', 'false');
+            FemsaDigitalDatabase::updateConektaProductData($product['id_product'], 'subscription_plan', '');
         }
     }
 
@@ -184,7 +184,7 @@ class ConektaNotificationModuleFrontController extends ModuleFrontController
     private function getOrderID($conektaOrder)
     {
         $referenceID = (string) $conektaOrder->metadata->reference_id;
-        $result = Database::getOrderByReferenceId($referenceID);
+        $result = FemsaDigitalDatabase::getOrderByReferenceId($referenceID);
 
         return $result['id_order'];
     }

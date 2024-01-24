@@ -18,7 +18,7 @@
  * @see       https://conekta.com/
  */
 
-namespace Conekta\Payments\UseCases;
+namespace DigitalFemsa\Payments\UseCases;
 
 use Tools;
 use Validate;
