@@ -176,7 +176,7 @@ class DigitalFemsaHelperGateway
     {
         if (FemsaDigitalDatabase::isProductSubscription($items[0]['id_product'])) {
             $plan_id = FemsaDigitalDatabase::getIdPlan($items[0]['id_product']);
-            $conekta_plan = \Conekta\Plan::find($plan_id);
+            $conekta_plan = \DigitalFemsa\Plan::find($plan_id);
 
             return $conekta_plan->amount == $amount;
         }

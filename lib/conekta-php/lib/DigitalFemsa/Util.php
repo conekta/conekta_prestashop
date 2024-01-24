@@ -23,23 +23,23 @@ namespace DigitalFemsa;
 abstract class Util
 {
     public static $types = [
-    'webhook' => '\Conekta\Webhook',
-    'webhook_log' => '\Conekta\WebhookLog',
-    'billing_address' => '\Conekta\Address',
-    'cash_payment' => '\Conekta\PaymentMethod',
-    'charge' => '\Conekta\Charge',
-    'customer' => '\Conekta\Customer',
-    'event' => '\Conekta\Event',
-    'payment_source' => '\Conekta\PaymentSource',
-    'tax_line' => '\Conekta\TaxLine',
-    'shipping_line' => '\Conekta\ShippingLine',
-    'discount_line' => '\Conekta\DiscountLine',
-    'conekta_list' => '\Conekta\ConektaList',
-    'shipping_contact' => '\Conekta\ShippingContact',
-    'lang' => '\Conekta\Lang',
-    'line_item' => '\Conekta\LineItem',
-    'order' => '\Conekta\Order',
-    'token' => '\Conekta\Token',
+    'webhook' => '\DigitalFemsa\Webhook',
+    'webhook_log' => '\DigitalFemsa\WebhookLog',
+    'billing_address' => '\DigitalFemsa\Address',
+    'cash_payment' => '\DigitalFemsa\PaymentMethod',
+    'charge' => '\DigitalFemsa\Charge',
+    'customer' => '\DigitalFemsa\Customer',
+    'event' => '\DigitalFemsa\Event',
+    'payment_source' => '\DigitalFemsa\PaymentSource',
+    'tax_line' => '\DigitalFemsa\TaxLine',
+    'shipping_line' => '\DigitalFemsa\ShippingLine',
+    'discount_line' => '\DigitalFemsa\DiscountLine',
+    'conekta_list' => '\DigitalFemsa\ConektaList',
+    'shipping_contact' => '\DigitalFemsa\ShippingContact',
+    'lang' => '\DigitalFemsa\Lang',
+    'line_item' => '\DigitalFemsa\LineItem',
+    'order' => '\DigitalFemsa\Order',
+    'token' => '\DigitalFemsa\Token',
     ];
 
     public static function convertToConektaObject($resp)
@@ -56,7 +56,7 @@ abstract class Util
             }
 
             if (isset($resp['street1']) || isset($resp['street2'])) {
-                $class = '\Conekta\Address';
+                $class = '\DigitalFemsa\Address';
                 $instance = new $class();
                 $instance->loadFromArray($resp);
 

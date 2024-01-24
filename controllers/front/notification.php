@@ -212,9 +212,9 @@ class ConektaNotificationModuleFrontController extends ModuleFrontController
      */
     private function authenticateEvent($body, $digest)
     {
-        $privateKeyString = Configuration::get('CONEKTA_MODE') ?
-            Configuration::get('CONEKTA_PRIVATE_KEY_LIVE') :
-            Configuration::get('CONEKTA_PRIVATE_KEY_TEST');
+        $privateKeyString = Configuration::get('FEMSA_DIGITAL_MODE') ?
+            Configuration::get('FEMSA_DIGITAL_PRIVATE_KEY_LIVE') :
+            Configuration::get('FEMSA_DIGITAL_PRIVATE_KEY_TEST');
 
         if (!empty($privateKeyString) && !empty($body)) {
             if (!empty($digest)) {

@@ -35,7 +35,7 @@ if (!function_exists('get_called_class')) {
 
 require_once dirname(__FILE__) . '/DigitalFemsa/Lang.php';
 
-require_once dirname(__FILE__) . '/DigitalFemsa/DigitalFemsa.php';
+require_once dirname(__FILE__) . '/DigitalFemsa/Conekta.php';
 
 require_once dirname(__FILE__) . '/DigitalFemsa/Util.php';
 
