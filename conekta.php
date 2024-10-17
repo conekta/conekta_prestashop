@@ -23,11 +23,12 @@ require_once __DIR__ . '/model/Config.php';
 
 require_once __DIR__ . '/model/Database.php';
 
-require_once __DIR__ . '/lib/conekta-php/lib/Conekta.php';
-
 use Conekta\Payments\UseCases\CreateWebhook;
 use Conekta\Payments\UseCases\ValidateAdminForm;
 use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
+use Conekta\Api\OrdersApi;
+use \Conekta\Model\OrderRefundRequest;
+use Conekta\Configuration as ConektaConfiguration;
 
 if (!defined('_PS_VERSION_')) {
     exit(403);
@@ -246,7 +247,7 @@ class Conekta extends PaymentModule
     /**
      * @return string[]
      */
-    private function mappedConfig()
+    private function mappedConfig(): array
     {
         return [
             'CONEKTA_PAYEE_NAME' => 'checkName',
@@ -429,43 +430,45 @@ class Conekta extends PaymentModule
      * @param array $params information of order to update it
      *
      * @return void
+     * @throws \Conekta\ApiException
      */
     public function hookUpdateOrderStatus($params)
     {
         if ($params['newOrderStatus']->id == 7) {
-            // order refunded
-            $key = Configuration::get('CONEKTA_MODE') ?
-                Configuration::get('CONEKTA_PRIVATE_KEY_LIVE') :
-                Configuration::get('CONEKTA_PRIVATE_KEY_TEST');
-
-            $iso_code = $this->context->language->iso_code;
-
-            \Conekta\Conekta::setApiKey($key);
-            \Conekta\Conekta::setPlugin('Prestashop1.7');
-            \Conekta\Conekta::setApiVersion('2.0.0');
-            \Conekta\Conekta::setPluginVersion($this->version);
-            \Conekta\Conekta::setLocale($iso_code);
-
             $id_order = (int) $params['id_order'];
             $conekta_tran_details = Database::getOrderById($id_order);
-
+            $orderInstance = $this->getApiOrderInstance();
             // only credit card refund
             if (!$conekta_tran_details['barcode']
-                && !(isset($conekta_tran_details['reference'])
-                    && !empty($conekta_tran_details['reference']))
+                && !(!empty($conekta_tran_details['reference']))
             ) {
-                $order = \Conekta\Order::find($conekta_tran_details['id_conekta_order']);
-                $order->refund(['reason' => 'requested_by_client']);
+                $request   = new OrderRefundRequest([
+                    'reason' => 'requested_by_client',
+                    'amount' => $conekta_tran_details['amount'] //todo validate it,
+                ]);
+                $orderInstance->orderRefund($conekta_tran_details['id_conekta_order'], $request);
             }
         }
     }
 
+    public function getApiOrderInstance(): OrdersApi
+    {
+        $config = ConektaConfiguration::getDefaultConfiguration()->setAccessToken($this->getConektaApiKey());
+
+        return  new OrdersApi(null, $config);
+    }
+    public function getConektaApiKey(): string{
+        return Configuration::get('CONEKTA_MODE') ?
+            Configuration::get('CONEKTA_PRIVATE_KEY_LIVE') :
+            Configuration::get('CONEKTA_PRIVATE_KEY_TEST');
+    }
+
     /**
-     * Create pending chash state
+     * Create pending cash state
      *
      * @return bool
      */
-    private function createPendingCashState()
+    private function createPendingCashState(): bool
     {
         $state = new OrderState();
         $languages = Language::getLanguages();
