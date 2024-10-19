@@ -312,7 +312,7 @@ class Conekta extends PaymentModule
         if (!parent::install()
             || !$this->createPendingCashState()
             || !$this->createPendingSpeiState()
-            || !$this->registerHook('header')
+            || !$this->registerHook('displayHeader')
             || !$this->registerHook('paymentOptions')
             || !$this->registerHook('paymentReturn')
             || !$this->registerHook('adminOrder')
@@ -601,7 +601,7 @@ class Conekta extends PaymentModule
      * @return template
      * @throws ApiException
      */
-    public function hookHeader()
+    public function hookDisplayHeader()
     {
         $iso_code = $this->context->language->iso_code;
         if (Tools::getValue('controller') != 'order-opc'
@@ -1547,7 +1547,7 @@ class Conekta extends PaymentModule
                 $customer->id,
                 $this->conektaMode,
                 'conekta_customer_id',
-                $customerConekta->id
+                $customerConekta->getId()
             );
 
             return $customerConekta->getId();

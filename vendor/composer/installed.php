@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => 'conekta/conekta-prestashop',
-        'pretty_version' => '2.3.7',
-        'version' => '2.3.7.0',
-        'reference' => null,
+        'pretty_version' => '3.0.0',
+        'version' => '3.0.0.0',
+        'reference' => NULL,
         'type' => 'prestashop-module',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -20,9 +20,9 @@
             'dev_requirement' => false,
         ),
         'conekta/conekta-prestashop' => array(
-            'pretty_version' => '2.3.7',
-            'version' => '2.3.7.0',
-            'reference' => null,
+            'pretty_version' => '3.0.0',
+            'version' => '3.0.0.0',
+            'reference' => NULL,
             'type' => 'prestashop-module',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -110,9 +110,9 @@
             'dev_requirement' => false,
         ),
         'symfony/deprecation-contracts' => array(
-            'pretty_version' => 'v3.5.0',
-            'version' => '3.5.0.0',
-            'reference' => '0e0d29ce1f20deffb4ab1b016a7257c4f1e789a1',
+            'pretty_version' => 'v2.5.3',
+            'version' => '2.5.3.0',
+            'reference' => '80d075412b557d41002320b96a096ca65aa2c98d',
             'type' => 'library',
             'install_path' => __DIR__ . '/../symfony/deprecation-contracts',
             'aliases' => array(),
