@@ -314,7 +314,7 @@ class Conekta extends PaymentModule
             || !$this->createPendingSpeiState()
             || !$this->registerHook('displayHeader')
             || !$this->registerHook('paymentOptions')
-            || !$this->registerHook('paymentReturn')
+            || !$this->registerHook('displayPaymentReturn')
             || !$this->registerHook('adminOrder')
             || !$this->registerHook('updateOrderStatus')
             && Configuration::updateValue('CONEKTA_METHOD_CARD', 1)
@@ -382,7 +382,7 @@ class Conekta extends PaymentModule
      *
      * @return template
      */
-    public function hookPaymentReturn($params)
+    public function hookDisplayPaymentReturn($params)
     {
         if ($params['order'] && Validate::isLoadedObject($params['order'])) {
             $id_order = (int) $params['order']->id;
@@ -400,18 +400,16 @@ class Conekta extends PaymentModule
                         'currency' => $conekta_tran_details['currency'],
                     ]
                 );
-            } elseif (isset($conekta_tran_details['reference']) && !empty($conekta_tran_details['reference'])) {
-                if (strpos($conekta_tran_details['reference'], '6461801118') !== false) {
-                    $this->smarty->assign('spei', true);
-                    $this->smarty->assign(
-                        'conekta_order',
-                        [
-                            'receiving_account_number' => $conekta_tran_details['reference'],
-                            'amount' => $conekta_tran_details['amount'],
-                            'currency' => $conekta_tran_details['currency'],
-                        ]
-                    );
-                }
+            } elseif (!empty($conekta_tran_details['reference'])) {
+                $this->smarty->assign('spei', true);
+                $this->smarty->assign(
+                    'conekta_order',
+                    [
+                        'receiving_account_number' => $conekta_tran_details['reference'],
+                        'amount' => $conekta_tran_details['amount'],
+                        'currency' => $conekta_tran_details['currency'],
+                    ]
+                );
             } else {
                 $this->smarty->assign('card', true);
                 $this->smarty->assign(
@@ -681,6 +679,7 @@ class Conekta extends PaymentModule
 
             $checkout = [
                 'type' => 'HostedPayment',
+                'redirection_time' =>10,
                 'allowed_payment_methods' => $payment_options,
                 'failure_url' => Configuration::get('CONEKTA_WEBHOOK'),
                 'success_url' => Configuration::get('CONEKTA_WEBHOOK'),
@@ -1448,19 +1447,9 @@ class Conekta extends PaymentModule
             ];
         }
 
-        if (Tools::getValue('CONEKTA_MODE')
-            && (!Configuration::get('PS_SSL_ENABLED')
-                || (!empty(filter_input(INPUT_SERVER, 'HTTPS'))
-                    && Tools::strtolower(filter_input(INPUT_SERVER, 'HTTPS')) === 'off'))
-        ) {
-            $testRequirements['ssl'] = [
-                'name' => $this->l('SSL must be enabled on your store (before entering Live mode)'),
-            ];
-        }
-
-        if (version_compare(PHP_VERSION, '7.1', '<')) {
-            $testRequirements['php7.1'] = [
-                'name' => $this->l('Your server must run PHP 7.1 or greater'),
+        if (version_compare(PHP_VERSION, '7.4', '<')) {
+            $testRequirements['php7.4'] = [
+                'name' => $this->l('Your server must run PHP 7.4 or greater'),
             ];
         }
 
@@ -1706,7 +1695,7 @@ class Conekta extends PaymentModule
                         $this->context->cart->id
                     );
                 } elseif ($charge_response->getId() !== null && $charge_response->getPaymentMethod()->getType() == 'spei') {
-                    $reference = $charge_response->getPaymentMethod()->getReference();
+                    $reference = $charge_response->getPaymentMethod()->getReceivingAccountNumber();
                     Database::insertSpeiPayment(
                         $order,
                         $charge_response,

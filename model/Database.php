@@ -66,7 +66,7 @@ class Database
     }
 
     /**
-     * Insert payment with oxxo
+     * Insert payment with cash
      *
      * @param OrderResponse $order Object order
      * @param ChargesDataResponse $charge_response Charges made on the order
