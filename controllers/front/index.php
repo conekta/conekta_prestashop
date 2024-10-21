@@ -4,7 +4,7 @@
  * Title   : Conekta Card Payment Gateway for Prestashop
  * Author  : Conekta.io
  * URL     : https://www.conekta.io/es/docs/plugins/prestashop.
- * PHP Version 7.0.0
+ * PHP Version 7.4
  * Conekta File Doc Comment
  *
  * @author    Conekta <support@conekta.io>
@@ -13,7 +13,7 @@
  *
  * @category  Conekta
  *
- * @version   GIT: @2.3.7@
+ * @version   GIT: @3.0.0@
  *
  * @see       https://conekta.com/
  */
