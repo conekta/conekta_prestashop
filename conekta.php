@@ -183,7 +183,7 @@ class Conekta extends PaymentModule
     {
         $this->name = 'conekta';
         $this->tab = 'payments_gateways';
-        $this->version = '2.3.7';
+        $this->version = '3.0.0';
         $this->ps_versions_compliancy = [
             'min' => '1.7',
             'max' => _PS_VERSION_,
@@ -706,7 +706,8 @@ class Conekta extends PaymentModule
                 'tax_lines' => [],
                 'metadata' => [
                     'plugin' => 'Prestashop',
-                    'plugin_version' => _PS_VERSION_,
+                    'plugin_version' => Configuration::get('CONEKTA_PRESTASHOP_VERSION'),
+                    'prestashop_version' => _PS_VERSION_,
                     'reference_id' => $this->context->cart->id,
                 ],
                 'checkout' => $checkout,
