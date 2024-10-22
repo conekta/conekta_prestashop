@@ -183,7 +183,7 @@ class Conekta extends PaymentModule
     {
         $this->name = 'conekta';
         $this->tab = 'payments_gateways';
-        $this->version = '3.0.0';
+        $this->version = '2.3.7';
         $this->ps_versions_compliancy = [
             'min' => '1.7',
             'max' => _PS_VERSION_,
@@ -483,7 +483,7 @@ class Conekta extends PaymentModule
         $names = [];
 
         foreach ($languages as $lang) {
-            $names[$lang['id_lang']] = 'En espera de pago';
+            $names[$lang['id_lang']] = 'En espera de pago cash';
         }
 
         $state->name = $names;
@@ -706,8 +706,7 @@ class Conekta extends PaymentModule
                 'tax_lines' => [],
                 'metadata' => [
                     'plugin' => 'Prestashop',
-                    'plugin_version' => Configuration::get('CONEKTA_PRESTASHOP_VERSION'),
-                    'prestashop_version' => _PS_VERSION_,
+                    'plugin_version' => _PS_VERSION_,
                     'reference_id' => $this->context->cart->id,
                 ],
                 'checkout' => $checkout,
