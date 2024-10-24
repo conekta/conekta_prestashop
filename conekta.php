@@ -13,7 +13,7 @@
  *
  * @category  Conekta
  *
- * @version   GIT: @2.3.7@
+ * @version   GIT: @2.3.8@
  *
  * @see       https://conekta.com/
  */
@@ -178,7 +178,7 @@ class Conekta extends PaymentModule
     {
         $this->name = 'conekta';
         $this->tab = 'payments_gateways';
-        $this->version = '2.3.7';
+        $this->version = '2.3.8';
         $this->ps_versions_compliancy = [
             'min' => '1.7',
             'max' => _PS_VERSION_,
@@ -1710,7 +1710,7 @@ class Conekta extends PaymentModule
 
             $reference = $charge_response->payment_method->reference;
 
-            if (isset($charge_response->id) && $charge_response->payment_method->type == 'cash') {
+            if (isset($charge_response->id) && in_array($charge_response->payment_method->type, ['cash', 'oxxo']) ) {
                 Database::insertOxxoPayment(
                     $order,
                     $charge_response,
