@@ -2,17 +2,17 @@
     "packages": [
         {
             "name": "conekta/conekta-php",
-            "version": "6.0.9",
-            "version_normalized": "6.0.9.0",
+            "version": "dev-update-lib",
+            "version_normalized": "dev-update-lib",
             "source": {
                 "type": "git",
                 "url": "https://github.com/conekta/conekta-php.git",
-                "reference": "2ef9b46bcb113f16b2a71b368f9cca86f0a66da0"
+                "reference": "31154660911986ed8a6ecda34569a53dc80c8cb7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/conekta/conekta-php/zipball/2ef9b46bcb113f16b2a71b368f9cca86f0a66da0",
-                "reference": "2ef9b46bcb113f16b2a71b368f9cca86f0a66da0",
+                "url": "https://api.github.com/repos/conekta/conekta-php/zipball/31154660911986ed8a6ecda34569a53dc80c8cb7",
+                "reference": "31154660911986ed8a6ecda34569a53dc80c8cb7",
                 "shasum": ""
             },
             "require": {
@@ -28,7 +28,7 @@
                 "phpstan/phpstan": "1.11.1",
                 "phpunit/phpunit": "^9.0 || ^10.0"
             },
-            "time": "2024-10-11T15:22:03+00:00",
+            "time": "2024-10-24T00:09:30+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -57,7 +57,7 @@
             ],
             "support": {
                 "issues": "https://github.com/conekta/conekta-php/issues",
-                "source": "https://github.com/conekta/conekta-php/tree/v6.0.9"
+                "source": "https://github.com/conekta/conekta-php/tree/update-lib"
             },
             "install-path": "../conekta/conekta-php"
         },

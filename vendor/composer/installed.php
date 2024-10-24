@@ -11,9 +11,9 @@
     ),
     'versions' => array(
         'conekta/conekta-php' => array(
-            'pretty_version' => '6.0.9',
-            'version' => '6.0.9.0',
-            'reference' => '2ef9b46bcb113f16b2a71b368f9cca86f0a66da0',
+            'pretty_version' => 'dev-update-lib',
+            'version' => 'dev-update-lib',
+            'reference' => '31154660911986ed8a6ecda34569a53dc80c8cb7',
             'type' => 'library',
             'install_path' => __DIR__ . '/../conekta/conekta-php',
             'aliases' => array(),
