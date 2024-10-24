@@ -1,5 +1,5 @@
 ## [v2.3.8] - 2024-10-24
-[Full Changelog](https://github.com/conekta/conekta_prestashop/compare/2.3.7...2.3.7)
+[Full Changelog](https://github.com/conekta/conekta_prestashop/compare/2.3.7...2.3.8)
  - supports oxxo type
 ## [v2.3.7] - 2023-08-11
 [Full Changelog](https://github.com/conekta/conekta_prestashop/compare/2.3.7...2.3.7)
