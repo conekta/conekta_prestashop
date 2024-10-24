@@ -1,4 +1,4 @@
-Prestashop [1.7.8.x , 8.x.x]] Plugin v3.0.0
+Prestashop [8.x.x]] Plugin v3.0.0
 =======================
 This plugin is an official and stable version of the Conekta Prestashop extension. It bundles functionality to process credit cards, SPEI and Conekta efectivo payments securely as well as send email notifications to your customers when they complete a successful purchase.
 

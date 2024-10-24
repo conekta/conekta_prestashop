@@ -11,7 +11,7 @@
   ],
   "require": {
     "php": ">=7.4",
-    "conekta/conekta-php": "dev-update-lib"
+    "conekta/conekta-php": "6.0.9"
   },
   "config": {
     "preferred-install": "dist",

@@ -183,9 +183,9 @@ class Conekta extends PaymentModule
     {
         $this->name = 'conekta';
         $this->tab = 'payments_gateways';
-        $this->version = '2.3.7';
+        $this->version = '3.0';
         $this->ps_versions_compliancy = [
-            'min' => '1.7',
+            'min' => '8.0',
             'max' => _PS_VERSION_,
         ];
         $this->author = 'Conekta';
@@ -461,6 +461,7 @@ class Conekta extends PaymentModule
     }
     public function getApiCustomerInstance(): CustomersApi
     {
+
         $config = ConektaConfiguration::getDefaultConfiguration()->setAccessToken($this->getConektaApiKey());
 
         return  new CustomersApi(null, $config);
@@ -1459,7 +1460,7 @@ class Conekta extends PaymentModule
             ];
         }
 
-        if (version_compare(_PS_VERSION_, '1.7', '<')) {
+        if (version_compare(_PS_VERSION_, '8.0', '<')) {
             $tests['backward'] = [
                 'name' => $this->l('You are using the backward compatibility module'),
             ];
