@@ -1709,6 +1709,28 @@ class Conekta extends PaymentModule
                 }
             }
 
+            $reference = $charge_response->payment_method->reference;
+
+            if (isset($charge_response->id) && in_array($charge_response->payment_method->type, ['cash', 'oxxo']) ) {
+                Database::insertOxxoPayment(
+                    $order,
+                    $charge_response,
+                    $reference,
+                    $this->currentOrder,
+                    $this->context->cart->id
+                );
+            } elseif (isset($charge_response->id) && $charge_response->payment_method->type == 'spei') {
+                Database::insertSpeiPayment(
+                    $order,
+                    $charge_response,
+                    $reference,
+                    $this->currentOrder,
+                    $this->context->cart->id
+                );
+            } elseif (isset($charge_response->id)) {
+                Database::insertCardPayment($order, $charge_response, $this->currentOrder, $this->context->cart->id);
+            }
+
             Database::updateConektaOrder(
                 $this->context->customer->id,
                 $this->context->cart->id,
