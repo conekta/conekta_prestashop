@@ -1,8 +1,14 @@
-Prestashop [1.7.8.x] Plugin v2.3.8
+Prestashop Compatibility
 =======================
-This plugin is an official and stable version of the Conekta Prestashop extension. It bundles functionality to process credit cards, SPEI, Banorte and OXXO payments securely as well as send email notifications to your customers when they complete a successful purchase.
+Prestashop [8.x.x] - Plugin v3.0.0
+If you're using Prestashop version 8.x.x, you should install Conekta Plugin version 3.0.0.
 
-Don't worry about managing the status of your orders, the plugin will automatically changes orders to paid as long as your webhooks are properly configured.
+Prestashop [7.x.x] - Plugin v2.x.x
+If you're using Prestashop version 7.x.x, you should install Conekta Plugin version 2.x.x.
+
+This plugin is an official and stable version of the Conekta Prestashop extension. It bundles functionality to process credit cards, SPEI and Conekta efectivo payments securely as well as send email notifications to your customers when they complete a successful purchase.
+
+Don't worry about managing the status of your orders, the plugin will automatically change orders to pay as long as your webhooks are properly configured.
 
 Features
 --------

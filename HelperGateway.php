@@ -13,7 +13,7 @@
  *
  * @category  Conekta
  *
- * @version   GIT: @2.3.8@
+ * @version   GIT: @3.0.0@
  *
  * @see       https://conekta.com/
  */
@@ -35,11 +35,11 @@ class HelperGateway
     /**
      * Add tax lines
      *
-     * @param array $taxlines Tax of the Order
+     * @param array|null $taxlines Tax of the Order
      *
      * @return array
      */
-    public static function addTaxLines($taxlines = null)
+    public static function addTaxLines(array $taxlines = null): array
     {
         $tax_lines = [
             'tax_lines' => [],
@@ -47,13 +47,10 @@ class HelperGateway
 
         if (isset($taxlines)) {
             foreach ($taxlines as $tax) {
-                array_push(
-                    $tax_lines['tax_lines'],
-                    [
-                        'description' => HelperGateway::removeSpecialCharacter($tax['description']),
-                        'amount' => $tax['amount'],
-                    ]
-                );
+                $tax_lines['tax_lines'][] = [
+                    'description' => HelperGateway::removeSpecialCharacter($tax['description']),
+                    'amount' => $tax['amount'],
+                ];
             }
         }
 
@@ -67,7 +64,7 @@ class HelperGateway
      *
      * @return array
      */
-    public static function addShippingLines($shippingLines = null)
+    public static function addShippingLines($shippingLines = null): array
     {
         $shippingLinesArray = [
             'shipping_lines' => [],
@@ -75,15 +72,12 @@ class HelperGateway
 
         if (isset($shippingLines)) {
             foreach ($shippingLines as $shipping) {
-                array_push(
-                    $shippingLinesArray['shipping_lines'],
-                    [
-                        'amount' => $shipping['amount'],
-                        'tracking_number' => HelperGateway::removeSpecialCharacter($shipping['tracking_number']),
-                        'carrier' => HelperGateway::removeSpecialCharacter($shipping['carrier']),
-                        'method' => HelperGateway::removeSpecialCharacter($shipping['method']),
-                    ]
-                );
+                $shippingLinesArray['shipping_lines'][] = [
+                    'amount' => $shipping['amount'],
+                    'tracking_number' => HelperGateway::removeSpecialCharacter($shipping['tracking_number']),
+                    'carrier' => HelperGateway::removeSpecialCharacter($shipping['carrier']),
+                    'method' => HelperGateway::removeSpecialCharacter($shipping['method']),
+                ];
             }
         }
 
@@ -159,26 +153,6 @@ class HelperGateway
             if (Database::isProductSubscription($items[0]['id_product'])) {
                 return false;
             }
-        }
-
-        return true;
-    }
-
-    /**
-     * Validates the plan and order amounts match
-     *
-     * @param array $items items in the order
-     * @param int $amount of the order
-     *
-     * @return bool
-     */
-    public static function validateAmounts($items, $amount)
-    {
-        if (Database::isProductSubscription($items[0]['id_product'])) {
-            $plan_id = Database::getIdPlan($items[0]['id_product']);
-            $conekta_plan = \Conekta\Plan::find($plan_id);
-
-            return $conekta_plan->amount == $amount;
         }
 
         return true;

@@ -4,27 +4,27 @@
  * Title   : Conekta Card Payment Gateway for Prestashop
  * Author  : Conekta.io
  * URL     : https://www.conekta.io/es/docs/plugins/prestashop.
- * PHP Version 7.0.0
+ * PHP Version 7.0.4
  * Conekta File Doc Comment
  *
  * @author    Conekta <support@conekta.io>
- * @copyright 2012-2023 Conekta
+ * @copyright 2012-2024 Conekta
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *
  * @category  Conekta
  *
- * @version   GIT: @2.3.8@
+ * @version   GIT: @3.0.0@
  *
  * @see       https://conekta.com/
  */
 
 namespace Conekta\Payments\UseCases;
 
-require_once __DIR__ . '/../../lib/conekta-php/lib/Conekta.php';
-
-use Conekta\Conekta;
-use Conekta\Webhook;
+use Conekta\Api\WebhooksApi;
+use Conekta\Configuration as ConektaConfiguration;
+use Conekta\Model\WebhookRequest;
 use Configuration;
+use Exception;
 use Tools;
 
 class CreateWebhook
@@ -46,13 +46,7 @@ class CreateWebhook
         string $pluginVersion,
         string $oldWebhook
     ): bool {
-        Conekta::setApiKey($privateKey);
-        Conekta::setPlugin('Prestashop');
-        Conekta::setApiVersion('2.0.0');
-        Conekta::setPluginVersion($pluginVersion);
-        Conekta::setLocale($isoCode);
-
-        $events = ['events' => ['order.paid', 'order.expired']];
+        $webhookApi = $this->getApiWebHookInstance($privateKey);
 
         $newWebhook = Tools::safeOutput(Tools::getValue(self::webhookSetting));
         Configuration::deleteByName(self::webhookErrorSetting);
@@ -76,15 +70,11 @@ class CreateWebhook
 
         if ($failedAttempts < self::MaxFailedAttempts) {
             try {
-                $webhooks = Webhook::where();
 
-                $isWebhooksRegistered = array_filter((array) $webhooks, function ($webhook) use ($newWebhook) {
-                    return $webhook->webhook_url === $newWebhook;
-                });
+                $webhooks = $webhookApi->getWebhooks($isoCode,null, 1,null, $newWebhook)->getData();
 
-                if (count($isWebhooksRegistered) <= 0) {
-                    $mode = $conektaMode ? ['production_enabled' => 1] : ['development_enabled' => 1];
-                    Webhook::create(array_merge(['url' => $newWebhook], $mode, $events));
+                if (count($webhooks) <= 0) {
+                    $webhookApi->createWebhook(new WebhookRequest(['url' => $newWebhook, 'synchronous'=> false]), $isoCode);
 
                     Configuration::updateValue(self::webhookSetting, $newWebhook);
 
@@ -96,7 +86,7 @@ class CreateWebhook
                 }
 
                 return true;
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 ++$failedAttempts;
                 Configuration::updateValue(self::webhookErrorSetting, $e->getMessage());
                 Configuration::updateValue(self::webhookAttemptsSetting, $failedAttempts);
@@ -108,4 +98,11 @@ class CreateWebhook
 
         return true;
     }
+    public function getApiWebHookInstance(string $apiKey): WebhooksApi
+    {
+        $config = ConektaConfiguration::getDefaultConfiguration()->setAccessToken($apiKey);
+
+        return  new WebhooksApi(null, $config);
+    }
+
 }

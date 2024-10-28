@@ -4,7 +4,7 @@
  * Title   : Conekta Card Payment Gateway for Prestashop
  * Author  : Conekta.io
  * URL     : https://www.conekta.io/es/docs/plugins/prestashop.
- * PHP Version 7.0.0
+ * PHP Version 7.4
  * Conekta File Doc Comment
  *
  * @author    Conekta <support@conekta.io>
@@ -13,7 +13,7 @@
  *
  * @category  Conekta
  *
- * @version   GIT: @2.3.8@
+ * @version   GIT: @3.0.0@
  *
  * @see       https://conekta.com/
  */
@@ -34,11 +34,15 @@ class ConektaNotificationModuleFrontController extends ModuleFrontController
 
     /**
      * @throws \PrestaShopException
-     * @throws \Exception
+     * @throws Exception
      */
     public function postProcess()
     {
         $this->ajax = 1;
+        $response = [
+            'success' => false,
+            'message' => 'Evento no reconocido',
+        ];
 
         $data = $this->getJsonData();
 
@@ -46,23 +50,38 @@ class ConektaNotificationModuleFrontController extends ModuleFrontController
             switch ($data->type) {
                 case self::events[0]:
                     $this->orderPaid($data->data->object);
-
+                    $response = [
+                        'success' => true,
+                        'message' => 'Orden pagada con éxito',
+                    ];
                     break;
 
                 case self::events[1]:
                 case self::events[2]:
                     $orderID = $this->getOrderID($data->data->object);
                     $this->orderCanceled($orderID);
-
+                    $response = [
+                        'success' => true,
+                        'message' => 'Orden cancelada con éxito',
+                        'orderID' => $orderID,
+                    ];
                     break;
 
                 case self::events[3]:
                     $orderID = $this->getOrderID($data->data->object);
                     $this->orderRefunded($orderID);
-
+                    $response = [
+                        'success' => true,
+                        'message' => 'Orden reembolsada con éxito',
+                        'orderID' => $orderID,
+                    ];
                     break;
 
                 case self::events[4]:
+                    $response = [
+                        'success' => true,
+                        'message' => 'Plan eliminado con éxito',
+                    ];
                     $this->planDeleted($data->data->object);
 
                     break;
@@ -71,10 +90,19 @@ class ConektaNotificationModuleFrontController extends ModuleFrontController
                     $orderID = $this->getOrderID( $conektaOrder);
                     $this->orderPendingPayment($orderID, $conektaOrder);
 
+                    $response = [
+                        'success' => true,
+                        'message' => 'Orden en espera de pago',
+                        'orderID' => $orderID,
+                    ];
+
                     break;
             }
         }
+        header('Content-Type: application/json');
+        return $response;
     }
+
 
     /**
      * @param $conektaOrder
@@ -144,15 +172,19 @@ class ConektaNotificationModuleFrontController extends ModuleFrontController
         $current_state =  (int) Configuration::get('waiting_cash_payment');
 
         // checks if payment method is spei and override config state
-        if (isset($conektaOrder['charges']['data'][0]['payment_method']['object']) && $conektaOrder['charges']['data'][0]['payment_method']['object'] === 'bank_transfer_payment') {
+        if (isset($conektaOrder->charges->data[0]->payment_method->object) && 
+        $conektaOrder->charges->data[0]->payment_method->object === 'bank_transfer_payment') {
             $current_state =  (int) Configuration::get('waiting_spei_payment');
         }
 
-        Db::getInstance()->Execute(
-            'UPDATE ' . _DB_PREFIX_
-            . 'orders SET current_state = ' .   $current_state  . ' WHERE id_order = '
-            . pSQL($orderID)
-        );
+          $order = new Order($orderID);
+
+        if (Validate::isLoadedObject($order)) {
+            $order->setCurrentState( $current_state);
+            $history = new OrderHistory();
+            $history->id_order = $order->id;
+            $history->changeIdOrderState( $current_state, $order->id);
+        }
     }
 
 
@@ -199,7 +231,7 @@ class ConektaNotificationModuleFrontController extends ModuleFrontController
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     private function getJsonData()
     {
@@ -217,7 +249,7 @@ class ConektaNotificationModuleFrontController extends ModuleFrontController
      *
      * @return void
      *
-     * @throws \Exception
+     * @throws Exception
      */
     private function authenticateEvent($body, $digest)
     {
