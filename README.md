@@ -5,7 +5,6 @@ If you're using Prestashop version 8.x.x, you should install Conekta Plugin vers
 
 Prestashop [7.x.x] - Plugin v2.x.x
 If you're using Prestashop version 7.x.x, you should install Conekta Plugin version 2.x.x.
-
 =======================
 This plugin is an official and stable version of the Conekta Prestashop extension. It bundles functionality to process credit cards, SPEI and Conekta efectivo payments securely as well as send email notifications to your customers when they complete a successful purchase.
 
