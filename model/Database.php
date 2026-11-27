@@ -279,9 +279,9 @@ class Database
     {
         $table = _DB_PREFIX_ . 'conekta_metadata';
 
-        $sql = "SELECT meta_value FROM  $table WHERE id_user = '{$user_id}' "
-        . "AND meta_option = '{$meta_options}' "
-        . "AND `mode` = '{$mode}'";
+        $sql = "SELECT meta_value FROM  $table WHERE id_user = '" . (int) $user_id . "' "
+        . "AND meta_option = '" . pSQL($meta_options) . "' "
+        . "AND `mode` = '" . pSQL($mode) . "'";
 
         return Db::getInstance()->getRow($sql);
     }
@@ -298,8 +298,8 @@ class Database
     {
         $table = _DB_PREFIX_ . 'conekta_product_data';
 
-        $sql = "SELECT product_value FROM  $table WHERE id_product = '{$id_product}' "
-        . "AND product_attribute = '{$product_attribute}' ";
+        $sql = "SELECT product_value FROM  $table WHERE id_product = '" . (int) $id_product . "' "
+        . "AND product_attribute = '" . pSQL($product_attribute) . "' ";
 
         return Db::getInstance()->getRow($sql);
     }
@@ -315,7 +315,7 @@ class Database
     {
         $table = _DB_PREFIX_ . 'conekta_product_data';
 
-        $sql = "SELECT id_product FROM $table WHERE product_value = '{$product_value}'";
+        $sql = "SELECT id_product FROM $table WHERE product_value = '" . pSQL($product_value) . "'";
 
         return Db::getInstance()->ExecuteS($sql);
     }
@@ -336,11 +336,11 @@ class Database
 
         if (empty(Database::getConektaMetadata($user_id, $mode, $meta_options))) {
             $sql = "INSERT INTO $table(id_user, mode, meta_option, meta_value) "
-            . "VALUES ('{$user_id}','{$mode}','{$meta_options}','{$meta_value}')";
+            . "VALUES ('" . (int) $user_id . "','" . pSQL($mode) . "','" . pSQL($meta_options) . "','" . pSQL($meta_value) . "')";
         } else {
-            $sql = "UPDATE $table SET id_user = '{$user_id}', meta_option = '{$meta_options}', "
-            . "meta_value = '{$meta_value}' WHERE id_user = '{$user_id}' AND meta_option = '{$meta_options}' "
-            . "AND `mode` = '{$mode}'";
+            $sql = "UPDATE $table SET id_user = '" . (int) $user_id . "', meta_option = '" . pSQL($meta_options) . "', "
+            . "meta_value = '" . pSQL($meta_value) . "' WHERE id_user = '" . (int) $user_id . "' AND meta_option = '" . pSQL($meta_options) . "' "
+            . "AND `mode` = '" . pSQL($mode) . "'";
         }
 
         return Db::getInstance()->Execute($sql);
@@ -361,10 +361,10 @@ class Database
 
         if (empty(self::getConektaProductData($id_product, $product_attribute))) {
             $sql = "INSERT INTO $table(id_product, product_attribute, product_value) "
-            . "VALUES ('{$id_product}','{$product_attribute}','{$product_value}')";
+            . "VALUES ('" . (int) $id_product . "','" . pSQL($product_attribute) . "','" . pSQL($product_value) . "')";
         } else {
-            $sql = "UPDATE $table SET product_value = '{$product_value}' "
-            . "WHERE id_product = '{$id_product}' AND product_attribute = '{$product_attribute}' ";
+            $sql = "UPDATE $table SET product_value = '" . pSQL($product_value) . "' "
+            . "WHERE id_product = '" . (int) $id_product . "' AND product_attribute = '" . pSQL($product_attribute) . "' ";
         }
 
         return Db::getInstance()->Execute($sql);
@@ -381,7 +381,7 @@ class Database
     {
         $table = _DB_PREFIX_ . 'conekta_product_data';
 
-        $sql = "SELECT product_value FROM  $table WHERE id_product = '{$id_product}' "
+        $sql = "SELECT product_value FROM  $table WHERE id_product = '" . (int) $id_product . "' "
         . 'AND product_attribute = \'is_subscription\' ';
 
         $result = Db::getInstance()->getValue($sql);
@@ -400,7 +400,7 @@ class Database
     {
         $table = _DB_PREFIX_ . 'conekta_product_data';
 
-        $sql = "SELECT product_value FROM  $table WHERE id_product = '{$id_product}' "
+        $sql = "SELECT product_value FROM  $table WHERE id_product = '" . (int) $id_product . "' "
         . 'AND product_attribute = \'subscription_plan\' ';
 
         return Db::getInstance()->getValue($sql);
@@ -419,8 +419,8 @@ class Database
     {
         $table = _DB_PREFIX_ . 'conekta_order_checkout';
 
-        $sql = "SELECT id_conekta_order, `status` FROM  $table WHERE id_user = '{$user_id}' "
-        . "AND `mode` = '{$mode}'  AND `status` = 'unpaid' AND id_cart ='{$cart_id}'";
+        $sql = "SELECT id_conekta_order, `status` FROM  $table WHERE id_user = '" . (int) $user_id . "' "
+        . "AND `mode` = '" . pSQL($mode) . "'  AND `status` = 'unpaid' AND id_cart ='" . (int) $cart_id . "'";
 
         return Db::getInstance()->getRow($sql);
     }
@@ -442,10 +442,10 @@ class Database
 
         if (empty(Database::getConektaOrder($user_id, $mode, $cart_id))) {
             $sql = "INSERT INTO $table(id_user,	id_cart, mode, id_conekta_order, `status`) "
-            . "VALUES ('{$user_id}','{$cart_id}','{$mode}','{$id_conekta_order}', '{$status}')";
+            . "VALUES ('" . (int) $user_id . "','" . (int) $cart_id . "','" . pSQL($mode) . "','" . pSQL($id_conekta_order) . "', '" . pSQL($status) . "')";
         } else {
-            $sql = "UPDATE $table SET `status` = '{$status}' WHERE id_user = '{$user_id}' "
-            . "AND id_cart = '{$cart_id}' AND id_conekta_order = '{$id_conekta_order}' AND `mode` = '{$mode}'";
+            $sql = "UPDATE $table SET `status` = '" . pSQL($status) . "' WHERE id_user = '" . (int) $user_id . "' "
+            . "AND id_cart = '" . (int) $cart_id . "' AND id_conekta_order = '" . pSQL($id_conekta_order) . "' AND `mode` = '" . pSQL($mode) . "'";
         }
 
         return Db::getInstance()->Execute($sql);
@@ -461,8 +461,16 @@ class Database
     public static function getOrderByReferenceId($reference_id)
     {
         $table = _DB_PREFIX_ . 'orders';
-        $sql = "SELECT id_order FROM $table WHERE id_order = '{$reference_id}'";
+        $sql = "SELECT id_order FROM $table WHERE id_order = " . (int) $reference_id;
 
         return Db::getInstance()->getRow($sql);
+    }
+
+    public static function getTransactionByConektaOrderId(string $id_conekta_order)
+    {
+        return Db::getInstance()->getRow(
+            'SELECT id_order, id_cart FROM ' . _DB_PREFIX_ . 'conekta_transaction '
+            . "WHERE id_conekta_order = '" . pSQL($id_conekta_order) . "' AND type = 'payment'"
+        );
     }
 }

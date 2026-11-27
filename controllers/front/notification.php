@@ -18,6 +18,12 @@
  * @see       https://conekta.com/
  */
 require_once dirname(__FILE__) . '/../../model/Database.php';
+
+use Conekta\Api\PlansApi;
+use Conekta\ApiException;
+use Conekta\Configuration as ConektaConfiguration;
+use Conekta\Model\OrderResponse;
+
 class ConektaNotificationModuleFrontController extends ModuleFrontController
 {
     public const ORDER_CANCELED = 6;
@@ -32,6 +38,16 @@ class ConektaNotificationModuleFrontController extends ModuleFrontController
 
     private const events = ['order.paid', 'order.expired', 'order.canceled', 'order.refunded', 'plan.deleted', 'order.pending_payment'];
 
+    private const CONEKTA_ORDER_ID_PATTERN = '/^ord_[A-Za-z0-9]+$/';
+
+    private const EXPECTED_PAYMENT_STATUS = [
+        'order.paid' => ['paid'],
+        'order.expired' => ['expired', 'canceled', 'voided'],
+        'order.canceled' => ['expired', 'canceled', 'voided'],
+        'order.refunded' => ['refunded'],
+        'order.pending_payment' => ['pending_payment'],
+    ];
+
     /**
      * @throws \PrestaShopException
      * @throws Exception
@@ -39,195 +55,217 @@ class ConektaNotificationModuleFrontController extends ModuleFrontController
     public function postProcess()
     {
         $this->ajax = 1;
-        $response = [
-            'success' => false,
-            'message' => 'Evento no reconocido',
-        ];
+        header('Content-Type: application/json');
 
         $data = $this->getJsonData();
 
-        if (isset($data->data) && in_array($data->type, self::events)) {
-            switch ($data->type) {
-                case self::events[0]:
-                    $this->orderPaid($data->data->object);
-                    $response = [
-                        'success' => true,
-                        'message' => 'Orden pagada con éxito',
-                    ];
-                    break;
-
-                case self::events[1]:
-                case self::events[2]:
-                    $orderID = $this->getOrderID($data->data->object);
-                    $this->orderCanceled($orderID);
-                    $response = [
-                        'success' => true,
-                        'message' => 'Orden cancelada con éxito',
-                        'orderID' => $orderID,
-                    ];
-                    break;
-
-                case self::events[3]:
-                    $orderID = $this->getOrderID($data->data->object);
-                    $this->orderRefunded($orderID);
-                    $response = [
-                        'success' => true,
-                        'message' => 'Orden reembolsada con éxito',
-                        'orderID' => $orderID,
-                    ];
-                    break;
-
-                case self::events[4]:
-                    $response = [
-                        'success' => true,
-                        'message' => 'Plan eliminado con éxito',
-                    ];
-                    $this->planDeleted($data->data->object);
-
-                    break;
-                case self::events[5]:
-                    $conektaOrder = $data->data->object;
-                    $orderID = $this->getOrderID( $conektaOrder);
-                    $this->orderPendingPayment($orderID, $conektaOrder);
-
-                    $response = [
-                        'success' => true,
-                        'message' => 'Orden en espera de pago',
-                        'orderID' => $orderID,
-                    ];
-
-                    break;
-            }
+        if (!isset($data->type, $data->data->object->id)
+            || !is_string($data->type)
+            || !in_array($data->type, self::events, true)
+            || !is_string($data->data->object->id)
+        ) {
+            return $this->rejected('Evento no reconocido');
         }
-        header('Content-Type: application/json');
-        return $response;
+
+        $objectId = $data->data->object->id;
+
+        try {
+            if ($data->type === 'plan.deleted') {
+                return $this->planDeleted($objectId);
+            }
+
+            return $this->processOrderEvent($data->type, $objectId);
+        } catch (ApiException $e) {
+            http_response_code(503);
+
+            return $this->rejected('No fue posible validar el evento con Conekta');
+        }
     }
 
-
-    /**
-     * @param $conektaOrder
-     *
-     * @return void
-     *
-     * @throws \PrestaShopDatabaseException
-     * @throws \PrestaShopException
-     */
-    private function orderPaid($conektaOrder)
+    private function processOrderEvent(string $eventType, string $conektaOrderId): array
     {
-        $orderID = $this->getOrderID($conektaOrder);
-        $order = new Order($orderID);
-        $orderFields = $order->getFields();
-        $currencyPayment = Currency::getPaymentCurrencies(
-            Module::getModuleIdByName('conekta'),
-            $orderFields['id_shop']
-        );
-        $totalOrderAmount = $order->getOrdersTotalPaid();
-        $strTotalOrderAmount = (string) $totalOrderAmount * 100;
-
-        if ($currencyPayment[0]['iso_code'] === $conektaOrder->currency) {
-            if ($strTotalOrderAmount == $conektaOrder->amount) {
-                $orderHistory = new OrderHistory();
-                $orderHistory->id_order = (int) $order->id;
-                $orderHistory->changeIdOrderState(
-                    (int) Configuration::get('PS_OS_PAYMENT'),
-                    (int) $order->id
-                );
-                $orderHistory->addWithEmail();
-                $addIdTransaction = '';
-
-                if (isset($conektaOrder->checkout->plan_id)) {
-                    $addIdTransaction = ', id_transaction = ' . json_encode($conektaOrder->charges->data[0]->id);
-                }
-
-                Db::getInstance()->Execute(
-                    'UPDATE ' . _DB_PREFIX_
-                    . 'conekta_transaction SET status = "paid"' . $addIdTransaction . ' WHERE id_order = '
-                    . pSQL($orderID)
-                );
-            }
+        if (!preg_match(self::CONEKTA_ORDER_ID_PATTERN, $conektaOrderId)) {
+            return $this->rejected('Orden no reconocida');
         }
+
+        $transaction = Database::getTransactionByConektaOrderId($conektaOrderId);
+
+        if (empty($transaction)) {
+            return $this->rejected('Orden no reconocida');
+        }
+
+        $order = new Order((int) $transaction['id_order']);
+
+        if (!Validate::isLoadedObject($order) || (int) $order->id_cart !== (int) $transaction['id_cart']) {
+            return $this->rejected('Orden no reconocida');
+        }
+
+        if ($this->isAlreadyInEventState($eventType, $order)) {
+            return $this->accepted('Evento ya procesado');
+        }
+
+        $conektaOrder = $this->module->getApiOrderInstance()->getOrderById($conektaOrderId);
+
+        if (!$this->isValidConektaOrder($eventType, $conektaOrder, $conektaOrderId, $order)) {
+            return $this->rejected('El evento no coincide con la orden en Conekta');
+        }
+
+        switch ($eventType) {
+            case 'order.paid':
+                $this->orderPaid($order);
+
+                return $this->accepted('Orden pagada con éxito');
+            case 'order.expired':
+            case 'order.canceled':
+                $this->orderCanceled((int) $order->id);
+
+                return $this->accepted('Orden cancelada con éxito');
+            case 'order.refunded':
+                $this->orderRefunded((int) $order->id);
+
+                return $this->accepted('Orden reembolsada con éxito');
+            case 'order.pending_payment':
+                $this->orderPendingPayment($order, $conektaOrder);
+
+                return $this->accepted('Orden en espera de pago');
+        }
+
+        return $this->rejected('Evento no reconocido');
     }
 
-    /**
-     * @param $orderID
-     *
-     * @return void
-     */
-    private function orderCanceled($orderID)
+    private function isAlreadyInEventState(string $eventType, Order $order): bool
+    {
+        $currentState = (int) $order->current_state;
+
+        switch ($eventType) {
+            case 'order.paid':
+                return $currentState === (int) Configuration::get('PS_OS_PAYMENT');
+            case 'order.expired':
+            case 'order.canceled':
+                return $currentState === self::ORDER_CANCELED;
+            case 'order.refunded':
+                return $currentState === self::ORDER_REFUNDED;
+            case 'order.pending_payment':
+                return in_array(
+                    $currentState,
+                    [(int) Configuration::get('waiting_cash_payment'), (int) Configuration::get('waiting_spei_payment')],
+                    true
+                );
+        }
+
+        return false;
+    }
+
+    private function isValidConektaOrder(
+        string $eventType,
+        OrderResponse $conektaOrder,
+        string $conektaOrderId,
+        Order $order
+    ): bool {
+        $metadata = (array) $conektaOrder->getMetadata();
+        $orderCurrency = new Currency((int) $order->id_currency);
+        $expectedAmount = (int) round($order->getOrdersTotalPaid() * 100);
+
+        return $conektaOrder->getId() === $conektaOrderId
+            && in_array($conektaOrder->getPaymentStatus(), self::EXPECTED_PAYMENT_STATUS[$eventType], true)
+            && isset($metadata['reference_id'])
+            && (int) $metadata['reference_id'] === (int) $order->id_cart
+            && Tools::strtoupper((string) $conektaOrder->getCurrency()) === Tools::strtoupper($orderCurrency->iso_code)
+            && (int) $conektaOrder->getAmount() === $expectedAmount;
+    }
+
+    private function orderPaid(Order $order): void
+    {
+        $orderHistory = new OrderHistory();
+        $orderHistory->id_order = (int) $order->id;
+        $orderHistory->changeIdOrderState(
+            (int) Configuration::get('PS_OS_PAYMENT'),
+            (int) $order->id
+        );
+        $orderHistory->addWithEmail();
+
+        Db::getInstance()->Execute(
+            'UPDATE ' . _DB_PREFIX_
+            . 'conekta_transaction SET status = "paid" WHERE id_order = '
+            . (int) $order->id
+        );
+    }
+
+    private function orderCanceled(int $orderID): void
     {
         Db::getInstance()->Execute(
             'UPDATE ' . _DB_PREFIX_
             . 'orders SET current_state = ' . self::ORDER_CANCELED . ' WHERE id_order = '
-            . pSQL($orderID)
+            . $orderID
         );
     }
-    /**
-     * @param $orderID
-     *
-     * @return void
-     */
-    private function orderPendingPayment($orderID, $conektaOrder)
+
+    private function orderPendingPayment(Order $order, OrderResponse $conektaOrder): void
     {
-        // by default is cash_payment
-        $current_state =  (int) Configuration::get('waiting_cash_payment');
+        $current_state = (int) Configuration::get('waiting_cash_payment');
+        $charges = $conektaOrder->getCharges() ? $conektaOrder->getCharges()->getData() : [];
+        $paymentMethod = isset($charges[0]) ? $charges[0]->getPaymentMethod() : null;
 
-        // checks if payment method is spei and override config state
-        if (isset($conektaOrder->charges->data[0]->payment_method->object) && 
-        $conektaOrder->charges->data[0]->payment_method->object === 'bank_transfer_payment') {
-            $current_state =  (int) Configuration::get('waiting_spei_payment');
+        if ($paymentMethod !== null && $paymentMethod->getObject() === 'bank_transfer_payment') {
+            $current_state = (int) Configuration::get('waiting_spei_payment');
         }
 
-          $order = new Order($orderID);
-
-        if (Validate::isLoadedObject($order)) {
-            $order->setCurrentState( $current_state);
-            $history = new OrderHistory();
-            $history->id_order = $order->id;
-            $history->changeIdOrderState( $current_state, $order->id);
-        }
+        $order->setCurrentState($current_state);
+        $history = new OrderHistory();
+        $history->id_order = $order->id;
+        $history->changeIdOrderState($current_state, $order->id);
     }
 
-
-    /**
-     * @param $orderID
-     *
-     * @return void
-     */
-    private function orderRefunded($orderID)
+    private function orderRefunded(int $orderID): void
     {
         Db::getInstance()->Execute(
             'UPDATE ' . _DB_PREFIX_
             . 'orders SET current_state = ' . self::ORDER_REFUNDED . ' WHERE id_order = '
-            . pSQL($orderID)
+            . $orderID
         );
     }
 
-    /**
-     * @param $conektaPlan
-     *
-     * @return void
-     */
-    private function planDeleted($conektaPlan)
+    private function planDeleted(string $planId): array
     {
-        $result = Database::getProductIdProductData($conektaPlan->id);
+        $products = Database::getProductIdProductData($planId);
 
-        foreach ($result as $product) {
+        if (empty($products)) {
+            return $this->rejected('Plan no reconocido');
+        }
+
+        try {
+            $this->getApiPlanInstance()->getPlan($planId);
+
+            return $this->rejected('El plan sigue activo en Conekta');
+        } catch (ApiException $e) {
+            if ($e->getCode() !== 404) {
+                throw $e;
+            }
+        }
+
+        foreach ($products as $product) {
             Database::updateConektaProductData($product['id_product'], 'is_subscription', 'false');
             Database::updateConektaProductData($product['id_product'], 'subscription_plan', '');
         }
+
+        return $this->accepted('Plan eliminado con éxito');
     }
 
-    /**
-     * @param $conektaOrder
-     *
-     * @return mixed
-     */
-    private function getOrderID($conektaOrder)
+    private function getApiPlanInstance(): PlansApi
     {
-        $referenceID = (string) $conektaOrder->metadata->reference_id;
-        $result = Database::getOrderByReferenceId($referenceID);
+        $config = ConektaConfiguration::getDefaultConfiguration()->setAccessToken($this->module->getConektaApiKey());
 
-        return $result['id_order'];
+        return new PlansApi(null, $config);
+    }
+
+    private function accepted(string $message): array
+    {
+        return ['success' => true, 'message' => $message];
+    }
+
+    private function rejected(string $message): array
+    {
+        return ['success' => false, 'message' => $message];
     }
 
     /**
